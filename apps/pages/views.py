@@ -11,7 +11,7 @@ from django.contrib.auth import logout
 
 
 def index(request):
-    return render(request, 'pages/index2.html')
+    return render(request, 'pages/index.html')
 
 
 
