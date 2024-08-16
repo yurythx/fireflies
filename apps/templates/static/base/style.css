@@ -1,0 +1,115 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand&display=swap');
+body {
+  font-family: Quicksand, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.navbar {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+#logo {
+  height: 93px;
+}
+
+.page-item.active .page-link {
+  background-color: #2fb380;
+  border-color: #2fb380;
+}
+
+/* for inputs focus styling */
+.form-control:focus {
+  border-color: #2fb38082;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 5%), 0 0 0 0.25rem rgb(47 179 128 / 30%);
+}
+
+#person {
+  width: 32px;
+  height: 32px;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+  background-color: #2fb380;
+}
+
+.rounded-20 {
+  border-radius: 20px;
+}
+.review .person {
+  height: 64px;
+}
+
+.create-article .form-control:focus {
+  border-color: #287bb59c;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 5%), 0 0 0 0.25rem rgb(40 123 181 / 34%);
+}
+
+/* profile-info */
+.profile .profile-info .border-end {
+  border-right: 5px solid #dee2e6 !important;
+  border-radius: 30px;
+}
+.profile .profile-info .border-start {
+  border-left: 5px solid #dee2e6 !important;
+  padding-top: 45px;
+  border-radius: 30px;
+  padding-left: 35px;
+  padding-bottom: 45px;
+}
+.profile #favorites {
+  background-image: linear-gradient(
+    56deg,
+    #0093e9 0%,
+    #80d0c7 50%,
+    #cefbf8 100%
+  );
+}
+.profile #profile-info {
+  background-color: #61c7e2;
+  background-image: linear-gradient(56deg, #61c7e2 0%, #d684ff 100%);
+}
+.profile #articles {
+  background-color: #8ec5fc;
+  background-image: linear-gradient(45deg, #8ec5fc 0%, #e0c3fc 100%);
+}
+
+.profile #reviews {
+  background-color: #8ec5fc;
+  background-image: linear-gradient(58deg, #08aeea 0%, #2af598 100%);
+}
+
+.profile .card {
+  border: 0;
+  background: transparent;
+}
+.profile .card .list-group-item {
+  background: transparent;
+}
+
+.article-image-container {
+  position: relative;
+}
+.article-image-container form {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.article-image-container form i {
+  text-shadow: 0 0 6px #000000;
+}
+
+footer a{
+  text-decoration: none !important;
+}
+
+#connect {
+  background: rgb(0 0 0 / 10%)
+}
+
+@media screen and (max-width: 768px) {
+  .profile .border-end {
+    border: 0px !important;
+  }
+}

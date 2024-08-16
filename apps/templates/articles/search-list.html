@@ -1,0 +1,98 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Documentação {% endblock %} 
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+    <!-- [ Main Content ] start -->
+    <div class="pcoded-main-container">
+        <div class="pcoded-wrapper">
+
+            <div class="pcoded-content">
+                <div class="pcoded-inner-content">
+
+                    <div class="main-body">
+                        <div class="page-wrapper">
+                            <!-- [ Main Content ] start -->
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h5>Documentação</h5>
+                                        </div>
+                                        <div class="card-block">
+                                            <div class="row justify-content-center">
+                                                <div class="col-sm-6">
+                                                    <form action="{% url 'articles:search' %}">
+                                                        <input type="text" id="icon-search" class="form-control mb-4" 
+                                                            placeholder="Buscar . . " name="search" value="{{ request.GET.search }}" >
+                                                       
+                                                    </form>
+                                                   
+                                                </div>
+                                            </div>
+                                            <div class="i-main" id="icon-wrapper"></div>
+                                        </div>
+
+                                        <!-- [ Main Content ] start -->
+                                    
+                                            <div class="col-xl-12">
+                                                <div class="card">
+                                                    
+                                                    <div class="card-block table-border-style">
+                                                        <div class="table-responsive">
+                                                        <!-- FOR LOOP -->
+                                                        {% for article in articles %}<!-- a varialvel post faz referencia ao que deve ser usado no html e o pots ta sendo trazido da viewr com a pesquisa--> 
+                                                        <!--  Articles Section -->
+                                                        <table class="table table-hover">
+                                                        
+                                                            <tr class="unread">
+                                                                <td>
+                                                                    <i class="fa fa-book" aria-hidden="true"></i>
+                                                                </td>
+                                                                <td>
+                                                                    <a href="{% url 'articles:article-details' article.slug %}"><i class="fas fa-circle text-c-green f-10 m-r-15"></i>{{ article.title }} </a>
+                                                                    <p class="m-0">Categoria: {{ article.category }}</p>
+                                                                </td>
+                                                                <td>
+                                                                    <h6 class="text-muted">{{ article.created_at }}</h6>
+                                                                            Criado por : {{ article.created_by }}
+                                                                </td>
+                                                                <td>
+                                                                    <a href="{% url 'articles:update-article' article.slug %}"class="label theme-bg2 text-white f-12">Editar</a>
+            
+                                                                    <a href="{% url 'articles:delete-article' article.slug %}"class="label theme-bg text-white f-12">Apagar</a>
+                                                                </td>
+                                                            </tr>
+                                                        </table>        
+                                    
+                                                        <!--/FOR LOOP-->
+                                                        {% endfor %}
+                                                        <!-- Articles Section --> 
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        <!-- [ Main Content ] end -->
+
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- [ Main Content ] end -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    <!-- [ Main Content ] end -->
+
+
+    
+
+{% endblock content %}
