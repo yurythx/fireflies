@@ -57,31 +57,31 @@ class Article(models.Model):
 
     objects = ArticleManager()
 
-    title = models.CharField(max_length=100)
+    title = models.CharField(max_length=100, verbose_name = 'Titulo')
     slug = models.SlugField(
         unique=True, default='', null=False, blank=True, max_length=255
     )
-    exerpt = models.CharField(max_length=100)
+    exerpt = models.CharField(max_length=100, verbose_name = 'Sumario')
     is_published = models.BooleanField(
-        default=False,
+        default=False,  verbose_name = 'Publicar ?',
         help_text='Marque essa opção para exibir a página.'
     )
-    content = HTMLField()
+    content = HTMLField(verbose_name = 'Conteúdo')
     cover = models.ImageField(
-        upload_to='articles/%Y/%m', blank=True, default=''
+        upload_to='articles/%Y/%m', verbose_name = 'Imagem', blank=True, default=''
     )
     cover_in_post_content = models.BooleanField(
         default=True,
         help_text='Exibe a imagem de capa dentro do conteúdo do post'
     )
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name = 'Criado em')
     created_by = models.ForeignKey(
-        User, on_delete=models.SET_NULL, blank=True, null=True,
+        User, on_delete=models.SET_NULL, blank=True, verbose_name = 'Criado por', null=True,
         related_name='article_created_by',
     )
-    updated_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(auto_now=True, verbose_name = 'Modificado em ')
     updated_by = models.ForeignKey(
-        User, on_delete=models.SET_NULL, blank=True, null=True,
+        User, on_delete=models.SET_NULL, blank=True, null=True, verbose_name = 'Modificado por',
         related_name='article_updated_by',
     )
     category = models.ForeignKey(

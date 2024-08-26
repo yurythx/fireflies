@@ -40,6 +40,7 @@ Instalar os seguintes pacotes Iniciais.
         pip install django-allauth
         pip install django-widget-tweaks
         pip install django-tinymce
+        pip install str2bool
          pip install bleach==6.0.0
         
 
