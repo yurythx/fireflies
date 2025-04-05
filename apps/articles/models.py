@@ -5,6 +5,7 @@ from tinymce.models import HTMLField
 from django.urls import reverse
 
 
+
 class ArticleManager(models.Manager):
     def get_published(self):
         return self.filter(is_published=True).order_by('-created_at')
@@ -93,11 +94,17 @@ class Article(models.Model):
     def __str__(self) -> str:
         return self.title
 
+
     def get_absolute_url(self):
         if not self.is_published:
-            return reverse('articles:index_articles')
+            return reverse('articles:index_articles')  # Use the correct URL name here
+        return reverse('articles:article-details', kwargs={'slug': self.slug})
 
-        return reverse('articles:article', args=(self.slug,))
+    #def get_absolute_url(self):
+    #    if not self.is_published:
+    #        return reverse('articles:index_articles')
+    #
+    #    return reverse('articles:article', args=(self.slug,))
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -117,3 +124,4 @@ class Article(models.Model):
             return self.title 
         
         return super_save
+

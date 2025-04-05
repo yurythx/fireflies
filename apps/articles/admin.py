@@ -46,7 +46,10 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Article)
 class ArticleAdmin(admin.ModelAdmin):
+    
+
     TinyMCE_fiedls = ('content',)
+    
     list_display = (
         'id', 'title', 'is_published', 'created_by'
     )

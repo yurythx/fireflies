@@ -1,0 +1,90 @@
+<!-- [ navigation menu ] start -->
+<nav class="pcoded-navbar">
+    <div class="navbar-wrapper">
+        <div class="navbar-brand header-logo">
+            <a href="/" class="b-brand">
+                <div class="b-bg">
+                  
+                </div>
+                <span class="b-title">Pensieve</span>
+            </a>
+            <a class="mobile-menu" id="mobile-collapse" href="javascript:"><span></span></a>
+        </div>
+        <div class="navbar-content scroll-div">
+            <ul class="nav pcoded-inner-navbar">
+                <li class="nav-item pcoded-menu-caption">
+                    <label></label>
+                </li>
+                <li data-username="home" 
+                    class="nav-item {% if 'index' in segment %} active {% endif %}">
+                    <a href="{% url 'home' %}" class="nav-link "><span class="pcoded-micon"><i class="feather icon-home"></i></span><span
+                            class="pcoded-mtext">Home</span></a>
+                </li>
+                <li data-username="Profile Page" 
+                    class="nav-item {% if 'profile' in segment %} active {% endif %}">
+                    <a href="{% url 'profile' %}" class="nav-link">
+                        <span class="pcoded-micon"><i class="feather icon-user"></i></span>
+                            <span class="pcoded-mtext">Perfil</span></a>
+                </li>                
+                <li class="nav-item pcoded-menu-caption">
+                    <label>Menu</label>
+                </li>
+                <li data-username="basic components Button Alert Badges breadcrumb Paggination progress Tooltip popovers Carousel Cards Collapse Tabs pills Modal Grid System Typography Extra Shadows Embeds"
+                    class="nav-item pcoded-hasmenu ">
+                    <a href="javascript:" class="nav-link "><span class="pcoded-micon"><i class="feather icon-cpu"></i></span><span
+                            class="pcoded-mtext">Conteúdos</span></a>
+                    <ul class="pcoded-submenu">
+
+                        <li class=""><a href="{% url 'articles:index_articles' %}" class="">Artigos</a></li>
+                        
+                        <li class=""><a href="{% url 'articles:search' %}" class="">Documentação<span
+                            class="pcoded-badge label label-danger">Novidade</span></a></li></a></li>
+
+                        <li class=""><a href="{% url 'articles:index_articles' %}" class="">Programação</a></li>    
+                            
+
+                        
+                    </ul>
+                </li>
+				
+				<li class="nav-item pcoded-hasmenu">
+                    <a href="javascript:" class="nav-link "><span class="pcoded-micon"><i class="feather icon-lock"></i></span><span
+                            class="pcoded-mtext">Configuração</span></a>
+                    <ul class="pcoded-submenu">
+                        <li class=""><a href="{% url 'index_config' %}" class="" >Todas as configurações</a></li>
+                        <li class=""><a href="{% url 'lista-usuarios' %}" class="" >Lista de Usuários</a></li>
+                    </ul>
+                </li>
+
+                
+				<li class="nav-item pcoded-hasmenu">
+                    <a href="javascript:" class="nav-link "><span class="pcoded-micon"><i class="feather icon-file"></i></span><span
+                            class="pcoded-mtext">Cadastros</span></a>
+                    <ul class="pcoded-submenu">
+                        <li class=""><a href="#" class="" >Cadastro de Usuarios</a></li>
+                        <li class=""><a href="#" class="" >Cadastro de Categorias/Tags</a></li>
+                        <li class=""><a href="#" class="" >Lista de Usuários</a></li>
+                    </ul>
+                </li>
+
+                <li data-username="Disabled Menu" class="nav-item">
+                    <a href="{% url 'logout' %}" class="nav-link">
+                        <span class="pcoded-micon"><i class="feather icon-power"></i></span><span class="pcoded-mtext">Logout</span>
+                    </a>
+                </li>
+                <li class="nav-item pcoded-menu-caption">
+                    <label>Mais opções</label>
+                </li>                    
+                <li data-username="Support Page" class="nav-item ">
+                    <a target="_blank" href="https://www.youtube.com/watch?v=WNcsUNKlAKw" class="nav-link">
+                        <span class="pcoded-micon">
+                            <i class="feather icon-headphones"></i>
+                        </span>
+                        <span class="pcoded-mtext">Support</span>
+                    </a>
+                </li>                
+            </ul>
+        </div>
+    </div>
+</nav>
+<!-- [ navigation menu ] end -->

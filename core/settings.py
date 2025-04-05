@@ -1,10 +1,7 @@
 
 import os #, environ
 
-#env = environ.Env(
-#    # set casting, default value
-#    #DEBUG=(bool, True)
-#)
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -72,7 +69,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'core.urls'
 LOGIN_REDIRECT_URL = "pages"  # Route defined in home/urls.py
 LOGOUT_REDIRECT_URL = "pages"  # Route defined in home/urls.py
-TEMPLATE_DIR = os.path.join(CORE_DIR, "templates")  # ROOT dir for templates
+TEMPLATE_DIR = os.path.join(CORE_DIR, "apps/templates")  # ROOT dir for templates
 
 TEMPLATES = [
     {

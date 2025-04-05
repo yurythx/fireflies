@@ -20,7 +20,7 @@ class ArticleListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['page_title'] = 'Home -'
+        context['page_title'] = 'pages -'
         return context
 
 
