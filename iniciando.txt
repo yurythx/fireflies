@@ -42,6 +42,8 @@ Instalar os seguintes pacotes Iniciais.
         pip install django-widget-tweaks
         pip install django-tinymce
          pip install bleach==6.0.0
+
+         pip install whitenoise
         
 
         
