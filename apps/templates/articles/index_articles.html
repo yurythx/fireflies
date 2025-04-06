@@ -1,98 +1,119 @@
 
+{% extends 'includes/base.html' %}
 
-{% block title %} Page Blank {% endblock %} 
+{% load static %}
 
-<!-- Specific CSS goes HERE -->
-{% block stylesheets %}{% endblock stylesheets %}
 
 {% block content %}
 
 
-                          
+<main class="main">
 
-                                        
-    <section class="pcoded-main-container">
-        <div class="pcoded-wrapper">
+  <!-- Hero Section -->
+  <section id="hero" class="hero section dark-background">
+    <img src="{% static 'pages/assets/img/world-dotted-map.png' %}" alt="World Map" class="hero-bg" data-aos="fade-in">
+  </section><!-- /Hero Section -->
 
-            <div class="pcoded-content">
-                <div class="pcoded-inner-content">
-                   
-                    <div class="main-body">
-                        <div class="page-wrapper">
-                            <!-- [ Main Content ] start -->
-                           
-                                <div class="col-sm-12">
-                                    <div class="card">
-                                        <div class="card-header">
-                                            <h5>Lista de Artigos</h5>
-                                        </div>
-                                        <div class="card-block">
-                                            <div class="row justify-content-center">
-                                                <div class="col-sm-6">
-                                                    <form action="{% url 'articles:search' %}">
-                                                        <input type="text" id="icon-search" class="form-control mb-4" 
-                                                            placeholder="Buscar . . " name="search" value="{{ request.GET.search }}" >
-                                                       
-                                                    </form>
-                                                   
-                                                </div>
-                                            </div>
-                                            <div class="i-main" id="icon-wrapper"></div>
-                                        </div>
+  <!-- Blog Hero Section -->
+  <section id="blog-hero" class="blog-hero section">
+    <div class="container">
+      <div class="blog-grid">
+        <!-- FOR LOOP: Regular Posts -->
+        {% for article in articles %}
+        <article class="blog-item" data-aos="fade-up" data-aos-delay="10">
+          <h3 class="post-title">
+            <a href="{% url 'articles:article-details' article.slug %}" title="#"> {{ article.title }} </a>
+          </h3>
 
-                                        <!-- [ Main Content ] start -->
-                                    
-                                            <div class="col-xl-12">
-                                                <div class="card">
-                                                    
-                                                    <div class="card-block table-border-style">
-                                                        <div class="table-responsive">
-                                                        <!-- FOR LOOP -->
-                                                        {% for article in articles %}<!-- a varialvel post faz referencia ao que deve ser usado no html e o pots ta sendo trazido da viewr com a pesquisa--> 
-                                                        <!--  Articles Section -->
-                                                        <table class="table table-hover">
-                                                        
-                                                            <tr class="unread">
-                                                                <td>
-                                                                    <i class="fa fa-book" aria-hidden="true"></i>
-                                                                </td>
-                                                                <td>
-                                                                    <a href="{% url 'articles:article-details' article.slug %}"><i class="fas fa-circle text-c-green f-10 m-r-15"></i>{{ article.title }} </a>
-                                                                    <p class="m-0">Categoria: {{ article.category }}</p>
-                                                                </td>
-                                                                <td>
-                                                                    <h6 class="text-muted">{{ article.created_at }}</h6>
-                                                                            Criado por : {{ article.created_by }}
-                                                                </td>
-                                                                <td>
-                                                                    <a href="{% url 'articles:update-article' article.slug %}"class="label theme-bg2 text-white f-12">Editar</a>
-            
-                                                                    <a href="{% url 'articles:delete-article' article.slug %}"class="label theme-bg text-white f-12">Apagar</a>
-                                                                </td>
-                                                            </tr>
-                                                        </table>        
-                                    
-                                                        <!--/FOR LOOP-->
-                                                        {% endfor %}
-                                                        <!-- Articles Section --> 
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
+          <div class="blog-content">
+            <div class="post-meta">
+              <span class="category">Criado por {{ article.created_by }}</span>
+              <span class="date">em {{ article.created_at }}</span>
+            </div>
+          </div>
 
-                                                    
-                                    
-                                        <!-- [ Main Content ] end -->
+          <div class="post-meta">
+            {% if article.imagem_article %}
+              <img src="{{ article.imagem_article.url }}" alt="Blog Image" class="img-fluid" loading="lazy" width="750" height="150">
+            {% endif %}
+          </div>
+
+          <div>
+            <a href="{% url 'articles:article-details' article.slug %}" title="#">{{ article.exerpt }}</a>
+          </div>
+        </article><!-- End Blog Item -->
+        {% endfor %}
+      </div>
+    </div>
+  </section><!-- /Blog Hero Section -->
+
+  <!-- Featured Posts Section (Slider) -->
+  <section id="featured-posts" class="featured-posts section">
+    <div class="container" data-aos="fade-up" data-aos-delay="100">
+      <div class="blog-posts-slider swiper init-swiper">
+        <script type="application/json" class="swiper-config">
+          {
+            "loop": true,
+            "speed": 800,
+            "autoplay": {
+              "delay": 5000
+            },
+            "slidesPerView": 3,
+            "spaceBetween": 30,
+            "breakpoints": {
+              "320": {
+                "slidesPerView": 1,
+                "spaceBetween": 20
+              },
+              "768": {
+                "slidesPerView": 2,
+                "spaceBetween": 20
+              },
+              "1200": {
+                "slidesPerView": 3,
+                "spaceBetween": 30
+              }
+            }
+          }
+        </script>
+
+        <div class="swiper-wrapper">
+          <!-- FOR LOOP: Featured Posts -->
+          {% for article in articles %}
+          <div class="swiper-slide">
+            <div class="blog-post-item">
+              {% if article.imagem_article %}
+                <img src="{{ article.imagem_article.url }}" alt="Blog Image" width="300" height="200">
+              {% endif %}
+
+              <div class="blog-post-content">
+                <div class="post-meta">
+                  <span><i class="bi bi-person"></i>{{ article.created_by }}</span>
+                  <span><i class="bi bi-clock"></i>{{ article.created_at }}</span>
+                  <span><i class="bi bi-chat-dots"></i> 6 Comments</span>
+                </div>
+                <h2><a href="{% url 'articles:article-details' article.slug %}">{{ article.title }}</a></h2>
+                <p>{{ article.exerpt }}</p>
+                <a href="{% url 'articles:article-details' article.slug %}" class="read-more">Leia mais <i class="bi bi-arrow-right"></i></a>
+              </div>
+            </div>
+          </div><!-- End slide item -->
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </section><!-- /Featured Posts Section -->
+
+</main>
+
+  {% endblock content %}
+
+  <!-- Scroll Top -->
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Preloader -->
+  <div id="preloader"></div>
 
 
-                                    </div>
-                                </div>
-                         
-                            <!-- [ Main Content ] end -->
-                        </div>        
-                    </div>
 
-{% endblock content %}
-
-<!-- Specific Page JS goes HERE  -->
-{% block javascripts %}{% endblock javascripts %}
+</html>

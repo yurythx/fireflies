@@ -1,84 +1,182 @@
 
 
+{% extends 'includes/base.html' %}
 
+{% load static %}
 
-
-{% block title %} Detalhes {% endblock %} 
-
-<!-- Specific CSS goes HERE -->
-{% block stylesheets %}{% endblock stylesheets %}
 
 
 {% block content %}
+  <main class="main">
 
-
-
-
-    <!-- [ Main Content ] start -->
-    <div class="pcoded-main-container">
-        <div class="pcoded-wrapper">
-            <div class="pcoded-content">
-                <div class="pcoded-inner-content">
-                    <!-- [ breadcrumb ] start -->
-                    <div class="page-header">
-                        <div class="page-block">
-                            <div class="row align-items-center">
-                                <div class="col-md-12">
-                                    <div class="page-header-title">
-                                     
-                                    </div>
-                                    <ul class="breadcrumb">
-                                        <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
-                                        <li class="breadcrumb-item"><a href="javascript:">Detalhes</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- [ breadcrumb ] end -->
-                    <div class="main-body">
-                        <div class="page-wrapper">
-                            <!-- [ Main Content ] start -->
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <div class="card">
-                                        <div class="card-header">
-                                            <h5>Detalhes do Artigo</h5>
-                                        </div>
-                                        <div class="card-block">
-                                           
-                                                
-                                        <h2 class="title">{{ article.title }}</h2>
-                                        {{ article.content|safe }}
-                                        
-                                        <ul>
-                                            <li class="d-flex align-items-center"><i class="bi bi-person"></i> <a href="#">#</a></li>
-                                            <li class="d-flex align-items-center"><i class="bi bi-clock"></i> <a href="#"><time datetime="2020-01-01">{{ articles.created_at }}</time></a></li>
-                                            <li class="d-flex align-items-center"><i class="bi bi-chat-dots"></i> <a href="#">#</a></li>
-                                        </ul>
-
-                                        <a href="{% url 'articles:new-article' %}" class="btn btn-outline-dark">Novo Artigo</a>
-                                        <a href="{% url 'articles:update-article' article.slug %}" class="btn btn-outline-dark">Editar</a>
-                                        <a href="{% url 'articles:delete-article' article.slug %}" class="btn btn-outline-dark">Deletar</a>
-                                        
-                                                    
-                                                    
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- [ Main Content ] end -->
-                        </div>
-                    </div>
+    <!--Mensagem de erro nos comentrios-->
+    {% if messages %}
+                <div class="alert alert-info">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
                 </div>
+    {% endif %}   
+
+    <div class="container">
+      <div class="row">
+
+        <div class="col-lg-12">
+
+          <!-- Blog Details Section -->
+          <section id="blog-details" class="blog-details section">
+            <div class="container" data-aos="fade-up">
+
+              <article class="article">
+
+                <div class="article-content" data-aos="fade-up" data-aos-delay="100">
+
+                  <div class="content">
+                    {{ article.content|safe }}
+                  </div>  
+
+              </article>
+
             </div>
+          </section><!-- /Blog Details Section -->
+
+          <!-- Blog Author Section -->
+          <section id="blog-author" class="blog-author section">
+
+            <div class="container" data-aos="fade-up">
+              <div class="author-box">
+                <div class="row align-items-center">
+                  <div class="col-lg-3 col-md-4 text-center">
+                    <img src="assets/img/person/person-f-12.webp" class="author-img rounded-circle" alt="" loading="lazy">
+
+                    <div class="author-social-links mt-3">
+                      <a href="https://twitter.com/#" class="twitter"><i class="bi bi-twitter-x"></i></a>
+                      <a href="https://linkedin.com/#" class="linkedin"><i class="bi bi-linkedin"></i></a>
+                      <a href="https://github.com/#" class="github"><i class="bi bi-github"></i></a>
+                      <a href="https://facebook.com/#" class="facebook"><i class="bi bi-facebook"></i></a>
+                      <a href="https://instagram.com/#" class="instagram"><i class="bi bi-instagram"></i></a>
+                    </div>
+                  </div>
+
+                  <div class="col-lg-9 col-md-8">
+                    <div class="author-content">
+                      <h3 class="author-name">Sarah Anderson</h3>
+                      <span class="author-title">Senior Tech Writer &amp; Developer Advocate</span>
+
+                      <div class="author-bio mt-3">
+                        Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium. Passionate about creating content that bridges the gap between developers and end-users.
+                      </div>
+
+                      <div class="author-website mt-3">
+                        <a href="#" class="website-link">
+                          <i class="bi bi-globe"></i>
+                          <span>sarahanderson.dev</span>
+                        </a>
+                        <a href="#" class="more-posts">
+                          Read More from Sarah <i class="bi bi-arrow-right"></i>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </section><!-- /Blog Author Section -->
+
+          <!-- Blog Comments Section -->
+          <section id="blog-comments" class="blog-comments section">
+
+            <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+              <div class="blog-comments-3">
+                <div class="section-header">
+                  <h3>Comentarios<span class="comment-count">({{ comments_count }})</span></h3>
+                </div>
+
+                <div class="comments-wrapper">
+                  <!-- Comment 1 -->
+
+                    <div class="comment-content">
+                        <!-- Exibir comentários -->
+                        {% for comment in comments %}
+                        <div class="comment">
+                            <p><strong>{{ comment.author_name }}</strong> disse:</p>
+                            <p>{{ comment.text }}</p>
+                            <p><small>{{ comment.created_at|date:"d/m/Y H:i" }}</small></p>
+                        </div>
+                            {% empty %}
+                              <p>Não há comentários ainda. Seja o primeiro a comentar!</p>
+                            {% endfor %}
+                    </div>
+
+                </div>
+              </div>
+
+            </div>
+
+          </section><!-- /Blog Comments Section -->
+
+          <!-- Blog Comment Form Section -->
+          <section id="blog-comment-form" class="blog-comment-form section">
+
+            <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+          <!-- Formulário de Comentário -->
+              {% if messages %}
+                <div class="alert alert-info">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+              {% endif %}             
+              <section id="comment-form">
+                <h3>Deixe seu comentário</h3>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+
+                    <button type="submit">Enviar Comentário</button>
+                </form>
+              </section>
+
+            </div>
+
+          </section><!-- /Blog Comment Form Section -->
+
         </div>
+
+      </div>
     </div>
-    <!-- [ Main Content ] end -->
 
-   
+  </main>
 
-    {% endblock %} 
+  {% endblock %}   
 
-<!-- Specific Page JS goes HERE  -->
-{% block javascripts %}{% endblock javascripts %}
+ <!-- Comentários -->
+<section id="comments">
+  <h3>Comentários</h3>
+  
+  <!-- Exibir comentários -->
+  {% for comment in comments %}
+      <div class="comment">
+          <p><strong>{{ comment.author_name }}</strong> disse:</p>
+          <p>{{ comment.text }}</p>
+          <p><small>{{ comment.created_at|date:"d/m/Y H:i" }}</small></p>
+      </div>
+  {% empty %}
+      <p>Não há comentários ainda. Seja o primeiro a comentar!</p>
+  {% endfor %}
+</section>
+
+<!-- Formulário de Comentário -->
+<section id="comment-form">
+  <h3>Deixe seu comentário</h3>
+  <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Enviar Comentário</button>
+  </form>
+</section>
+
+

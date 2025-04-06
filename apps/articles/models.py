@@ -71,6 +71,9 @@ class Article(models.Model):
     cover = models.ImageField(
         upload_to='articles/%Y/%m', blank=True, default=''
     )
+    imagem_article = models.ImageField(
+        upload_to='post_img/%Y/%m/%d', blank=True, null=True, verbose_name='Imagem')
+
     cover_in_post_content = models.BooleanField(
         default=True,
         help_text='Exibe a imagem de capa dentro do conteúdo do post'
@@ -125,3 +128,17 @@ class Article(models.Model):
         
         return super_save
 
+class Comment(models.Model):
+
+    article = models.ForeignKey(Article, related_name='comments', on_delete=models.CASCADE)
+    author_name = models.CharField(max_length=100)
+    author_email = models.EmailField()
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies')
+
+    def __str__(self):
+        return f"Comentado por {self.author_name} on {self.article.title}"
+
+    class Meta:
+        ordering = ['created_at']

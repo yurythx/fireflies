@@ -15,11 +15,14 @@ CORE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = 'django-insecure-5iy^d-bu8b2yaat7j))09j8@6=8=ay%qwul^yn3qnvm2jqpkpi'
 
+#RECAPTCHA_PUBLIC_KEY = '6Ld4BwwrAAAAAMapNvMyvbEp5cLP4ExR9JvlhAUl'
+#RECAPTCHA_PRIVATE_KEY = '6Ld4BwwrAAAAAMapNvMyvbEp5cLP4ExR9JvlhAUl'
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True  #env('DEBUG')
 
 # Assets Management
-ASSETS_ROOT = os.getenv('ASSETS_ROOT', '/static/assets') 
+ASSETS_ROOT = os.getenv('ASSETS_ROOT', '/static/') 
 
 # load production server from .env
 #ALLOWED_HOSTS        = ['localhost', 'localhost:85', '127.0.0.1',               env('SERVER', default='127.0.0.1') ]
@@ -40,6 +43,7 @@ INSTALLED_APPS = [
     
     # For django form styling
     'widget_tweaks',
+    
 
     # TinyMCE
     'tinymce',

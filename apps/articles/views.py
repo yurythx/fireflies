@@ -1,13 +1,16 @@
 from django.shortcuts import render
+from django.contrib import messages  # Para mensagens de feedback
+
 
 # Create your views here.
 from django.shortcuts import redirect
-from apps.articles.forms import ArticleForm
-from apps.articles.models import Article
+from apps.articles.forms import ArticleForm, CommentForm
+from apps.articles.models import Article, Comment
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.http import Http404
 from django.views.generic import ListView, DeleteView, UpdateView, CreateView, DetailView
+
 
 PER_PAGE = 6
 
@@ -23,15 +26,40 @@ class ArticleListView(ListView):
         context['page_title'] = 'pages -'
         return context
 
-
 class ArticleDetails(DetailView):
-    
-    template_name = 'articles/article-details.html'#direcionando para o template
-    model = Article #model usado para preencher 
-
+    model = Article
+    template_name = 'articles/article-details.html'
     context_object_name = 'article'
 
-    
+    def get_object(self):
+        slug = self.kwargs.get('slug')
+        return Article.objects.get(slug=slug)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['comments'] = self.object.comments.all()
+        context['comments_count'] = self.object.comments.count()  # Contagem dos comentários
+        context['form'] = CommentForm()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        article = self.get_object()  # Obtém o artigo usando o slug
+        form = CommentForm(request.POST)
+
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.article = article
+            comment.save()
+            
+            # Adicionando uma mensagem de sucesso
+            messages.success(request, 'Comentário postado com sucesso!')
+            return redirect('articles:article-details', slug=article.slug)  # Redirecionar para a mesma página com slug
+        else:
+            # Adicionando uma mensagem de erro caso o formulário não seja válido
+            messages.error(request, 'Erro ao postar comentário. Tente novamente.')
+            return self.get(request, *args, **kwargs)  # Renderizar novamente com erros
+
+            
 class ArticleCreate(CreateView):
 
     model = Article
