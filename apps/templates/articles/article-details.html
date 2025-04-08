@@ -1,182 +1,78 @@
-
-
 {% extends 'includes/base.html' %}
-
+{% load crispy_forms_tags %}
 {% load static %}
 
-
-
 {% block content %}
-  <main class="main">
+<main class="main">
 
-    <!--Mensagem de erro nos comentrios-->
+    <!-- Mensagem de erro ou sucesso nos comentários -->
     {% if messages %}
-                <div class="alert alert-info">
-                    {% for message in messages %}
-                        <p>{{ message }}</p>
-                    {% endfor %}
-                </div>
-    {% endif %}   
+    <div class="alert alert-info">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
 
     <div class="container">
-      <div class="row">
+        <div class="row">
+            <div class="col-lg-12">
 
-        <div class="col-lg-12">
+                <!-- Blog Details Section -->
+                <section id="blog-details" class="blog-details section">
+                    <div class="container" data-aos="fade-up">
 
-          <!-- Blog Details Section -->
-          <section id="blog-details" class="blog-details section">
-            <div class="container" data-aos="fade-up">
+                        <article class="article">
+                            <div class="article-content" data-aos="fade-up" data-aos-delay="100">
+                                <div class="content">
+                                    {{ article.content|safe }}
+                                </div>
+                            </div>
+                        </article>
 
-              <article class="article">
-
-                <div class="article-content" data-aos="fade-up" data-aos-delay="100">
-
-                  <div class="content">
-                    {{ article.content|safe }}
-                  </div>  
-
-              </article>
-
-            </div>
-          </section><!-- /Blog Details Section -->
-
-          <!-- Blog Author Section -->
-          <section id="blog-author" class="blog-author section">
-
-            <div class="container" data-aos="fade-up">
-              <div class="author-box">
-                <div class="row align-items-center">
-                  <div class="col-lg-3 col-md-4 text-center">
-                    <img src="assets/img/person/person-f-12.webp" class="author-img rounded-circle" alt="" loading="lazy">
-
-                    <div class="author-social-links mt-3">
-                      <a href="https://twitter.com/#" class="twitter"><i class="bi bi-twitter-x"></i></a>
-                      <a href="https://linkedin.com/#" class="linkedin"><i class="bi bi-linkedin"></i></a>
-                      <a href="https://github.com/#" class="github"><i class="bi bi-github"></i></a>
-                      <a href="https://facebook.com/#" class="facebook"><i class="bi bi-facebook"></i></a>
-                      <a href="https://instagram.com/#" class="instagram"><i class="bi bi-instagram"></i></a>
                     </div>
-                  </div>
+                </section><!-- /Blog Details Section -->
 
-                  <div class="col-lg-9 col-md-8">
-                    <div class="author-content">
-                      <h3 class="author-name">Sarah Anderson</h3>
-                      <span class="author-title">Senior Tech Writer &amp; Developer Advocate</span>
-
-                      <div class="author-bio mt-3">
-                        Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium. Passionate about creating content that bridges the gap between developers and end-users.
-                      </div>
-
-                      <div class="author-website mt-3">
-                        <a href="#" class="website-link">
-                          <i class="bi bi-globe"></i>
-                          <span>sarahanderson.dev</span>
-                        </a>
-                        <a href="#" class="more-posts">
-                          Read More from Sarah <i class="bi bi-arrow-right"></i>
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          </section><!-- /Blog Author Section -->
-
-          <!-- Blog Comments Section -->
-          <section id="blog-comments" class="blog-comments section">
-
-            <div class="container" data-aos="fade-up" data-aos-delay="100">
-
-              <div class="blog-comments-3">
-                <div class="section-header">
-                  <h3>Comentarios<span class="comment-count">({{ comments_count }})</span></h3>
-                </div>
-
-                <div class="comments-wrapper">
-                  <!-- Comment 1 -->
-
-                    <div class="comment-content">
-                        <!-- Exibir comentários -->
-                        {% for comment in comments %}
-                        <div class="comment">
-                            <p><strong>{{ comment.author_name }}</strong> disse:</p>
-                            <p>{{ comment.text }}</p>
-                            <p><small>{{ comment.created_at|date:"d/m/Y H:i" }}</small></p>
-                        </div>
-                            {% empty %}
-                              <p>Não há comentários ainda. Seja o primeiro a comentar!</p>
+                <!-- Seção de Comentários -->
+                <section id="comments-section" class="comments-section section">
+                    <div class="container" data-aos="fade-up" data-aos-delay="100">
+                        <h3>Comentários</h3>
+                        <div class="comments-list">
+                            {% for comment in article.comments.all %}
+                                <div class="comment-item">
+                                    <strong>{{ comment.author_name }}</strong>
+                                    <p>{{ comment.text }}</p>
+                                    <small>{{ comment.created_at|date:"d M Y H:i" }}</small>
+                                </div>
                             {% endfor %}
+                        </div>
                     </div>
+                </section><!-- /Comentários Section -->
 
-                </div>
-              </div>
+                <!-- Article Comment Form Section -->
+                <section id="blog-comment-form" class="blog-comment-form section">
+                    <div class="container" data-aos="fade-up" data-aos-delay="100">
 
-            </div>
+                        <h3>Deixe seu comentário</h3>
 
-          </section><!-- /Blog Comments Section -->
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="col-lg-6">
+                                {{ form|crispy }}
+                                <button type="submit" class="btn btn-primary">Enviar Comentário</button>
+                            </div>
+                        </form>
 
-          <!-- Blog Comment Form Section -->
-          <section id="blog-comment-form" class="blog-comment-form section">
-
-            <div class="container" data-aos="fade-up" data-aos-delay="100">
-
-          <!-- Formulário de Comentário -->
-              {% if messages %}
-                <div class="alert alert-info">
-                    {% for message in messages %}
-                        <p>{{ message }}</p>
-                    {% endfor %}
-                </div>
-              {% endif %}             
-              <section id="comment-form">
-                <h3>Deixe seu comentário</h3>
-                <form method="post">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-
-                    <button type="submit">Enviar Comentário</button>
-                </form>
-              </section>
+                    </div>
+                </section><!-- /Blog Comment Form Section -->
 
             </div>
-
-          </section><!-- /Blog Comment Form Section -->
-
+            
+            <a href="{% url 'articles:new_article' %}" class="btn btn-outline-dark">Novo Artigo</a>
+            <a href="{% url 'articles:edit_article' article.slug %}" class="btn btn-outline-dark">Editar</a>
+            <a href="{% url 'articles:delete_article' article.slug %}" class="btn btn-outline-dark">Deletar</a>
         </div>
-
-      </div>
     </div>
 
-  </main>
-
-  {% endblock %}   
-
- <!-- Comentários -->
-<section id="comments">
-  <h3>Comentários</h3>
-  
-  <!-- Exibir comentários -->
-  {% for comment in comments %}
-      <div class="comment">
-          <p><strong>{{ comment.author_name }}</strong> disse:</p>
-          <p>{{ comment.text }}</p>
-          <p><small>{{ comment.created_at|date:"d/m/Y H:i" }}</small></p>
-      </div>
-  {% empty %}
-      <p>Não há comentários ainda. Seja o primeiro a comentar!</p>
-  {% endfor %}
-</section>
-
-<!-- Formulário de Comentário -->
-<section id="comment-form">
-  <h3>Deixe seu comentário</h3>
-  <form method="post">
-      {% csrf_token %}
-      {{ form.as_p }}
-      <button type="submit">Enviar Comentário</button>
-  </form>
-</section>
-
-
+</main>
+{% endblock %}

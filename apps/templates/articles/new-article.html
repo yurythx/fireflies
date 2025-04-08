@@ -1,73 +1,175 @@
-
-
-{% extends "layouts/base.html" %}
+{% extends 'includes/base.html' %}
 
 {% load crispy_forms_tags %}
 
-{% block title %} Cadastrar Novo Artigo {% endblock %} 
+{% block title %}Cadastrar Novo Artigo{% endblock %}
 
-<!-- Specific CSS goes HERE -->
-{% block stylesheets %}{% endblock stylesheets %}
+{% block stylesheets %}
+    <!-- Estilos Específicos para esta Página -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tinymce@5.10.0/skins/ui/oxide/skin.min.css">
+{% endblock %}
 
 {% block content %}
-
-   <!-- [ Main Content ] start -->
-   <div class="pcoded-main-container">
+<!-- Main Content Start -->
+<div class="pcoded-main-container">
     <div class="pcoded-wrapper">
-
         <div class="pcoded-content">
             <div class="pcoded-inner-content">
-                <!-- [ breadcrumb ] start -->
+                <!-- Breadcrumb Start -->
                 <div class="page-header">
                     <div class="page-block">
                         <div class="row align-items-center">
                             <div class="col-md-12">
                                 <ul class="breadcrumb">
                                     <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                                    <li class="breadcrumb-item active">Cadastrar Novo Artigo</li>
                                 </ul>
                             </div>
                         </div>
                     </div>
                 </div>
-                <!-- [ breadcrumb ] end -->
+                <!-- Breadcrumb End -->
+
+                <!-- Main Content Wrapper Start -->
                 <div class="main-body">
                     <div class="page-wrapper">
-                        <!-- [ Main Content ] start -->
-                        <div class="row">
-                            <div class="col-sm-12">
+                        <!-- Formulário de Cadastro Start -->
+                        <div class="row justify-content-center">
+                            <div class="col-lg-8 col-md-10 col-sm-12">
                                 <div class="card">
-                                   
-                                        <div class="row">
-                                            
-                                            <div class="col-md-12">
-                                                <form method="POST" enctype="multipart/form-data" id="form">
-                                                    {% csrf_token %}
-                                                   
-                                                    {{ form|crispy }}
-                                                    <button type="submit" class="btn btn-success">Salvar</button>                                                    
-                                                </form>
-                                               
+                                    <div class="card-header">
+                                        <h5>Cadastrar Artigo</h5>
+                                    </div>
+
+                                    <div class="card-body">
+                                        <!-- Feedback de Mensagem de Erro ou Sucesso -->
+                                        {% if messages %}
+                                            <div class="alert alert-info">
+                                                {% for message in messages %}
+                                                    <p>{{ message }}</p>
+                                                {% endfor %}
                                             </div>
-                                        </div>
+                                        {% endif %}
+
+                                        <!-- Adicionando estilo ao formulário -->
+                                        <style>
+                                            /* Estilos adicionais para o formulário */
+                                            .form-group {
+                                                margin-bottom: 20px;
+                                            }
+
+                                            label {
+                                                font-weight: bold;
+                                                font-size: 1rem;
+                                                color: #333;
+                                            }
+
+                                            .btn {
+                                                font-size: 1rem;
+                                                padding: 12px 24px;
+                                                width: 100%;
+                                                text-align: center;
+                                            }
+
+                                            .btn-success {
+                                                background-color: #28a745;
+                                                border-color: #28a745;
+                                                transition: background-color 0.3s ease;
+                                            }
+
+                                            .btn-success:hover {
+                                                background-color: #218838;
+                                                border-color: #1e7e34;
+                                            }
+
+                                            .btn-secondary {
+                                                background-color: #6c757d;
+                                                border-color: #6c757d;
+                                                transition: background-color 0.3s ease;
+                                            }
+
+                                            .btn-secondary:hover {
+                                                background-color: #5a6268;
+                                                border-color: #545b62;
+                                            }
+
+                                            .form-group input,
+                                            .form-group textarea,
+                                            .form-group select {
+                                                width: 100%;
+                                                padding: 10px;
+                                                border: 1px solid #ddd;
+                                                border-radius: 5px;
+                                                font-size: 1rem;
+                                            }
+
+                                            .form-group input:focus,
+                                            .form-group textarea:focus,
+                                            .form-group select:focus {
+                                                border-color: #28a745;
+                                                outline: none;
+                                            }
+
+                                            @media (max-width: 767px) {
+                                                .btn {
+                                                    width: auto;
+                                                    padding: 10px 20px;
+                                                }
+
+                                                .form-group {
+                                                    margin-bottom: 15px;
+                                                }
+                                            }
+                                        </style>
+
+                                        <!-- Formulário de Cadastro -->
+                                        <form method="POST" enctype="multipart/form-data" id="form">
+                                            {% csrf_token %}
+                                            
+                                            <!-- Campos do Formulário -->
+                                            <div class="form-group">
+                                                
+                                                {{ form|crispy }}
+                                            </div>
                                         
-                                       
+
+                                            <!-- Botões de Ação -->
+                                            <div class="form-group text-center">
+                                                <button type="submit" class="btn btn-success btn-lg">Salvar Artigo</button>
+                                                <a href="{% url 'articles:index_articles' %}" class="btn btn-secondary btn-lg ml-3">Cancelar</a>
+                                            </div>
+                                        </form>
                                     </div>
                                 </div>
-                               
-                                            
                             </div>
                         </div>
-                        <!-- [ Main Content ] end -->
+                        <!-- Formulário de Cadastro End -->
                     </div>
                 </div>
+                <!-- Main Content Wrapper End -->
             </div>
         </div>
-        
     </div>
 </div>
-<!-- [ Main Content ] end -->
+<!-- Main Content End -->
 
 {% endblock content %}
 
-<!-- Specific Page JS goes HERE  -->
-{% block javascripts %}{% endblock javascripts %}
+{% block javascripts %}
+    <!-- JavaScript específico para esta página -->
+    <script src="https://cdn.jsdelivr.net/npm/tinymce@5.10.0/tinymce.min.js"></script>
+    <script>
+       tinymce.init({
+        selector: '#mytextarea', // Seletor para o seu campo de texto
+        plugins: 'image code link', // Ativa os plugins para imagem, código, etc.
+        toolbar: 'undo redo | styleselect | bold italic | link image | code', // Barra de ferramentas
+        image_upload_url: '/upload_image/', // URL do endpoint para upload de imagem
+        file_picker_types: 'image', // Definir que o seletor de arquivo só pode pegar imagens
+        entity_encoding: 'raw', // Previne que caracteres especiais sejam escapados
+        relative_urls: false, // Previne a conversão de URLs relativas para absolutas
+        remove_trailing_brs: true, // Remove <br> no final do conteúdo
+        convert_urls: false, // Evita que o TinyMCE converta links de imagem
+        content_css: 'https://cdn.jsdelivr.net/npm/tinymce@5.10.0/skins/ui/oxide/skin.min.css', // Adiciona o CSS do TinyMCE
+});
+    </script>
+{% endblock javascripts %}

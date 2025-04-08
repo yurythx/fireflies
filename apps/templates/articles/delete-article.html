@@ -1,58 +1,72 @@
-{% extends "layouts/base.html" %}
+{% extends 'includes/base.html' %}
 
-{% block title %} Page Blank {% endblock %} 
+{% block title %}Confirmar Deleção de Artigo{% endblock %}
 
-<!-- Specific CSS goes HERE -->
-{% block stylesheets %}{% endblock stylesheets %}
+{% block stylesheets %}
+    <!-- Estilos Específicos para esta Página -->
+
+{% endblock %}
 
 {% block content %}
 
-    <!-- [ Main Content ] start -->
-    <div class="pcoded-main-container">
-        <div class="pcoded-wrapper">
-            <div class="pcoded-content">
-                <div class="pcoded-inner-content">
-                    <!-- [ breadcrumb ] start -->
-                    <div class="page-header">
-                        <div class="page-block">
-                            <div class="row align-items-center">
-                                <div class="col-md-12">
-                                    
-                                    <ul class="breadcrumb">
-                                        <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
-                                        <li class="breadcrumb-item"><a href="javascript:">Deletar</a></li>
-                                    </ul>
-                                </div>
+<!-- Main Content Start -->
+<div class="pcoded-main-container">
+    <div class="pcoded-wrapper">
+        <div class="pcoded-content">
+            <div class="pcoded-inner-content">
+                <!-- Breadcrumb Start -->
+                <div class="page-header">
+                    <div class="page-block">
+                        <div class="row align-items-center">
+                            <div class="col-md-12">
+                                <ul class="breadcrumb">
+                                    <li class="breadcrumb-item">
+                                        <a href="/"><i class="feather icon-home"></i></a>
+                                    </li>
+                                    <li class="breadcrumb-item active">Deletar Artigo</li>
+                                </ul>
                             </div>
-                        </div>
-                    </div>
-                    <!-- [ breadcrumb ] end -->
-                    <div class="main-body">
-                        <div class="page-wrapper">
-                            <!-- [ Main Content ] start -->
-
-                            <div class="pcoded-content">
-                                <h6 class="text-muted"><i
-                                    class="feather icon-cpu"></i>
-                                    Tem certeza que deseja deletar o artigo
-                                    {{ article.title }}</h6>
-                                   
-                                <form action="{% url 'articles:delete-article' article.slug %}" method="POST">
-                                    {% csrf_token %}
-                                    <input type="submit" class="btn btn-danger" value='Deletar Artigo ?'>
-                                </form>
-                            </div>
-                            
-                            <!-- [ Main Content ] end -->
                         </div>
                     </div>
                 </div>
+                <!-- Breadcrumb End -->
+
+                <!-- Main Content Wrapper Start -->
+                <div class="main-body">
+                    <div class="page-wrapper">
+
+                        <div class="pcoded-content">
+                            <div class="confirmation-box">
+                                <h5 class="text-muted">
+                                    <i class="feather icon-cpu"></i>
+                                    Tem certeza que deseja deletar o artigo "<strong>{{ article.title }}</strong>"?
+                                </h5>
+                                <p>Essa ação não pode ser desfeita.</p>
+
+                                <!-- Formulário de Deleção -->
+                                <form action="{% url 'articles:delete_article' article.slug %}" method="POST" class="delete-form">
+                                    {% csrf_token %}
+                                    <div class="form-group">
+                                        <button type="submit" class="btn btn-danger btn-block" aria-label="Deletar Artigo">Deletar Artigo</button>
+                                    </div>
+                                    <div class="form-group">
+                                        <a href="{% url 'articles:index_articles' %}" class="btn btn-secondary btn-block">Cancelar</a>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Main Content Wrapper End -->
             </div>
         </div>
     </div>
-    <!-- [ Main Content ] end -->
+</div>
+<!-- Main Content End -->
 
 {% endblock content %}
 
-<!-- Specific Page JS goes HERE  -->
-{% block javascripts %}{% endblock javascripts %}
+{% block javascripts %}
+    <!-- JavaScript específico para esta página -->
+
+{% endblock javascripts %}

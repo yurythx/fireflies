@@ -15,8 +15,6 @@ CORE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = 'django-insecure-5iy^d-bu8b2yaat7j))09j8@6=8=ay%qwul^yn3qnvm2jqpkpi'
 
-#RECAPTCHA_PUBLIC_KEY = '6Ld4BwwrAAAAAMapNvMyvbEp5cLP4ExR9JvlhAUl'
-#RECAPTCHA_PRIVATE_KEY = '6Ld4BwwrAAAAAMapNvMyvbEp5cLP4ExR9JvlhAUl'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True  #env('DEBUG')
