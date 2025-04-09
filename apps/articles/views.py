@@ -6,7 +6,10 @@ from apps.articles.models import Article, Comment
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.http import Http404
+from django.urls import reverse_lazy
 from django.views.generic import ListView, DeleteView, UpdateView, CreateView, DetailView
+import logging
+from django.shortcuts import render
 
 PER_PAGE = 6
 
@@ -74,13 +77,18 @@ class ArticleCreate(CreateView):
     model = Article
     form_class = ArticleForm
     template_name = 'articles/new-article.html'
-    success_url = "/"
-
+    
+    # Redirecionar para a página de detalhes do artigo após a atualização
+    def get_success_url(self):
+        # Após salvar as alterações, redireciona para o artigo atualizado usando o 'slug'
+        return reverse_lazy('articles:index_articles', kwargs={'slug': self.object.slug})
+        
     def form_valid(self, form):
         """Adiciona uma mensagem de sucesso ao criar o artigo."""
         response = super().form_valid(form)
         messages.success(self.request, 'Artigo criado com sucesso!')
         return response
+
 
 class ArticleUpdateView(UpdateView):
     """Atualiza um artigo existente."""
@@ -88,7 +96,15 @@ class ArticleUpdateView(UpdateView):
     model = Article
     form_class = ArticleForm
     template_name = 'articles/update-article.html'
-    success_url = "/"
+    
+
+    def get_object(self, queryset=None):
+        """Obtém o artigo com base no slug passado na URL"""
+        return get_object_or_404(Article, slug=self.kwargs['slug'])
+
+    def get_success_url(self):
+        """Define a URL de redirecionamento após a edição bem-sucedida"""
+        return reverse_lazy('articles:article-details', kwargs={'slug': self.object.slug})
 
     def form_valid(self, form):
         """Adiciona uma mensagem de sucesso ao atualizar o artigo."""
@@ -126,6 +142,9 @@ class TagListView(ArticleListView):
         ctx['page_title'] = f'{self.object_list[0].tags.first().name} - Tag'
         return ctx
 
+# Criando um logger para monitorar
+logger = logging.getLogger(__name__)
+
 class SearchListView(ArticleListView):
     """Exibe artigos filtrados por busca."""
     
@@ -134,22 +153,33 @@ class SearchListView(ArticleListView):
     def get_queryset(self):
         """Retorna artigos que correspondem ao critério de busca."""
         qs = super().get_queryset()
-        search = self.request.GET.get('search')
-
+        search = self.request.GET.get('search', '').strip()  # Adicionando strip para remover espaços extras
+        
+        # Se a busca não estiver vazia
         if search:
-            qs = qs.filter(
-                Q(title__icontains=search) |
-                Q(excerpt__icontains=search) |
-                Q(content__icontains=search)
-            )
+            try:
+                qs = qs.filter(
+                    Q(title__icontains=search) |
+                    Q(excerpt__icontains=search) |
+                    Q(content__icontains=search)
+                ).distinct()  # Usando distinct para evitar duplicatas, caso o artigo corresponda a múltiplos filtros
+
+            except Exception as e:
+                logger.error(f"Erro ao filtrar artigos com o critério '{search}': {e}")
+                qs = qs.none()  # Retorna uma queryset vazia em caso de erro
+
+
+        # Ordenando a queryset pela data de criação, de forma descendente (mais recentes primeiro)
+        qs = qs.order_by('-created_at')  # Alterar 'created_at' para o nome do seu campo de data de criação, se necessário
+
         return qs
 
 class ArticleDeleteView(DeleteView):
     """Exclui um artigo."""
     
     model = Article
-    template_name = 'articles/delete-article.html'
-    success_url = "/"
+    template_name = 'articles/article_confirm_delete.html'  # Página de confirmação (se necessário)
+    success_url = reverse_lazy('articles:index_articles')  # Redireciona após deleção
 
     def delete(self, request, *args, **kwargs):
         """Exclui o artigo e exibe uma mensagem de sucesso."""

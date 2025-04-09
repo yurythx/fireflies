@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Clientes</title>
+    <script>
+        // Função para atualizar o dropdown de cidades quando o estado mudar
+        function carregarCidades() {
+            const estadoId = document.getElementById('estado').value;
+            const cidadeSelect = document.getElementById('cidade');
+
+            // Limpa as opções de cidades
+            cidadeSelect.innerHTML = '<option value="">Selecione uma Cidade</option>';
+
+            if (estadoId) {
+                fetch(`/ajax/cidades/?estado_id=${estadoId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.cidades.forEach(cidade => {
+                            const option = document.createElement('option');
+                            option.value = cidade.id;
+                            option.textContent = cidade.nome;
+                            cidadeSelect.appendChild(option);
+                        });
+                    });
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Lista de Clientes</h1>
+
+    <!-- Filtro por Estado -->
+    <form method="get">
+        <label for="estado">Filtrar por Estado:</label>
+        <select name="estado" id="estado" onchange="carregarCidades(); this.form.submit();">
+            <option value="">Selecione um Estado</option>
+            {% for estado in estados %}
+                <option value="{{ estado.id }}" {% if estado.id == estado_id %}selected{% endif %}>{{ estado.nome }}</option>
+            {% endfor %}
+        </select>
+
+        <!-- Filtro por Cidade -->
+        <label for="cidade">Filtrar por Cidade:</label>
+        <select name="cidade" id="cidade" onchange="this.form.submit();">
+            <option value="">Selecione uma Cidade</option>
+            {% for cidade in cidades %}
+                <option value="{{ cidade.id }}" {% if cidade.id == cidade_id %}selected{% endif %}>{{ cidade.nome }}</option>
+            {% endfor %}
+        </select>
+    </form>
+
+    <h2>Clientes</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Telefone</th>
+                <th>Endereço</th>
+                <th>Cidade</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cliente in clientes %}
+                <tr>
+                    <td>{{ cliente.nome }}</td>
+                    <td>{{ cliente.email }}</td>
+                    <td>{{ cliente.telefone }}</td>
+                    <td>{{ cliente.endereco.rua }}, {{ cliente.endereco.numero }} - {{ cliente.endereco.bairro }} - CEP: {{ cliente.endereco.cep }}</td>
+                    <td>{{ cliente.endereco.cidade.nome }}</td>
+                    <td>{{ cliente.endereco.estado.uf }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="6">Nenhum cliente encontrado.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Paginação -->
+    <div class="pagination">
+        <span class="step-links">
+            {% if clientes.has_previous %}
+                <a href="?page=1{% if estado_id %}&estado={{ estado_id }}{% endif %}{% if cidade_id %}&cidade={{ cidade_id }}{% endif %}">&laquo; primeira</a>
+                <a href="?page={{ clientes.previous_page_number }}{% if estado_id %}&estado={{ estado_id }}{% endif %}{% if cidade_id %}&cidade={{ cidade_id }}{% endif %}">anterior</a>
+            {% endif %}
+
+            <span class="current">
+                Página {{ clientes.number }} de {{ clientes.paginator.num_pages }}.
+            </span>
+
+            {% if clientes.has_next %}
+                <a href="?page={{ clientes.next_page_number }}{% if estado_id %}&estado={{ estado_id }}{% endif %}{% if cidade_id %}&cidade={{ cidade_id }}{% endif %}">próxima</a>
+                <a href="?page={{ clientes.paginator.num_pages }}{% if estado_id %}&estado={{ estado_id }}{% endif %}{% if cidade_id %}&cidade={{ cidade_id }}{% endif %}">última &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+</body>
+</html>

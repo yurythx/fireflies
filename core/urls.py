@@ -14,6 +14,7 @@ urlpatterns = [
     path("", include("apps.pages.urls")),
     path("config/", include("apps.config.urls")),
     path("articles/", include("apps.articles.urls")),
+    path("clientes/", include("apps.clientes.urls")),
    
 
     

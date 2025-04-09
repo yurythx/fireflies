@@ -1,0 +1,186 @@
+{% extends 'includes/base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block title %}Cadastrar Novo Artigo{% endblock %}
+
+{% block stylesheets %}
+    <!-- Estilos Específicos para esta Página -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tinymce@5.10.0/skins/ui/oxide/skin.min.css">
+    <style>
+        /* Estilos gerais */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            font-size: 1rem;
+            color: #333;
+        }
+
+        .btn {
+            font-size: 1rem;
+            padding: 12px 24px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            border-color: #28a745;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+        }
+
+        /* Estilo do campo de texto */
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: #28a745;
+            outline: none;
+        }
+
+        /* Centralização dos botões */
+        .form-action-buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .form-action-buttons .btn {
+            margin: 0 10px;
+        }
+
+        /* Ajustes de responsividade */
+        @media (max-width: 767px) {
+            .btn {
+                width: auto;
+                padding: 10px 20px;
+            }
+
+            .form-group {
+                margin-bottom: 15px;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<!-- Main Content Start -->
+<div class="pcoded-main-container">
+    <div class="pcoded-wrapper">
+        <div class="pcoded-content">
+            <div class="pcoded-inner-content">
+                <!-- Breadcrumb Start -->
+                <div class="page-header">
+                    <div class="page-block">
+                        <div class="row align-items-center">
+                            <div class="col-md-12">
+                                <ul class="breadcrumb">
+                                    
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Breadcrumb End -->
+
+                <!-- Main Content Wrapper Start -->
+                <div class="main-body">
+                    <div class="page-wrapper">
+                        <!-- Formulário de Cadastro Start -->
+                        <div class="row justify-content-center">
+                            <div class="col-lg-8 col-md-10 col-sm-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>Cadastrar Artigo</h5>
+                                    </div>
+
+                                    <div class="card-body">
+                                        <!-- Feedback de Mensagem de Erro ou Sucesso -->
+                                        {% if messages %}
+                                            <div class="alert alert-info">
+                                                {% for message in messages %}
+                                                    <p>{{ message }}</p>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+
+                                        <!-- Formulário de Cadastro -->
+                                        <form method="POST" enctype="multipart/form-data" id="form">
+                                            {% csrf_token %}
+                                            
+                                            <!-- Campos do Formulário -->
+                                            <div class="form-group">
+                                                {{ form|crispy }}
+                                            </div>
+
+                                            <!-- Botões de Ação -->
+                                            <div class="form-action-buttons">
+                                                <button type="submit" class="btn btn-success btn-smaller">Salvar Artigo</button>
+                                                <a href="{% url 'articles:index_articles' %}" class="btn btn-danger btn-smaller">Cancelar</a>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Formulário de Cadastro End -->
+                    </div>
+                </div>
+                <!-- Main Content Wrapper End -->
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Main Content End -->
+{% endblock %}
+
+
+{% block javascripts %}
+    <!-- JavaScript Específico para esta Página -->
+    <!-- Carregar TinyMCE localmente (opcional, pode ser usado de CDN também) -->
+    <script src="{{ ASSETS_ROOT }}articles/assets/js/tinymce/tinymce.min.js"></script>
+
+    <script>
+        tinymce.init({
+            selector: '#id_content', // Asegure-se de que o id do seu campo de conteúdo seja 'id_content'
+            plugins: 'image link media code paste',  // Adiciona o plugin de mídia, além de outros
+            toolbar: 'undo redo | bold italic | link image | media | code',  // Barra de ferramentas com novo plugin
+            image_upload_url: '/upload_image/', // URL do endpoint para upload de imagem
+            file_picker_types: 'image', // Definir que o seletor de arquivo só pode pegar imagens
+            entity_encoding: 'raw', // Previne que caracteres especiais sejam escapados
+            relative_urls: false, // Previne a conversão de URLs relativas para absolutas
+            remove_trailing_brs: true, // Remove <br> no final do conteúdo
+            convert_urls: false, // Evita que o TinyMCE converta links de imagem
+            content_css: 'https://cdn.jsdelivr.net/npm/tinymce@5.10.0/skins/ui/oxide/skin.min.css', // CSS do TinyMCE
+        });
+    </script>
+{% endblock %}
+

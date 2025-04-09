@@ -1,0 +1,17 @@
+<!-- templates/clientes/detalhar_cliente.html -->
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ cliente.nome }}</title>
+</head>
+<body>
+    <h1>{{ cliente.nome }}</h1>
+    <p>Email: {{ cliente.email }}</p>
+    <p>Telefone: {{ cliente.telefone }}</p>
+    <p>Endereço: {{ cliente.rua }}, {{ cliente.numero }}, {{ cliente.bairro }}, {{ cliente.cidade }} - {{ cliente.estado }}, CEP: {{ cliente.cep }}</p>
+    <p>CPF: {{ cliente.cpf }}</p>
+    <p>Data de Nascimento: {{ cliente.data_nascimento }}</p>
+    <p>Data de Cadastro: {{ cliente.data_cadastro }}</p>
+</body>
+</html>

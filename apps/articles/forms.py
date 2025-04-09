@@ -21,11 +21,11 @@ class ArticleForm(forms.ModelForm):
 
     class Meta:
         model = Article
-        fields = ['title', 'excerpt', 'imagem_article', 'content', 'cover', 'category', 'tags', 'is_published', 'created_by']
+        fields = ['title', 'excerpt', 'imagem_article', 'content', 'category', 'created_by', 'is_published']
 
     # Validação para o título do artigo
     def clean_title(self):
-        title = self.cleaned_data.get('title')
+        title = self.cleaned_data.get('title')  # Corrigido para 'title' em vez de 'Titulo'
         if not title:
             raise forms.ValidationError("O título não pode estar vazio.")
         return title
@@ -33,10 +33,13 @@ class ArticleForm(forms.ModelForm):
     # Validação para o resumo (excerpt) do artigo
     def clean_excerpt(self):
         excerpt = self.cleaned_data.get('excerpt')
-        if len(excerpt) > 255:
-            raise forms.ValidationError("O resumo não pode ter mais de 255 caracteres.")
-        return excerpt
-
+        
+        # Verifique se 'excerpt' não é None antes de aplicar len()
+        if excerpt is not None and len(excerpt) > 100:
+            raise forms.ValidationError("O resumo não pode ter mais de 100 caracteres.")
+        
+        return excerpt  # Corrigido para retornar apenas o valor de 'excerpt'
+        
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment

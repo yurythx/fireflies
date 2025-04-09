@@ -64,21 +64,24 @@ class Article(models.Model):
 
     objects = ArticleManager()
 
-    title = models.CharField(max_length=100)
+    title = models.CharField(max_length=100, verbose_name='Titulo')
     slug = models.SlugField(unique=True, blank=True, null=False, max_length=255)
-    excerpt = models.CharField(max_length=100)
-    is_published = models.BooleanField(default=False, help_text=_('Marque essa opção para exibir a página.'))
+    excerpt = models.CharField(max_length=100, verbose_name='Resumo')
+    is_published = models.BooleanField(default=False, help_text=_('Marque essa opção para exibir a página.'),verbose_name='Marque para publicar')
     content = HTMLField()
     cover = models.ImageField(upload_to='articles/%Y/%m', blank=True, default='')
     imagem_article = models.ImageField(upload_to='post_img/%Y/%m/%d', blank=True, null=True, verbose_name='Imagem')
     cover_in_post_content = models.BooleanField(default=True, help_text=_('Exibe a imagem de capa dentro do conteúdo do post'))
     created_at = models.DateTimeField(auto_now_add=True)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name='article_created_by')
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name='article_created_by',verbose_name='Criado Por')
     updated_at = models.DateTimeField(auto_now=True)
-    updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name='article_updated_by')
-    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, default=None)
-    tags = models.ManyToManyField(Tags, blank=True, default='')
+    updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name='article_updated_by', verbose_name='Alterado Por')
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, default=None,verbose_name='Categoria')
+    tags = models.ManyToManyField(Tags, blank=True, default='', verbose_name='Tag')
 
+    class Meta:
+        ordering = ['-created_at']  # Ordena todos os artigos pela data de criação, do mais recente para o mais antigo
+        
     def __str__(self):
         return self.title
 
