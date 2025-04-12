@@ -1,0 +1,17 @@
+{% load crispy_forms_tags %}
+
+<form method="post" 
+      action="{% if form.instance.pk %}
+                  {% url 'fornecedores:editar_fornecedor' form.instance.slug %}
+              {% else %}
+                  {% url 'fornecedores:novo_fornecedor' %}
+              {% endif %}" 
+      onsubmit="salvarForm(event, this)">
+    
+    {% csrf_token %}
+    {{ form|crispy }}
+    
+    <div class="mt-3 text-end">
+        <button type="submit" class="btn btn-primary">Salvar</button>
+    </div>
+</form>

@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'apps.config',
     'apps.articles',
     'apps.clientes',
+    'apps.fornecedores',
    
     
 ]

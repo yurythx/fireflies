@@ -1,34 +1,50 @@
+<!-- Vendor JS Files -->
+<script src="{{ ASSETS_ROOT }}pages/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="{{ ASSETS_ROOT }}pages/assets/vendor/php-email-form/validate.js"></script>
+<script src="{{ ASSETS_ROOT }}pages/assets/vendor/aos/aos.js"></script>
+<script src="{{ ASSETS_ROOT }}pages/assets/vendor/purecounter/purecounter_vanilla.js"></script>
+<script src="{{ ASSETS_ROOT }}pages/assets/vendor/glightbox/js/glightbox.min.js"></script>
+<script src="{{ ASSETS_ROOT }}pages/assets/vendor/swiper/swiper-bundle.min.js"></script>
 
+<!-- Main JS Files -->
+<script src="{{ ASSETS_ROOT }}pages/assets/js/main.js"></script>
+<script src="{{ ASSETS_ROOT }}articles/assets/js/tinymce/tinymce.min.js"></script>
 
-<!-- Main JS File -->
+<!-- Dependências externas -->
+<!-- jQuery (apenas UMA versão) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-	<!-- JS-->
-    
+<!-- Bootstrap Bundle (com Popper) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 
+<!-- Toastr -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
 
+<!-- Font Awesome -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
-  <!-- Vendor JS Files -->
+<!-- Scripts personalizados -->
+<script>
+    // Configura o CSRF token globalmente no jQuery
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
 
- 
-  <script src="{{ ASSETS_ROOT }}pages/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <script src="{{ ASSETS_ROOT }}pages/assets/vendor/php-email-form/validate.js"></script>
-  <script src="{{ ASSETS_ROOT }}pages/assets/vendor/aos/aos.js"></script>
-  <script src="{{ ASSETS_ROOT }}pages/assets/vendor/purecounter/purecounter_vanilla.js"></script>
-  <script src="{{ ASSETS_ROOT }}pages/assets/vendor/glightbox/js/glightbox.min.js"></script>
-  <script src="{{ ASSETS_ROOT }}pages/assets/vendor/swiper/swiper-bundle.min.js"></script>
+    const csrftoken = getCookie('csrftoken');
 
-
-  <!-- Main JS File -->
-  <script src="{{ ASSETS_ROOT }}pages/assets/js/main.js"></script>
-  <script src="{{ ASSETS_ROOT }}articles/assets/js/tinymce/tinymce.min.js"></script>
-
-  <!-- Adicionar o JS do Bootstrap -->
-<!-- Bootstrap JS e jQuery (necessário para os modais) -->
-
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>   
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy5D5PecJ6DYZz/8Si3j6g8zF5sBoI5u97f3S5CZ" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js" integrity="sha384-2HVz7V5e6s3dO7l8VgG69FVp0qgEF1N0cDyt5rRga4xREJ8t+7aHs6boPYFwzQqb" crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-pzjw8f+ua7Kw1TIq0v8FqRtoGeKLPj6lH0b4b1B10MAY8+zpgFfdLzxtnd/oK9pX" crossorigin="anonymous"></script>
-
-  
+    $.ajaxSetup({
+        headers: { 'X-CSRFToken': csrftoken }
+    });
+</script>

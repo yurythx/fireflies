@@ -1,35 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 
-{% include 'includes/parciais/_head.html' %}
+  {% include 'includes/parciais/_head.html' %}
 
-
-
-<body>
+  <body>
 
     {% include 'includes/parciais/_nav.html' %}
-    
 
-
-    {% block content %}
-    
-    {% endblock content %}
+    <main>
+      {% block content %}
+      {% endblock content %}
+    </main>
 
     {% include 'includes/parciais/_footer.html' %}
-    
-  <!-- Scroll Top -->
-  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
-  <!-- Preloader -->
-  <div id="preloader"></div>
-   
-  {% include 'includes/parciais/_scripts.html' %}
+    <!-- Scroll Top Button -->
+    <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center">
+      <i class="bi bi-arrow-up-short"></i>
+    </a>
 
-
-</body>
+    <!-- Preloader -->
+    <div id="preloader"></div>
 
 
 
+    <!-- Scripts comuns -->
+    {% include 'includes/parciais/_scripts.html' %}
 
+    <!-- Scripts específicos por página -->
+    {% block extra_scripts %}
+    {% endblock %}
+
+  </body>
 
 </html>

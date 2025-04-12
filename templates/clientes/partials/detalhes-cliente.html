@@ -1,0 +1,34 @@
+{% extends 'includes/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+
+
+<div class="text-center p-3">
+    <img src="https://ui-avatars.com/api/?name={{ cliente.nome|urlencode }}&background=0D8ABC&color=fff" 
+         class="rounded-circle mb-3" width="100" height="100" alt="Avatar">
+
+    <h4 class="mb-1">{{ cliente.nome }}</h4>
+    <p class="text-muted">{{ cliente.cargo|default:"Cliente" }}</p>
+
+    <hr>
+
+    <div class="text-left">
+        <p><i class="fas fa-envelope text-primary"></i> <strong>Email:</strong> {{ cliente.email }}</p>
+        <p><i class="fas fa-phone text-success"></i> <strong>Telefone:</strong> {{ cliente.telefone }}</p>
+        {% if cliente.endereco %}
+            <p><i class="fas fa-map-marker-alt text-danger"></i> <strong>Endereço:</strong> {{ cliente.endereco }}</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="cliente-detalhes">
+    <h4>{{ cliente.nome }}</h4>
+    <p><strong>Email:</strong> {{ cliente.email }}</p>
+    <p><strong>Telefone:</strong> {{ cliente.telefone }}</p>
+    <p><strong>Endereço:</strong> {{ cliente.endereco }}</p>  {# se tiver esse campo #}
+    
+    <div class="text-right mt-3">
+        <button class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+    </div>
+</div>

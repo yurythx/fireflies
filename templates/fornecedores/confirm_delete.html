@@ -1,0 +1,5 @@
+<form method="post" action="{% url 'fornecedores:excluir_fornecedor' object.slug %}" onsubmit="excluirFornecedor(event, this)">
+    {% csrf_token %}
+    <p>Tem certeza que deseja excluir <strong>{{ object.nome }}</strong>?</p>
+    <button type="submit" class="btn btn-danger">Sim, excluir</button>
+</form>

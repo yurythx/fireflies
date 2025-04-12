@@ -1,0 +1,54 @@
+{% extends 'includes/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Cadastrar Novo Cliente{% endblock %}
+
+{% block content %}
+<!-- Modal Trigger Button -->
+<button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createClienteModal">
+  <i class="bi bi-plus-circle"></i> Novo Cliente
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="createClienteModal" tabindex="-1" aria-labelledby="createClienteModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <!-- Formulário com Django Forms -->
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title" id="createClienteModalLabel">Cadastrar Novo Cliente</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Exibe erros, caso existam -->
+          {% if form.errors %}
+            <div class="alert alert-danger">
+              <strong>Erros encontrados:</strong>
+              <ul class="mb-0">
+                {% for field in form %}
+                  {% for error in field.errors %}
+                    <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                  {% endfor %}
+                {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
+          
+          <!-- Exibe o formulário com crispy -->
+          <div class="mb-3">
+            {{ form|crispy }}
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-success">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

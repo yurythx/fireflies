@@ -1,0 +1,93 @@
+{% extends 'includes/base.html' %}  <!-- Certifique-se de que 'base.html' está no caminho correto -->
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Fornecedores</h1>
+    <button class="btn btn-primary mb-3" onclick="abrirModal('{% url 'fornecedores:novo_fornecedor' %}')">Novo Fornecedor</button>
+
+    <ul class="list-group">
+        {% for fornecedor in fornecedores %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>{{ fornecedor.nome }}</strong> - {{ fornecedor.email }}
+                </div>
+                <div>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="abrirModal('{% url 'fornecedores:editar_fornecedor' fornecedor.slug %}')">Editar</button>
+                    <button class="btn btn-sm btn-outline-danger"
+                            onclick="abrirModal('{% url 'fornecedores:excluir_fornecedor' fornecedor.slug %}')">
+                        Excluir
+                    </button>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+
+<div class="modal fade" id="fornecedorModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body" id="modalBody">
+        Carregando...
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    function abrirModal(url) {
+        $.get(url, function(data) {
+            $('#modalBody').html(data);
+            $('#fornecedorModal').modal('show');
+        }).fail(function() {
+            alert("Erro ao carregar o modal!");
+        });
+    }
+
+    function salvarForm(event, form) {
+        event.preventDefault();
+        const dados = $(form).serialize();
+        $.post(form.action, dados, function(response) {
+            if (response.success) {
+                location.reload();
+            } else {
+                $('#modalBody').html('<div class="alert alert-danger">Erro ao salvar</div>');
+            }
+        }).fail(function(response) {
+            $('#modalBody').html(response.responseText);
+        });
+    }
+
+    function excluirFornecedor(event, form) {
+    event.preventDefault();
+
+    const url = form.action;
+    const dados = $(form).serialize();
+
+    $.ajax({
+        url: url,
+        type: 'POST',
+        data: dados,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'  // importante!
+        },
+        success: function (response) {
+            console.log('Sucesso:', response);
+
+            if (response.success) {
+                location.reload();
+            } else {
+                $('#modalBody').html('<div class="alert alert-danger">Erro ao excluir</div>');
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('Erro AJAX:', status, error);
+            console.log('Resposta completa:', xhr.responseText);
+            $('#modalBody').html('<div class="alert alert-danger">Erro ao excluir (servidor)</div>');
+        }
+    });
+}
+</script>
+
+{% endblock %}

@@ -1,120 +1,124 @@
-from django.contrib import messages  # Para mensagens de feedback
-from django.shortcuts import get_object_or_404, redirect, render
+import logging
+from django.contrib import messages
+from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse_lazy
-from django.views.generic import ListView, UpdateView, CreateView, DetailView
-from django.views.generic import CreateView
-from .forms import ClienteForm, EnderecoForm
-from .models import Cliente, Endereco
+from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
+from django.http import JsonResponse, Http404
+from django.db.models import Q
 
+from .models import Cliente
+from .forms import ClienteForm
+
+logger = logging.getLogger(__name__)
 PER_PAGE = 12
 
 
 class ClienteListView(ListView):
-    """Exibe a lista de clientes."""
-    
-    template_name = 'clientes/list-clientes.html'
-    queryset = Cliente.objects.all()  # Lista todos os clientes
-    paginate_by = PER_PAGE
-    context_object_name = 'clientes'
-
-
-class ClienteCreateView(CreateView):
-    """Criação de um novo cliente com endereço"""
-    
     model = Cliente
-    form_class = ClienteForm
-    template_name = 'clientes/new-cliente.html'
+    template_name = 'clientes/list-clientes.html'
+    context_object_name = 'clientes'
+    paginate_by = PER_PAGE
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['endereco_form'] = EnderecoForm()
+        context['form'] = ClienteForm()
         return context
 
+
+class ClienteCreateView(CreateView):
+    model = Cliente
+    form_class = ClienteForm
+    template_name = 'clientes/partials/form-cliente.html'
+    success_url = reverse_lazy('clientes:list-clientes')
+
     def form_valid(self, form):
-        """Salva o cliente e o endereço"""
-        cliente = form.save()
-        endereco_form = EnderecoForm(self.request.POST)
+        self.object = form.save()
+        if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'message': 'Cliente cadastrado com sucesso!'})
+        messages.success(self.request, 'Cliente cadastrado com sucesso!')
+        return super().form_valid(form)
 
-        if endereco_form.is_valid():
-            endereco = endereco_form.save(commit=False)
-            endereco.cliente = cliente  # Vincula o endereço ao cliente
-            endereco.save()
-            messages.success(self.request, 'Cliente e endereço criados com sucesso!')
-        else:
-            messages.error(self.request, 'Erro ao salvar o endereço.')
+    def form_invalid(self, form):
+        if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'errors': form.errors}, status=400)
+        messages.error(self.request, 'Erro ao cadastrar cliente.')
+        return super().form_invalid(form)
 
-        return redirect('clientes:cadastro_sucesso')
-
+from django.http import JsonResponse
+from django.views.generic import DetailView
+from .models import Cliente
 
 class ClienteDetailView(DetailView):
-    """Exibe os detalhes do cliente."""
-    
     model = Cliente
-    template_name = 'clientes/cliente-details.html'
-    context_object_name = 'cliente'
+    template_name = 'cliente_detail.html'  # Você pode mudar isso caso queira usar uma template normal.
 
-    def get_object(self):
-        """Obtém o cliente usando o slug, ou gera um erro 404 se não encontrado."""
-        slug = self.kwargs.get('slug')
-        return get_object_or_404(Cliente, slug=slug)
+    # Quando usamos o DetailView com JSON, não precisamos renderizar um template
+    # Então vamos sobrescrever o método get_context_data.
+    def render_to_response(self, context, **response_kwargs):
+        # Verifica se a requisição é uma requisição AJAX
+        if self.request.is_ajax():
+            cliente = self.get_object()  # Obtém o cliente com base no slug
+            data = {
+                'nome': cliente.nome,
+                'email': cliente.email,
+                'telefone': cliente.telefone,
+                'endereco': cliente.endereco,
+                'created_at': cliente.created_at,
+            }
+            return JsonResponse(data)
+        else:
+            # Se não for AJAX, exibe a página normalmente
+            return super().render_to_response(context, **response_kwargs)
 
-
+            
 class ClienteUpdateView(UpdateView):
-    """Atualiza um cliente existente."""
-    
     model = Cliente
-    form_class = ClienteForm  # Usando o formulário correto
-    template_name = 'clientes/update-cliente.html'
-
-    def get_object(self, queryset=None):
-        """Obtém o cliente com base no slug passado na URL"""
-        return get_object_or_404(Cliente, slug=self.kwargs['slug'])
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
+    fields = ['nome', 'email', 'telefone', 'endereco']
+    template_name = 'clientes/partials/form-cliente.html'  # O template que será usado para editar o cliente
 
     def get_success_url(self):
-        """Define a URL de redirecionamento após a edição bem-sucedida"""
-        return reverse_lazy('clientes:cliente-details', kwargs={'slug': self.object.slug})
+        return reverse_lazy('cliente_list')  # Redireciona para a lista de clientes após editar
 
     def form_valid(self, form):
-        """Adiciona uma mensagem de sucesso ao atualizar o cliente."""
-        response = super().form_valid(form)
-        messages.success(self.request, 'Cliente atualizado com sucesso!')
-        return response
+        # Aqui você pode adicionar qualquer lógica antes de salvar, se necessário
+        return super().form_valid(form)
+
+    def get(self, request, *args, **kwargs):
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            self.object = self.get_object()
+            form = self.get_form()
+            return render(request, 'clientes/partials/form-cliente.html', {'form': form, 'cliente': self.object})
+        return super().get(request, *args, **kwargs)
 
 
-from django.core.paginator import Paginator
-from django.db.models import Q
-from django.shortcuts import render
-from .models import Cliente, Estado, Cidade
+class ClienteDeleteView(DeleteView):
+    model = Cliente
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
+    success_url = reverse_lazy('cliente_list')  # Redireciona para a lista de clientes após a exclusão
 
-def lista_clientes(request):
-    estado_id = request.GET.get('estado')  # Obtém o ID do estado filtrado
-    cidade_id = request.GET.get('cidade')  # Obtém o ID da cidade filtrada
+    def delete(self, request, *args, **kwargs):
+        cliente = self.get_object()  # Obtém o cliente com base no slug
+        cliente.delete()  # Exclui o cliente
+        return JsonResponse({'success': True})  # Retorna sucesso em formato JSON
 
-    # Construir o filtro Q
-    filtro = Q()
 
-    if estado_id:
-        filtro &= Q(endereco__estado_id=estado_id)  # Filtra os clientes pelo estado
+class SearchListView(ClienteListView):
+    template_name = 'clientes/search-list.html'
 
-    if cidade_id:
-        filtro &= Q(endereco__cidade_id=cidade_id)  # Filtra os clientes pela cidade
-
-    # Filtra os clientes com base nos parâmetros
-    clientes = Cliente.objects.filter(filtro).select_related('endereco__cidade__estado')
-
-    # Paginação: Mostra 10 clientes por página
-    paginator = Paginator(clientes, 10)
-    page = request.GET.get('page')
-    clientes_paginados = paginator.get_page(page)
-
-    # Obter todos os estados e cidades
-    estados = Estado.objects.all()
-    cidades = Cidade.objects.filter(estado_id=estado_id) if estado_id else Cidade.objects.none()
-
-    return render(request, 'clientes/lista_clientes.html', {
-        'clientes': clientes_paginados,
-        'estados': estados,
-        'cidades': cidades,
-        'estado_id': estado_id,
-        'cidade_id': cidade_id,
-    })
+    def get_queryset(self):
+        qs = super().get_queryset()
+        search = self.request.GET.get('search', '').strip()
+        if search:
+            try:
+                qs = qs.filter(
+                    Q(nome__icontains=search) |
+                    Q(email__icontains=search) |
+                    Q(telefone__icontains=search)
+                ).distinct()
+            except Exception as e:
+                logger.error(f"Erro ao filtrar clientes com o critério '{search}': {e}")
+                qs = qs.none()
+        return qs
