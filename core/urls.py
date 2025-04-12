@@ -14,6 +14,7 @@ urlpatterns = [
     path("", include("apps.pages.urls")),
     path("config/", include("apps.config.urls")),
     path("articles/", include("apps.articles.urls")),
+     path("enderecos/", include("apps.enderecos.urls")),
     path("clientes/", include("apps.clientes.urls")),
     path('fornecedores/', include('apps.fornecedores.urls', namespace='fornecedores')),  # Namespace configurado!
 

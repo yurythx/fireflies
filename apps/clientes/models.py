@@ -1,4 +1,5 @@
 from django.db import models
+from apps.enderecos.forms import EnderecoForm
 from django.utils.text import slugify  # Importando a função slugify
 
 
@@ -17,6 +18,7 @@ class Cliente(models.Model):
     cpf = models.CharField(max_length=14, unique=True)
     data_nascimento = models.DateField(null=True, blank=True)
     data_cadastro = models.DateTimeField(auto_now_add=True)
+    endereco = models.OneToOneField('enderecos.Endereco', on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.nome
@@ -34,3 +36,6 @@ class Cliente(models.Model):
          counter += 1
      
      super().save(*args, **kwargs)
+
+
+

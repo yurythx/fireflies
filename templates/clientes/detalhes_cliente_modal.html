@@ -1,0 +1,11 @@
+<!-- clientes/detalhes_cliente_modal.html -->
+<div class="modal-header">
+    <h5 class="modal-title" id="exampleModalLabel">{{ cliente.nome }}</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+</div>
+<div class="modal-body">
+    <p><strong>Email:</strong> {{ cliente.email }}</p>
+    <p><strong>CPF:</strong> {{ cliente.cpf }}</p>
+    <p><strong>Data de Cadastro:</strong> {{ cliente.created_at }}</p>
+    <!-- Adicione mais informações conforme necessário -->
+</div>

@@ -1,124 +1,207 @@
-import logging
-from django.contrib import messages
-from django.shortcuts import get_object_or_404, render, redirect
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
+from django.http import JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
-from django.http import JsonResponse, Http404
-from django.db.models import Q
-
-from .models import Cliente
-from .forms import ClienteForm
-
-logger = logging.getLogger(__name__)
-PER_PAGE = 12
+from django.db import transaction
+from django.views import View
+from apps.enderecos.models import Cidade, Estado  # Certifique-se de importar Estado aqui
+from apps.enderecos.forms import EnderecoForm  # Formulário de endereço
+from .models import Cliente  # Modelo de cliente
+from .forms import ClienteForm  # Formulário de cliente
 
 
+# Função utilitária para detectar se a requisição é AJAX
+def is_ajax(request):
+    return request.headers.get('x-requested-with') == 'XMLHttpRequest'
+
+
+class CidadesPorEstadoView(View):
+    """
+    View para retornar as cidades de um estado.
+    """
+    def get(self, request, estado_id):
+        try:
+            estado = Estado.objects.get(id=estado_id)
+            cidades = estado.cidades.all().values('id', 'nome')
+            return JsonResponse({'cidades': list(cidades)})
+        except Estado.DoesNotExist:
+            return JsonResponse({'cidades': []}, status=404)
+
+
+# View para listar todos os clientes
 class ClienteListView(ListView):
     model = Cliente
-    template_name = 'clientes/list-clientes.html'
-    context_object_name = 'clientes'
-    paginate_by = PER_PAGE
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['form'] = ClienteForm()
-        return context
+    template_name = 'clientes/lista.html'
+    context_object_name = 'clientes'  # Nome da variável de contexto usada no template
 
 
-class ClienteCreateView(CreateView):
-    model = Cliente
-    form_class = ClienteForm
-    template_name = 'clientes/partials/form-cliente.html'
-    success_url = reverse_lazy('clientes:list-clientes')
-
-    def form_valid(self, form):
-        self.object = form.save()
-        if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            return JsonResponse({'message': 'Cliente cadastrado com sucesso!'})
-        messages.success(self.request, 'Cliente cadastrado com sucesso!')
-        return super().form_valid(form)
+# Mixin reutilizável para requisições AJAX (modal)
+class AjaxFormMixin:
+    """
+    Mixin que permite suporte AJAX para CreateView, UpdateView e DeleteView.
+    Renderiza templates modais em requisições AJAX e responde com JSON.
+    """
+    template_name_ajax = None  # Template alternativo a ser usado quando a requisição for AJAX
 
     def form_invalid(self, form):
-        if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            return JsonResponse({'errors': form.errors}, status=400)
-        messages.error(self.request, 'Erro ao cadastrar cliente.')
+        if is_ajax(self.request):
+            return JsonResponse({'success': False, 'errors': form.errors}, status=400)
         return super().form_invalid(form)
 
-from django.http import JsonResponse
-from django.views.generic import DetailView
-from .models import Cliente
-
-class ClienteDetailView(DetailView):
-    model = Cliente
-    template_name = 'cliente_detail.html'  # Você pode mudar isso caso queira usar uma template normal.
-
-    # Quando usamos o DetailView com JSON, não precisamos renderizar um template
-    # Então vamos sobrescrever o método get_context_data.
-    def render_to_response(self, context, **response_kwargs):
-        # Verifica se a requisição é uma requisição AJAX
-        if self.request.is_ajax():
-            cliente = self.get_object()  # Obtém o cliente com base no slug
-            data = {
-                'nome': cliente.nome,
-                'email': cliente.email,
-                'telefone': cliente.telefone,
-                'endereco': cliente.endereco,
-                'created_at': cliente.created_at,
-            }
-            return JsonResponse(data)
-        else:
-            # Se não for AJAX, exibe a página normalmente
-            return super().render_to_response(context, **response_kwargs)
-
-            
-class ClienteUpdateView(UpdateView):
-    model = Cliente
-    slug_field = 'slug'
-    slug_url_kwarg = 'slug'
-    fields = ['nome', 'email', 'telefone', 'endereco']
-    template_name = 'clientes/partials/form-cliente.html'  # O template que será usado para editar o cliente
-
-    def get_success_url(self):
-        return reverse_lazy('cliente_list')  # Redireciona para a lista de clientes após editar
-
     def form_valid(self, form):
-        # Aqui você pode adicionar qualquer lógica antes de salvar, se necessário
+        if isinstance(self, DeleteView):
+            return self.delete(self.request)
+
+        self.object = form.save()
+
+        if is_ajax(self.request):
+            return JsonResponse({'success': True})
+
         return super().form_valid(form)
 
     def get(self, request, *args, **kwargs):
-        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            self.object = self.get_object()
-            form = self.get_form()
-            return render(request, 'clientes/partials/form-cliente.html', {'form': form, 'cliente': self.object})
+        if is_ajax(request):
+            try:
+                self.object = self.get_object()
+            except AttributeError:
+                self.object = None
+
+            context = self.get_context_data()
+            return render(request, self.template_name_ajax, context)
+
         return super().get(request, *args, **kwargs)
 
 
-class ClienteDeleteView(DeleteView):
+# View para criar um novo cliente
+class ClienteCreateView(CreateView):
     model = Cliente
+    form_class = ClienteForm
+    template_name = 'clientes/form_modal.html'
+    success_url = reverse_lazy('clientes:lista_clientes')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if 'endereco_form' not in context:
+            context['endereco_form'] = EnderecoForm()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        endereco_form = EnderecoForm(request.POST)
+
+        if form.is_valid() and endereco_form.is_valid():
+            with transaction.atomic():
+                endereco = endereco_form.save()
+                cliente = form.save(commit=False)
+                cliente.endereco = endereco
+                cliente.save()
+
+            if is_ajax(request):
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Cliente criado com sucesso!',
+                    'cliente_id': cliente.id
+                })
+
+            return self.form_valid(form)
+        else:
+            if is_ajax(request):
+                return JsonResponse({'success': False, 'errors': form.errors}, status=400)
+
+            return render(request, self.template_name, {
+                'form': form,
+                'endereco_form': endereco_form
+            })
+
+
+# View para editar um cliente
+class ClienteUpdateView(UpdateView):
+    model = Cliente
+    form_class = ClienteForm
+    template_name = 'clientes/form_modal.html'
+    success_url = reverse_lazy('clientes:lista_clientes')
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
-    success_url = reverse_lazy('cliente_list')  # Redireciona para a lista de clientes após a exclusão
+
+    def get_object(self, queryset=None):
+        """
+        Obtém o objeto cliente usando o 'slug' da URL.
+        """
+        cliente_slug = self.kwargs.get(self.slug_url_kwarg)
+        return get_object_or_404(Cliente, slug=cliente_slug)
+
+    def get_context_data(self, **kwargs):
+        """
+        Adiciona o formulário de endereço ao contexto.
+        """
+        context = super().get_context_data(**kwargs)
+        cliente = self.get_object()
+        context['endereco_form'] = EnderecoForm(instance=cliente.endereco)
+        return context
+
+    def post(self, request, *args, **kwargs):
+        """
+        Processa a atualização do cliente e do endereço via AJAX ou formulário tradicional.
+        """
+        self.object = self.get_object()
+        cliente_form = self.get_form()
+        endereco_form = EnderecoForm(request.POST, instance=self.object.endereco)
+
+        if cliente_form.is_valid() and endereco_form.is_valid():
+            with transaction.atomic():
+                endereco = endereco_form.save()
+                cliente = cliente_form.save(commit=False)
+                cliente.endereco = endereco
+                cliente.save()
+
+            if is_ajax(request):
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Cliente atualizado com sucesso!',
+                    'cliente_id': cliente.id
+                })
+            return super().form_valid(cliente_form)
+        else:
+            if is_ajax(request):
+                return JsonResponse({'success': False, 'errors': cliente_form.errors}, status=400)
+            return render(request, self.template_name, {
+                'form': cliente_form,
+                'endereco_form': endereco_form
+            })
+
+
+# View para exibir os detalhes de um cliente
+class ClienteDetailView(DetailView):
+    model = Cliente
+    template_name = 'clientes/detalhes_cliente_modal.html'  # Template para exibir no modal
+    context_object_name = 'cliente'
+    slug_field = 'slug'  # Campo que será usado para buscar o cliente
+    slug_url_kwarg = 'slug'  # O parâmetro da URL que será usado para o slug
+
+    def get_object(self):
+        return Cliente.objects.get(slug=self.kwargs['slug'])
+
+    def get(self, request, *args, **kwargs):
+        if request.is_ajax():
+            self.object = self.get_object()
+            context = self.get_context_data()
+            return render(request, self.template_name, context)  # Retorna o template parcial para o modal
+        return super().get(request, *args, **kwargs)  # Caso contrário, renderiza a página normal
+
+
+# View para excluir um cliente (com confirmação via modal AJAX)
+class ClienteDeleteView(AjaxFormMixin, DeleteView):
+    model = Cliente
+    success_url = reverse_lazy('clientes:lista_clientes')
+    template_name = 'clientes/confirm_delete.html'
+    template_name_ajax = 'clientes/confirm_delete.html'
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
 
     def delete(self, request, *args, **kwargs):
-        cliente = self.get_object()  # Obtém o cliente com base no slug
-        cliente.delete()  # Exclui o cliente
-        return JsonResponse({'success': True})  # Retorna sucesso em formato JSON
+        self.object = self.get_object()
+        self.object.delete()
 
-
-class SearchListView(ClienteListView):
-    template_name = 'clientes/search-list.html'
-
-    def get_queryset(self):
-        qs = super().get_queryset()
-        search = self.request.GET.get('search', '').strip()
-        if search:
-            try:
-                qs = qs.filter(
-                    Q(nome__icontains=search) |
-                    Q(email__icontains=search) |
-                    Q(telefone__icontains=search)
-                ).distinct()
-            except Exception as e:
-                logger.error(f"Erro ao filtrar clientes com o critério '{search}': {e}")
-                qs = qs.none()
-        return qs
+        if is_ajax(request):
+            return JsonResponse({'success': True})
+        return redirect(self.success_url)

@@ -1,5 +1,9 @@
+<!-- fornecedores/confirm_delete.html -->
 <form method="post" action="{% url 'fornecedores:excluir_fornecedor' object.slug %}" onsubmit="excluirFornecedor(event, this)">
     {% csrf_token %}
     <p>Tem certeza que deseja excluir <strong>{{ object.nome }}</strong>?</p>
-    <button type="submit" class="btn btn-danger">Sim, excluir</button>
-</form>
+    <div class="text-end">
+      <button type="submit" class="btn btn-danger">Confirmar Exclusão</button>
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+    </div>
+  </form>
