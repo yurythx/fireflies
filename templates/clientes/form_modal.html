@@ -1,17 +1,35 @@
 {% load crispy_forms_tags %}
 
 <form id="cliente-form" method="post" action="{{ request.path }}">
-    {% csrf_token %}
-    {{ form|crispy }}
-    {{ endereco_form|crispy }}
-  
-    <div class="modal-footer">
-      <button type="submit" class="btn btn-primary" id="submit-btn">
-        <span id="submit-spinner" class="spinner-border spinner-border-sm me-2 d-none" role="status" aria-hidden="true"></span>
-        Salvar
-      </button>
-      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-    </div>
-  </form>
+  {% csrf_token %}
 
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Bloco do Formulário do Cliente -->
+      <div class="col-md-6">
+        <fieldset>
+          <legend class="fs-5 text-primary">Dados do Cliente</legend>
+          {{ form|crispy }}
+        </fieldset>
+      </div>
+
+      <!-- Bloco do Formulário de Endereço -->
+      <div class="col-md-6">
+        <fieldset>
+          <legend class="fs-5 text-primary">Endereço</legend>
+          {{ endereco_form|crispy }}
+        </fieldset>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rodapé do Modal -->
+  <div class="modal-footer mt-3">
+    <button type="submit" class="btn btn-primary" id="submit-btn">
+      <span id="submit-spinner" class="spinner-border spinner-border-sm me-2 d-none" role="status" aria-hidden="true"></span>
+      Salvar
+    </button>
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+  </div>
+</form>
 

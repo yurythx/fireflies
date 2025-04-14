@@ -1,4 +1,4 @@
-<!-- Vendor JS Files -->
+<!-- Arquivos JS de terceiros (Vendor JS Files) -->
 <script src="{{ ASSETS_ROOT }}pages/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="{{ ASSETS_ROOT }}pages/assets/vendor/php-email-form/validate.js"></script>
 <script src="{{ ASSETS_ROOT }}pages/assets/vendor/aos/aos.js"></script>
@@ -6,34 +6,35 @@
 <script src="{{ ASSETS_ROOT }}pages/assets/vendor/glightbox/js/glightbox.min.js"></script>
 <script src="{{ ASSETS_ROOT }}pages/assets/vendor/swiper/swiper-bundle.min.js"></script>
 
-<!-- Main JS Files -->
+<!-- Arquivos JS principais (Main JS Files) -->
 <script src="{{ ASSETS_ROOT }}pages/assets/js/main.js"></script>
 <script src="{{ ASSETS_ROOT }}articles/assets/js/tinymce/tinymce.min.js"></script>
 
 <!-- Dependências externas -->
-<!-- jQuery (apenas UMA versão) -->
+<!-- jQuery (use apenas uma versão) -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<!-- Bootstrap Bundle (com Popper) -->
+<!-- Bootstrap Bundle (inclui o Popper) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Toastr -->
+<!-- Toastr (para notificações de sucesso, erro, etc) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
 
-<!-- Font Awesome -->
+<!-- Font Awesome (para ícones) -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
 <!-- Scripts personalizados -->
 <script>
-
-    // Configura o CSRF token globalmente no jQuery
+    // Função para obter o token CSRF dos cookies
     function getCookie(name) {
         let cookieValue = null;
+        // Verifica se existe algum cookie
         if (document.cookie && document.cookie !== '') {
             const cookies = document.cookie.split(';');
             for (let i = 0; i < cookies.length; i++) {
                 const cookie = cookies[i].trim();
+                // Se o cookie for encontrado, retorna o valor decodificado
                 if (cookie.substring(0, name.length + 1) === (name + '=')) {
                     cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                     break;
@@ -43,9 +44,92 @@
         return cookieValue;
     }
 
-    const csrftoken = getCookie('csrftoken');
+    const csrftoken = getCookie('csrftoken');  // Obtém o token CSRF
 
+    // Configura o jQuery para incluir o token CSRF em todas as requisições AJAX
     $.ajaxSetup({
         headers: { 'X-CSRFToken': csrftoken }
     });
+</script>
+
+<script>
+    // Função para abrir o modal genérico com conteúdo dinâmico
+    function abrirModalGenerico(url, titulo = 'Carregando...') {
+        $('#clienteModalLabel').text(titulo);  // Define o título do modal
+        $('#clienteModal .modal-body').html(`
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Carregando...</span>
+                </div>
+            </div>
+        `);  // Exibe o ícone de carregamento enquanto o conteúdo não é carregado
+
+        // Realiza uma requisição GET para obter o conteúdo do modal
+        $.get(url, function(data) {
+            $('#clienteModal .modal-body').html(data);  // Preenche o corpo do modal com os dados retornados
+            const modalEl = document.getElementById('clienteModal');
+            const modal = new bootstrap.Modal(modalEl);  // Inicializa o modal com o Bootstrap
+            modal.show();  // Exibe o modal
+        }).fail(function() {
+            // Caso ocorra um erro, exibe uma mensagem de erro
+            $('#clienteModal .modal-body').html(`
+                <div class="alert alert-danger">Erro ao carregar o conteúdo.</div>
+            `);
+        });
+    }
+
+    // Função para abrir o modal com o título "Detalhes"
+    function abrirModal(url, titulo = 'Detalhes') {
+        abrirModalGenerico(url, titulo);
+    }
+
+    // Função para abrir o modal com o título "Detalhes do Cliente"
+    function abrirModalDetalhes(url) {
+        abrirModalGenerico(url, 'Detalhes do Cliente');
+    }
+
+    $(document).ready(function () {
+    // Quando o estado é alterado
+    $('#id_estado').on('change', function () {
+        const estadoId = $(this).val();  // Obtém o ID do estado selecionado
+        const cidadeSelect = $('#id_cidade');  // Obtém o campo de seleção de cidades
+
+        // Limpa o campo de cidades e exibe "Carregando..."
+        cidadeSelect.empty().append('<option value="">Carregando...</option>');
+
+        // Se um estado foi selecionado
+        if (estadoId) {
+            // Realiza a requisição AJAX para buscar as cidades associadas ao estado
+            $.ajax({
+                url: `/enderecos/cidades-por-estado/${estadoId}/`,  // URL para obter cidades
+                type: 'GET',
+                success: function (data) {
+                    cidadeSelect.empty();  // Limpa as opções de cidades
+
+                    // Se houver cidades, adiciona as opções no select
+                    if (data.cidades.length > 0) {
+                        $.each(data.cidades, function (i, cidade) {
+                            cidadeSelect.append($('<option>', {
+                                value: cidade.id,
+                                text: cidade.nome
+                            }));
+                        });
+                    } else {
+                        // Se não houver cidades, exibe uma mensagem
+                        cidadeSelect.append('<option value="">Nenhuma cidade disponível</option>');
+                    }
+                },
+                error: function () {
+                    // Se ocorrer um erro, exibe uma mensagem de erro
+                    cidadeSelect.empty().append('<option value="">Erro ao carregar cidades</option>');
+                }
+            });
+        } else {
+            // Se nenhum estado foi selecionado, exibe uma mensagem de instrução
+            cidadeSelect.empty().append('<option value="">Selecione um estado</option>');
+        }
+    });
+});
+
+
 </script>

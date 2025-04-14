@@ -1,19 +1,16 @@
 from django.db import models
 
-
-
 class Estado(models.Model):
     nome = models.CharField(max_length=100)
-    sigla = models.CharField(max_length=2)  # Ex: SP, RJ, MG
+    sigla = models.CharField(max_length=2)
 
     def __str__(self):
         return f"{self.nome} ({self.sigla})"
 
 
-
 class Cidade(models.Model):
     nome = models.CharField(max_length=100)
-    estado = models.ForeignKey(Estado, on_delete=models.CASCADE, related_name='cidades')
+    estado = models.ForeignKey(Estado, related_name='cidades', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.nome

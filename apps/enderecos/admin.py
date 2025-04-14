@@ -1,50 +1,45 @@
 from django.contrib import admin
 from .models import Estado, Cidade, Endereco
 
-# Admin para o modelo Estado
+
+@admin.register(Estado)
 class EstadoAdmin(admin.ModelAdmin):
-    # Exibição de campos na lista
     list_display = ('nome', 'sigla')
-
-    # Campos que serão buscáveis
     search_fields = ('nome', 'sigla')
+    ordering = ('nome',)
 
-    # Filtros por nome e sigla
-    list_filter = ('nome', 'sigla')
 
-# Admin para o modelo Cidade
+@admin.register(Cidade)
 class CidadeAdmin(admin.ModelAdmin):
-    # Exibição de campos na lista
     list_display = ('nome', 'estado')
-
-    # Filtros para as cidades por estado
     list_filter = ('estado',)
-
-    # Campos que serão buscáveis
     search_fields = ('nome',)
+    ordering = ('estado__nome', 'nome')
 
-# Admin para o modelo Endereco
+
+class EnderecoInline(admin.StackedInline):
+    model = Endereco
+    extra = 0
+    show_change_link = True
+
+
+@admin.register(Endereco)
 class EnderecoAdmin(admin.ModelAdmin):
-    # Exibição de campos na lista
-    list_display = ('rua', 'numero', 'bairro', 'estado', 'cidade', 'cep',)
-
-    # Filtros por cidade e estado
+    list_display = ('rua', 'numero', 'bairro', 'cidade', 'estado', 'cep', 'criado_em')
     list_filter = ('estado', 'cidade')
+    search_fields = ('rua', 'bairro', 'cidade__nome', 'estado__nome', 'cep')
+    ordering = ('-criado_em',)
 
-    # Campos que serão buscáveis
-    search_fields = ('rua', 'bairro', 'cep')
-
-    # Exibição de detalhes ao clicar no item da lista
     fieldsets = (
-        (None, {
-            'fields': ('rua', 'numero', 'complemento', 'bairro', 'estado', 'cidade', 'cep')
+        ('Dados do Endereço', {
+            'fields': ('rua', 'numero', 'complemento', 'bairro')
+        }),
+        ('Localização', {
+            'fields': ('estado', 'cidade', 'cep')
+        }),
+        ('Metadados', {
+            'fields': ('criado_em',),
+            'classes': ('collapse',),
         }),
     )
-
-    # Remover 'criado_em' de fieldsets pois é um campo não editável
-    # O Django já irá gerenciar esse campo automaticamente
-
-# Registrar os modelos no Django Admin
-admin.site.register(Estado, EstadoAdmin)
-admin.site.register(Cidade, CidadeAdmin)
-admin.site.register(Endereco, EnderecoAdmin)
+    readonly_fields = ('criado_em',)

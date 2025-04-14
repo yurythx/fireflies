@@ -1,10 +1,8 @@
 # apps/enderecos/urls.py
 
 from django.urls import path
-from . import views  # ou use `from apps.enderecos import views` se necessário
+from .views import CidadesPorEstadoView
 
 urlpatterns = [
-    # Exemplo de rota (opcional, só pra teste)
-    # path('', views.index, name='endereco_index'),
-    
+    path('cidades-por-estado/<int:estado_id>/', CidadesPorEstadoView.as_view(), name='cidades_por_estado'),
 ]

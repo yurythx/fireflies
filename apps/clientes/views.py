@@ -4,10 +4,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.db import transaction
 from django.views import View
-from apps.enderecos.models import Cidade, Estado  # Certifique-se de importar Estado aqui
-from apps.enderecos.forms import EnderecoForm  # Formulário de endereço
-from .models import Cliente  # Modelo de cliente
-from .forms import ClienteForm  # Formulário de cliente
+#from apps.enderecos.models import Cidade, Estado
+from apps.enderecos.forms import EnderecoForm 
+from .models import Cliente 
+from .forms import ClienteForm  
 
 
 # Função utilitária para detectar se a requisição é AJAX
@@ -15,24 +15,28 @@ def is_ajax(request):
     return request.headers.get('x-requested-with') == 'XMLHttpRequest'
 
 
-class CidadesPorEstadoView(View):
-    """
-    View para retornar as cidades de um estado.
-    """
-    def get(self, request, estado_id):
-        try:
-            estado = Estado.objects.get(id=estado_id)
-            cidades = estado.cidades.all().values('id', 'nome')
-            return JsonResponse({'cidades': list(cidades)})
-        except Estado.DoesNotExist:
-            return JsonResponse({'cidades': []}, status=404)
-
-
 # View para listar todos os clientes
 class ClienteListView(ListView):
     model = Cliente
-    template_name = 'clientes/lista.html'
-    context_object_name = 'clientes'  # Nome da variável de contexto usada no template
+    template_name = 'clientes/lista.html'  # Caminho do template que será renderizado
+    context_object_name = 'clientes'
+    paginate_by = 10  # Caso deseje paginar os resultados, pode configurar isso (opcional)
+
+    def get_queryset(self):
+        """
+        Modifica o queryset para filtrar os clientes com base nos parâmetros de nome e CPF.
+        """
+        nome_busca = self.request.GET.get('nome', '')
+        cpf_busca = self.request.GET.get('cpf', '')
+
+        queryset = Cliente.objects.all()
+
+        if nome_busca:
+            queryset = queryset.filter(nome__icontains=nome_busca)
+        if cpf_busca:
+            queryset = queryset.filter(cpf__icontains=cpf_busca)
+
+        return queryset
 
 
 # Mixin reutilizável para requisições AJAX (modal)
@@ -182,12 +186,12 @@ class ClienteDetailView(DetailView):
         return Cliente.objects.get(slug=self.kwargs['slug'])
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        # Verifica se a requisição é AJAX
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             self.object = self.get_object()
             context = self.get_context_data()
             return render(request, self.template_name, context)  # Retorna o template parcial para o modal
         return super().get(request, *args, **kwargs)  # Caso contrário, renderiza a página normal
-
 
 # View para excluir um cliente (com confirmação via modal AJAX)
 class ClienteDeleteView(AjaxFormMixin, DeleteView):
