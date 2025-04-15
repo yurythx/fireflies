@@ -1,11 +1,13 @@
 <!-- clientes/detalhes_cliente_modal.html -->
 <div class="p-3">
-    <h5 class="text-primary mb-3">Detalhes do Cliente</h5>
-    <ul class="list-group list-group-flush">
-      <li class="list-group-item"><strong>Nome:</strong> {{ cliente.nome }}</li>
-      <li class="list-group-item"><strong>Email:</strong> {{ cliente.email }}</li>
-      <li class="list-group-item"><strong>CPF:</strong> {{ cliente.cpf }}</li>
-      <li class="list-group-item"><strong>Telefone:</strong> {{ cliente.telefone }}</li>
-      <li class="list-group-item"><strong>Endereço:</strong> {{ cliente.endereco }}</li>
-    </ul>
-  </div>
+  <h5 class="text-primary mb-3">Detalhes do Cliente</h5>
+  <ul class="list-group list-group-flush">
+    <li class="list-group-item"><strong>Nome:</strong> {{ cliente.nome }}</li>
+    <li class="list-group-item"><strong>Email:</strong> {{ cliente.email }}</li>
+    <li class="list-group-item"><strong>Telefone:</strong> {{ cliente.telefone|default:"Não informado" }}</li>
+    <li class="list-group-item"><strong>CPF:</strong> {{ cliente.cpf|default:"Não informado" }}</li>
+    <li class="list-group-item"><strong>CNPJ:</strong> {{ cliente.cnpj|default:"Não informado" }}</li>
+    <li class="list-group-item"><strong>Data de nascimento:</strong> {{ cliente.data_nascimento|date:"d/m/y" }}</li>
+    <li class="list-group-item"><strong>Endereço:</strong> {{ cliente.endereco|default:"Não informado" }}</li>
+  </ul>
+</div>

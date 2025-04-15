@@ -1,105 +1,202 @@
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
-
+from django.db import transaction
 from .models import Fornecedor
 from .forms import FornecedorForm
+from apps.enderecos.forms import EnderecoForm
 
 
-# Função utilitária para detectar se a requisição é AJAX (ex: carregamento de modal)
 def is_ajax(request):
     return request.headers.get('x-requested-with') == 'XMLHttpRequest'
 
 
-# View para listar todos os fornecedores
 class FornecedorListView(ListView):
     model = Fornecedor
-    template_name = 'fornecedores/lista.html'
-    context_object_name = 'fornecedores'  # Nome da variável de contexto usada no template
+    template_name = 'fornecedores/lista_fornecedores.html'
+    context_object_name = 'fornecedores'
+
+    def render_to_response(self, context, **response_kwargs):
+        if is_ajax(self.request):
+            return render(self.request, 'fornecedores/_lista_fornecedores.html', context)
+        return super().render_to_response(context, **response_kwargs)
+
+    def get_queryset(self):
+        """
+        Modifica o queryset para filtrar os fornecedores com base nos parâmetros de nome e CNPJ.
+        """
+        nome_busca = self.request.GET.get('nome', '')
+        cnpj_busca = self.request.GET.get('cnpj', '')
+
+        queryset = Fornecedor.objects.all()
+
+        if nome_busca:
+            queryset = queryset.filter(nome__icontains=nome_busca)
+        if cnpj_busca:
+            queryset = queryset.filter(cnpj__icontains=cnpj_busca)
+
+        return queryset
 
 
-# Mixin reutilizável que adiciona suporte para requisições AJAX (modal)
+# Mixin reutilizável para requisições AJAX (modal)
 class AjaxFormMixin:
-    """
-    Mixin que permite suporte AJAX para CreateView, UpdateView e DeleteView.
-    Renderiza templates modais em requisições AJAX e responde com JSON.
-    """
     template_name_ajax = None  # Template alternativo a ser usado quando a requisição for AJAX
 
     def form_invalid(self, form):
-        # Retorna erros de formulário em formato JSON, se for uma requisição AJAX
         if is_ajax(self.request):
             return JsonResponse({'success': False, 'errors': form.errors}, status=400)
         return super().form_invalid(form)
 
     def form_valid(self, form):
-        # Se for uma DeleteView, o form não tem save(), então chamamos delete diretamente
         if isinstance(self, DeleteView):
             return self.delete(self.request)
-        
-        # Para Create/Update, salva o objeto normalmente
+
         self.object = form.save()
 
-        # Em caso de AJAX, retorna resposta JSON indicando sucesso
         if is_ajax(self.request):
             return JsonResponse({'success': True})
 
-        # Caso contrário, segue o fluxo normal da view
         return super().form_valid(form)
 
     def get(self, request, *args, **kwargs):
-        # Se for requisição AJAX, usa template alternativo para modal
         if is_ajax(request):
             try:
-                # Pega o objeto, se a view tiver `get_object()` (Update/Delete)
                 self.object = self.get_object()
             except AttributeError:
-                self.object = None  # Em CreateView, não há objeto ainda
+                self.object = None
 
             context = self.get_context_data()
             return render(request, self.template_name_ajax, context)
 
-        # Requisição padrão (não AJAX)
         return super().get(request, *args, **kwargs)
 
 
-# View para criar um novo fornecedor (suporte AJAX incluído via mixin)
-class FornecedorCreateView(AjaxFormMixin, CreateView):
+# View para criar um novo fornecedor
+class FornecedorCreateView(CreateView):
     model = Fornecedor
     form_class = FornecedorForm
-    success_url = reverse_lazy('fornecedores:lista_fornecedores')
-    template_name = 'fornecedores/fornecedor_form.html'
-    template_name_ajax = 'fornecedores/form_modal.html'  # Modal usado com AJAX
+    template_name = 'fornecedores/form_fornecedor.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['endereco_form'] = kwargs.get('endereco_form') or EnderecoForm()
+        return context
 
-# View para editar um fornecedor existente
-class FornecedorUpdateView(AjaxFormMixin, UpdateView):
+    def form_invalid(self, form):
+        # Processa erro do formulário principal + formulário de endereço
+        endereco_form = EnderecoForm(self.request.POST)
+        return JsonResponse({
+            'success': False,
+            'errors': form.errors,
+            'endereco_errors': endereco_form.errors if not endereco_form.is_valid() else {}
+        }, status=400)
+
+    def form_valid(self, form):
+        fornecedor = form.save()
+        endereco_form = EnderecoForm(self.request.POST)
+
+        if endereco_form.is_valid():
+            endereco = endereco_form.save()
+            fornecedor.endereco = endereco
+            fornecedor.save()
+            return JsonResponse({'success': True, 'message': 'Fornecedor criado com sucesso!'})
+        else:
+            return JsonResponse({
+                'success': False,
+                'errors': {},
+                'endereco_errors': endereco_form.errors
+            }, status=400)
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            if form.is_valid():
+                return self.form_valid(form)
+            else:
+                return self.form_invalid(form)
+        return super().post(request, *args, **kwargs)
+
+# View para editar um fornecedor
+class FornecedorUpdateView(UpdateView):
     model = Fornecedor
     form_class = FornecedorForm
-    success_url = reverse_lazy('fornecedores:lista_fornecedores')
-    template_name = 'fornecedores/fornecedor_form.html'
-    template_name_ajax = 'fornecedores/form_modal.html'
-    slug_field = 'slug'               # Campo usado na URL para identificar o objeto
-    slug_url_kwarg = 'slug'           # Nome do parâmetro capturado na URL
-
-
-# View para excluir um fornecedor (com confirmação via modal AJAX)
-class FornecedorDeleteView(AjaxFormMixin, DeleteView):
-    model = Fornecedor
-    success_url = reverse_lazy('fornecedores:lista_fornecedores')
-    template_name = 'fornecedores/confirm_delete.html'
-    template_name_ajax = 'fornecedores/confirm_delete.html'  # Usado para modal também
+    template_name = 'fornecedores/form_fornecedor.html'
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        fornecedor = self.get_object()
+        # Popula o formulário de endereço com o existente
+        context['endereco_form'] = kwargs.get('endereco_form') or EnderecoForm(instance=fornecedor.endereco)
+        return context
+
+    def form_invalid(self, form):
+        fornecedor = self.get_object()
+        endereco_form = EnderecoForm(self.request.POST, instance=fornecedor.endereco)
+
+        return JsonResponse({
+            'success': False,
+            'errors': form.errors,
+            'endereco_errors': endereco_form.errors if not endereco_form.is_valid() else {}
+        }, status=400)
+
+    def form_valid(self, form):
+        fornecedor = form.save()
+        endereco_form = EnderecoForm(self.request.POST, instance=fornecedor.endereco)
+
+        if endereco_form.is_valid():
+            endereco_form.save()
+            return JsonResponse({'success': True, 'message': 'Fornecedor atualizado com sucesso!'})
+        else:
+            return JsonResponse({
+                'success': False,
+                'errors': {},
+                'endereco_errors': endereco_form.errors
+            }, status=400)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.get_form()
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            if form.is_valid():
+                return self.form_valid(form)
+            else:
+                return self.form_invalid(form)
+        return super().post(request, *args, **kwargs)
+
+
+# View para exibir os detalhes de um fornecedor
+class FornecedorDetailView(DetailView):
+    model = Fornecedor
+    template_name = 'fornecedores/detalhes_fornecedor_modal.html'
+    context_object_name = 'fornecedor'
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
+
+    def get_object(self):
+        return Fornecedor.objects.get(slug=self.kwargs['slug'])
+
+    def get(self, request, *args, **kwargs):
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            self.object = self.get_object()
+            context = self.get_context_data()
+            return render(request, self.template_name, context)
+        return super().get(request, *args, **kwargs)
+
+class FornecedorDeleteView(DeleteView):
+    model = Fornecedor
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
+    template_name = 'fornecedores/confirm_delete.html'
+    success_url = reverse_lazy('fornecedores:lista_fornecedores')
+
     def delete(self, request, *args, **kwargs):
-        # Exclui o objeto e responde conforme o tipo de requisição
         self.object = self.get_object()
         self.object.delete()
 
-        if is_ajax(request):
-            return JsonResponse({'success': True})
-        return redirect(self.success_url)
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': True, 'message': 'Fornecedor excluído com sucesso!'})
+        
+        return super().delete(request, *args, **kwargs)

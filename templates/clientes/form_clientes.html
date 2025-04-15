@@ -1,0 +1,47 @@
+{% load crispy_forms_tags %}
+{% load static %}
+
+<!-- TOAST para sucesso -->
+<!-- Exibe uma notificação de sucesso quando o cliente é salvo -->
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 1055">
+  <div id="toast-success" class="toast align-items-center text-bg-success border-0" role="alert">
+    <div class="d-flex">
+      <div class="toast-body" id="toast-message"></div> <!-- Mensagem do toast -->
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fechar"></button>
+    </div>
+  </div>
+</div>
+
+<!-- FORMULÁRIO -->
+<!-- Agora é o formulário de cliente -->
+<form id="cliente-form" method="post" action="{{ request.path }}">
+  {% csrf_token %} <!-- Token de segurança CSRF para proteger contra ataques -->
+
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-6">
+        <fieldset>
+          <legend class="fs-5 text-primary">Dados do Cliente</legend>
+          {{ form|crispy }} <!-- Renderiza o formulário do cliente com o estilo crispy -->
+        </fieldset>
+      </div>
+      <div class="col-md-6">
+        <fieldset>
+          <legend class="fs-5 text-primary">Endereço</legend>
+          {{ endereco_form|crispy }} <!-- Renderiza o formulário de endereço com o estilo crispy -->
+        </fieldset>
+      </div>
+    </div>
+  </div>
+
+  <!-- Exibe erros de validação do formulário, caso existam -->
+  <div id="form-errors" class="alert alert-danger d-none mt-3"></div>
+
+  <div class="modal-footer mt-3">
+    <button type="submit" class="btn btn-primary" id="submit-btn">
+      <span id="submit-spinner" class="spinner-border spinner-border-sm me-2 d-none" role="status" aria-hidden="true"></span> <!-- Ícone de carregamento -->
+      Salvar
+    </button>
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+  </div>
+</form>

@@ -18,7 +18,7 @@ urlpatterns = [
     path("clientes/", include("apps.clientes.urls")),
     path('fornecedores/', include('apps.fornecedores.urls', namespace='fornecedores')),  # Namespace configurado!
 
-path('tinymce/', include('tinymce.urls')),
+    path('tinymce/', include('tinymce.urls')),
 
 ]
 

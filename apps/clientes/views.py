@@ -3,24 +3,24 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.db import transaction
-from django.views import View
-#from apps.enderecos.models import Cidade, Estado
-from apps.enderecos.forms import EnderecoForm 
-from .models import Cliente 
-from .forms import ClienteForm  
+from .models import Cliente
+from .forms import ClienteForm
+from apps.enderecos.forms import EnderecoForm
 
 
-# Função utilitária para detectar se a requisição é AJAX
 def is_ajax(request):
     return request.headers.get('x-requested-with') == 'XMLHttpRequest'
 
 
-# View para listar todos os clientes
 class ClienteListView(ListView):
     model = Cliente
-    template_name = 'clientes/lista.html'  # Caminho do template que será renderizado
+    template_name = 'clientes/lista_clientes.html'
     context_object_name = 'clientes'
-    paginate_by = 10  # Caso deseje paginar os resultados, pode configurar isso (opcional)
+
+    def render_to_response(self, context, **response_kwargs):
+        if is_ajax(self.request):
+            return render(self.request, 'clientes/_lista_clientes.html', context)
+        return super().render_to_response(context, **response_kwargs)
 
     def get_queryset(self):
         """
@@ -41,10 +41,6 @@ class ClienteListView(ListView):
 
 # Mixin reutilizável para requisições AJAX (modal)
 class AjaxFormMixin:
-    """
-    Mixin que permite suporte AJAX para CreateView, UpdateView e DeleteView.
-    Renderiza templates modais em requisições AJAX e responde com JSON.
-    """
     template_name_ajax = None  # Template alternativo a ser usado quando a requisição for AJAX
 
     def form_invalid(self, form):
@@ -76,136 +72,131 @@ class AjaxFormMixin:
         return super().get(request, *args, **kwargs)
 
 
-# View para criar um novo cliente
+# View para criar um novo fornecedor
 class ClienteCreateView(CreateView):
     model = Cliente
     form_class = ClienteForm
-    template_name = 'clientes/form_modal.html'
-    success_url = reverse_lazy('clientes:lista_clientes')
+    template_name = 'clientes/form_clientes.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if 'endereco_form' not in context:
-            context['endereco_form'] = EnderecoForm()
+        context['endereco_form'] = kwargs.get('endereco_form') or EnderecoForm()
         return context
+
+    def form_invalid(self, form):
+        # Processa erro do formulário principal + formulário de endereço
+        endereco_form = EnderecoForm(self.request.POST)
+        return JsonResponse({
+            'success': False,
+            'errors': form.errors,
+            'endereco_errors': endereco_form.errors if not endereco_form.is_valid() else {}
+        }, status=400)
+
+    def form_valid(self, form):
+        cliente = form.save()
+        endereco_form = EnderecoForm(self.request.POST)
+
+        if endereco_form.is_valid():
+            endereco = endereco_form.save()
+            cliente.endereco = endereco
+            cliente.save()
+            return JsonResponse({'success': True, 'message': 'Cliente criado com sucesso!'})
+        else:
+            return JsonResponse({
+                'success': False,
+                'errors': {},
+                'endereco_errors': endereco_form.errors
+            }, status=400)
 
     def post(self, request, *args, **kwargs):
         form = self.get_form()
-        endereco_form = EnderecoForm(request.POST)
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            if form.is_valid():
+                return self.form_valid(form)
+            else:
+                return self.form_invalid(form)
+        return super().post(request, *args, **kwargs)
 
-        if form.is_valid() and endereco_form.is_valid():
-            with transaction.atomic():
-                endereco = endereco_form.save()
-                cliente = form.save(commit=False)
-                cliente.endereco = endereco
-                cliente.save()
-
-            if is_ajax(request):
-                return JsonResponse({
-                    'success': True,
-                    'message': 'Cliente criado com sucesso!',
-                    'cliente_id': cliente.id
-                })
-
-            return self.form_valid(form)
-        else:
-            if is_ajax(request):
-                return JsonResponse({'success': False, 'errors': form.errors}, status=400)
-
-            return render(request, self.template_name, {
-                'form': form,
-                'endereco_form': endereco_form
-            })
-
-
-# View para editar um cliente
+# View para editar um Cliente
 class ClienteUpdateView(UpdateView):
     model = Cliente
     form_class = ClienteForm
-    template_name = 'clientes/form_modal.html'
-    success_url = reverse_lazy('clientes:lista_clientes')
+    template_name = 'clientes/form_clientes.html'
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
 
-    def get_object(self, queryset=None):
-        """
-        Obtém o objeto cliente usando o 'slug' da URL.
-        """
-        cliente_slug = self.kwargs.get(self.slug_url_kwarg)
-        return get_object_or_404(Cliente, slug=cliente_slug)
-
     def get_context_data(self, **kwargs):
-        """
-        Adiciona o formulário de endereço ao contexto.
-        """
         context = super().get_context_data(**kwargs)
         cliente = self.get_object()
-        context['endereco_form'] = EnderecoForm(instance=cliente.endereco)
+        # Popula o formulário de endereço com o existente
+        context['endereco_form'] = kwargs.get('endereco_form') or EnderecoForm(instance=cliente.endereco)
         return context
 
-    def post(self, request, *args, **kwargs):
-        """
-        Processa a atualização do cliente e do endereço via AJAX ou formulário tradicional.
-        """
-        self.object = self.get_object()
-        cliente_form = self.get_form()
-        endereco_form = EnderecoForm(request.POST, instance=self.object.endereco)
+    def form_invalid(self, form):
+        cliente = self.get_object()
+        endereco_form = EnderecoForm(self.request.POST, instance=cliente.endereco)
 
-        if cliente_form.is_valid() and endereco_form.is_valid():
-            with transaction.atomic():
-                endereco = endereco_form.save()
-                cliente = cliente_form.save(commit=False)
-                cliente.endereco = endereco
-                cliente.save()
+        return JsonResponse({
+            'success': False,
+            'errors': form.errors,
+            'endereco_errors': endereco_form.errors if not endereco_form.is_valid() else {}
+        }, status=400)
 
-            if is_ajax(request):
-                return JsonResponse({
-                    'success': True,
-                    'message': 'Cliente atualizado com sucesso!',
-                    'cliente_id': cliente.id
-                })
-            return super().form_valid(cliente_form)
+    def form_valid(self, form):
+        cliente = form.save()
+        endereco_form = EnderecoForm(self.request.POST, instance=cliente.endereco)
+
+        if endereco_form.is_valid():
+            endereco_form.save()
+            return JsonResponse({'success': True, 'message': 'Cliente atualizado com sucesso!'})
         else:
-            if is_ajax(request):
-                return JsonResponse({'success': False, 'errors': cliente_form.errors}, status=400)
-            return render(request, self.template_name, {
-                'form': cliente_form,
-                'endereco_form': endereco_form
-            })
+            return JsonResponse({
+                'success': False,
+                'errors': {},
+                'endereco_errors': endereco_form.errors
+            }, status=400)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.get_form()
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            if form.is_valid():
+                return self.form_valid(form)
+            else:
+                return self.form_invalid(form)
+        return super().post(request, *args, **kwargs)
 
 
-# View para exibir os detalhes de um cliente
+# View para exibir os detalhes de um fornecedor
 class ClienteDetailView(DetailView):
     model = Cliente
-    template_name = 'clientes/detalhes_cliente_modal.html'  # Template para exibir no modal
+    template_name = 'clientes/detalhes_cliente_modal.html'
     context_object_name = 'cliente'
-    slug_field = 'slug'  # Campo que será usado para buscar o cliente
-    slug_url_kwarg = 'slug'  # O parâmetro da URL que será usado para o slug
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
 
     def get_object(self):
         return Cliente.objects.get(slug=self.kwargs['slug'])
 
     def get(self, request, *args, **kwargs):
-        # Verifica se a requisição é AJAX
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             self.object = self.get_object()
             context = self.get_context_data()
-            return render(request, self.template_name, context)  # Retorna o template parcial para o modal
-        return super().get(request, *args, **kwargs)  # Caso contrário, renderiza a página normal
+            return render(request, self.template_name, context)
+        return super().get(request, *args, **kwargs)
 
-# View para excluir um cliente (com confirmação via modal AJAX)
-class ClienteDeleteView(AjaxFormMixin, DeleteView):
+class ClienteDeleteView(DeleteView):
     model = Cliente
-    success_url = reverse_lazy('clientes:lista_clientes')
-    template_name = 'clientes/confirm_delete.html'
-    template_name_ajax = 'clientes/confirm_delete.html'
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
+    template_name = 'clientes/confirm_delete.html'
+    success_url = reverse_lazy('clientes:lista_clientes')
 
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
         self.object.delete()
 
-        if is_ajax(request):
-            return JsonResponse({'success': True})
-        return redirect(self.success_url)
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': True, 'message': 'Cliente excluído com sucesso!'})
+        
+        return super().delete(request, *args, **kwargs)

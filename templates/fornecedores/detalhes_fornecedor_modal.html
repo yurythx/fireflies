@@ -1,0 +1,13 @@
+<!-- fornecedores/detalhes_fornecedor_modal.html -->
+<div class="p-3">
+  <h5 class="text-primary mb-3">Detalhes do Fornecedor</h5>
+  <ul class="list-group list-group-flush">
+    <li class="list-group-item"><strong>Nome:</strong> {{ fornecedor.nome }}</li>
+    <li class="list-group-item"><strong>Email:</strong> {{ fornecedor.email }}</li>
+    <li class="list-group-item"><strong>Telefone:</strong> {{ fornecedor.telefone|default:"Não informado" }}</li>
+    <li class="list-group-item"><strong>CPF:</strong> {{ fornecedor.cpf|default:"Não informado" }}</li>
+    <li class="list-group-item"><strong>CNPJ:</strong> {{ fornecedor.cnpj|default:"Não informado" }}</li>
+    <li class="list-group-item"><strong>Data de fundação:</strong> {{ fornecedor.data_fundacao|date:"d/m/y" }}</li>
+    <li class="list-group-item"><strong>Endereço:</strong> {{ fornecedor.endereco|default:"Não informado" }}</li>
+  </ul>
+</div>

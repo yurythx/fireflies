@@ -1,9 +1,78 @@
 <!-- fornecedores/confirm_delete.html -->
-<form method="post" action="{% url 'fornecedores:excluir_fornecedor' object.slug %}" onsubmit="excluirFornecedor(event, this)">
-    {% csrf_token %}
-    <p>Tem certeza que deseja excluir <strong>{{ object.nome }}</strong>?</p>
-    <div class="text-end">
-      <button type="submit" class="btn btn-danger">Confirmar Exclusão</button>
-      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-    </div>
-  </form>
+<form id="form-delete" method="post" action="{{ request.path }}">
+  {% csrf_token %}
+  <p class="mb-3">Tem certeza que deseja excluir o fornecedor <strong>{{ object.nome }}</strong>?</p>
+  <div class="d-flex justify-content-end gap-2">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+    <button type="submit" class="btn btn-danger">Sim, excluir</button>
+  </div>
+</form>
+
+<script>
+  // Função para excluir o fornecedor via AJAX
+  document.getElementById('form-delete').addEventListener('submit', function (event) {
+    event.preventDefault(); // Impede o envio normal do formulário
+
+    const form = this;
+    const modalBody = document.getElementById('modalBody');
+
+    // Desabilita o botão de submissão para evitar múltiplos envios
+    const btnSubmit = form.querySelector('[type="submit"]');
+    btnSubmit.disabled = true;
+    btnSubmit.textContent = 'Excluindo...';
+
+    // Envia a solicitação AJAX
+    fetch(form.action, {
+      method: 'POST',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRFToken': form.querySelector('[name="csrfmiddlewaretoken"]').value,
+      },
+      body: new FormData(form),
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Fechar o modal e atualizar a lista de fornecedores
+        bootstrap.Modal.getInstance(document.getElementById('fornecedorModal')).hide();
+        document.getElementById(`fornecedor-${data.slug}`).remove(); // Remove o fornecedor da lista
+        mostrarToast(data.message || 'Fornecedor excluído com sucesso!');
+      } else {
+        mostrarToast(data.message || 'Erro ao excluir fornecedor.', 'danger');
+      }
+    })
+    .catch(error => {
+      console.error('Erro ao excluir fornecedor:', error);
+      mostrarToast('Erro ao processar a requisição.', 'danger');
+    })
+    .finally(() => {
+      // Restaura o estado do botão de submissão
+      btnSubmit.disabled = false;
+      btnSubmit.textContent = 'Sim, excluir';
+    });
+  });
+
+  // Função para exibir mensagens toast
+  function mostrarToast(mensagem, tipo = 'success') {
+    const toastContainer = document.createElement('div');
+    toastContainer.className = `toast align-items-center text-bg-${tipo} border-0 position-fixed bottom-0 end-0 m-3`;
+    toastContainer.setAttribute('role', 'alert');
+    toastContainer.setAttribute('aria-live', 'assertive');
+    toastContainer.setAttribute('aria-atomic', 'true');
+
+    toastContainer.innerHTML = `
+      <div class="d-flex">
+        <div class="toast-body">${mensagem}</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fechar"></button>
+      </div>
+    `;
+
+    document.body.appendChild(toastContainer);
+    const toast = new bootstrap.Toast(toastContainer);
+    toast.show();
+
+    toastContainer.addEventListener('hidden.bs.toast', () => {
+      toastContainer.remove();
+    });
+  }
+</script>
