@@ -25,7 +25,7 @@
       <h1 class="display-5 fw-bold text-primary">Lista de Clientes</h1>
     </a>
     <button class="btn btn-success" onclick="abrirModal('{% url 'clientes:novo_cliente' %}', 'Novo Cliente')">
-      <i class="fas fa-building me-1"></i> Novo Cliente
+      <i class="fas fa-plus-circle me-1"></i> Novo Cliente
     </button>
   </div>
 
@@ -80,11 +80,10 @@
           <i class="fas fa-edit me-1"></i> Editar
         </button>
         <button class="btn btn-sm btn-outline-danger"
-                onclick="abrirModal('{% url 'clientes:excluir_cliente' cliente.slug %}', 'Excluir cliente')"
-                title="Excluir Cliente">
+           onclick="abrirModalGenerico('{% url 'clientes:excluir_cliente' cliente.slug %}', 'Excluir Cliente')">
           <i class="fas fa-trash-alt me-1"></i> Excluir
         </button>
-    
+        
       </div>
     </div>
     {% empty %}
@@ -116,14 +115,22 @@
 
 {{ block.super }}
 
-
 <script>
-   const urlCidadesPorEstado = "{% url 'enderecos:cidades_por_estado' 0 %}".replace('/0/', '/');
+
+// URL base para buscar cidades de um estado via AJAX (substitui o 0 pelo ID real depois)
+const urlCidadesPorEstado = "{% url 'enderecos:cidades_por_estado' 0 %}".replace('/0/', '/');
+
+/**
+ * Abre um modal genérico e carrega conteúdo via AJAX
+ * @param {string} url - URL a ser carregada no modal
+ * @param {string} titulo - Título exibido no cabeçalho do modal
+ */
 
 function abrirModalGenerico(url, titulo = 'Carregando...') {
   const modalLabel = document.getElementById('clienteModalLabel');
   const modalBody = document.getElementById('modalBody');
 
+  // Define o título do modal e mostra um spinner de carregamento
   modalLabel.textContent = titulo;
   modalBody.innerHTML = `
     <div class="text-center py-5">
@@ -133,76 +140,48 @@ function abrirModalGenerico(url, titulo = 'Carregando...') {
     </div>
   `;
 
+  // Requisição AJAX para carregar o conteúdo do modal
   fetch(url, {
-    headers: {
-      'X-Requested-With': 'XMLHttpRequest'
-    }
+    headers: { 'X-Requested-With': 'XMLHttpRequest' }
   })
-  .then(response => {
-    if (!response.ok) throw new Error('Erro ao carregar o conteúdo');
-    return response.text();
-  })
-  .then(html => {
-    modalBody.innerHTML = html;
-    const modal = new bootstrap.Modal(document.getElementById('clienteModal'));
-    modal.show();
-    ativarListenersEndereco?.();
-  })
-  .catch(() => {
-    modalBody.innerHTML = '<div class="alert alert-danger">Erro ao carregar conteúdo.</div>';
-  });
+    .then(response => {
+      if (!response.ok) throw new Error('Erro ao carregar o conteúdo');
+      return response.text();
+    })
+    .then(html => {
+      modalBody.innerHTML = html;
+
+      // Exibe o modal após o carregamento do conteúdo
+      const modal = new bootstrap.Modal(document.getElementById('clienteModal'));
+      modal.show();
+
+      // Ativa eventos do formulário de endereço (opcional)
+      ativarListenersEndereco?.();
+    })
+    .catch(() => {
+      modalBody.innerHTML = '<div class="alert alert-danger">Erro ao carregar conteúdo.</div>';
+    });
 }
 
+// Função auxiliar para abrir formulário no modal
 function abrirModal(url, titulo = 'Formulário') {
   abrirModalGenerico(url, titulo);
 }
 
+// Função auxiliar para abrir detalhes no modal
 function abrirModalDetalhes(url) {
   abrirModalGenerico(url, 'Detalhes do Cliente');
 }
 
-function ativarListenersEndereco() {
-  const estadoSelect = document.getElementById('id_estado');
-  const cidadeSelect = document.getElementById('id_cidade');
-
-  if (!estadoSelect || !cidadeSelect) return;
-
-  estadoSelect.addEventListener('change', () => {
-    const estadoId = estadoSelect.value;
-    cidadeSelect.innerHTML = '<option value="">Carregando...</option>';
-
-    if (estadoId) {
-      fetch(`${urlCidadesPorEstado}${estadoId}/`)
-        .then(res => res.json())
-        .then(data => {
-          cidadeSelect.innerHTML = '';
-          if (data.cidades?.length) {
-            data.cidades.forEach(cidade => {
-              const option = document.createElement('option');
-              option.value = cidade.id;
-              option.textContent = cidade.nome;
-              cidadeSelect.appendChild(option);
-            });
-          } else {
-            cidadeSelect.innerHTML = '<option value="">Nenhuma cidade encontrada</option>';
-          }
-        })
-        .catch(() => {
-          cidadeSelect.innerHTML = '<option value="">Erro ao carregar cidades</option>';
-        });
-    } else {
-      cidadeSelect.innerHTML = '<option value="">Selecione um estado</option>';
-    }
-  });
-
-  estadoSelect.dispatchEvent(new Event('change'));
-}
-
+/**
+ * Captura submissões de formulário dentro do modal e envia via AJAX
+ */
 document.addEventListener('submit', async function (e) {
   const form = e.target;
+
   if (form.closest('#clienteModal')) {
     e.preventDefault();
-    limparErrosFormulario();
+    limparErrosFormulario(); // Limpa erros anteriores
 
     const btnSubmit = form.querySelector('[type="submit"]');
     if (btnSubmit) {
@@ -216,26 +195,28 @@ document.addEventListener('submit', async function (e) {
     try {
       const response = await fetch(url, {
         method: 'POST',
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest'
-        },
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
         body: formData
       });
 
       const data = await response.json();
 
       if (response.ok && data.success) {
+        // Fecha modal, atualiza lista e exibe mensagem
         bootstrap.Modal.getInstance(document.getElementById('clienteModal')).hide();
         atualizarListaClientes();
         mostrarToast(data.message || 'Operação realizada com sucesso!');
       } else {
+        // Exibe erros de validação
         exibirErrosFormulario(data.errors || {}, data.endereco_errors || {});
         mostrarToast('Verifique os erros no formulário.', 'danger');
       }
+
     } catch (error) {
       console.error('Erro no envio do formulário:', error);
       mostrarToast('Erro ao processar requisição.', 'danger');
     } finally {
+      // Restaura o botão de envio
       if (btnSubmit) {
         btnSubmit.disabled = false;
         btnSubmit.textContent = 'Salvar';
@@ -244,6 +225,11 @@ document.addEventListener('submit', async function (e) {
   }
 });
 
+/**
+ * Exibe erros de validação do formulário
+ * @param {object} errors - Erros do formulário principal
+ * @param {object} enderecoErrors - Erros do formulário de endereço (nested)
+ */
 function exibirErrosFormulario(errors, enderecoErrors) {
   const todosErros = {
     ...errors,
@@ -264,101 +250,36 @@ function exibirErrosFormulario(errors, enderecoErrors) {
   }
 }
 
+/**
+ * Remove classes e mensagens de erro de validações anteriores
+ */
 function limparErrosFormulario() {
   document.querySelectorAll('.invalid-feedback').forEach(e => e.remove());
   document.querySelectorAll('.is-invalid').forEach(e => e.classList.remove('is-invalid'));
 }
 
+/**
+ * Atualiza dinamicamente a lista de clientes após ações como criar/editar/excluir
+ */
 function atualizarListaClientes() {
   fetch("{% url 'clientes:lista_clientes' %}", {
-    headers: {
-      'X-Requested-With': 'XMLHttpRequest'
-    }
+    headers: { 'X-Requested-With': 'XMLHttpRequest' }
   })
-  .then(res => res.text())
-  .then(html => {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    const novaLista = doc.querySelector('#lista-clientes');
-    if (novaLista) {
-      document.querySelector('#lista-clientes')?.replaceWith(novaLista);
-    }
-  })
-  .catch(err => {
-    console.error('Erro ao atualizar lista:', err);
-    mostrarToast('Erro ao atualizar lista de clientes.', 'danger');
-  });
-}
-
-function mostrarToast(mensagem, tipo = 'success') {
-  const toastContainer = document.createElement('div');
-  toastContainer.className = `toast align-items-center text-bg-${tipo} border-0 position-fixed bottom-0 end-0 m-3`;
-  toastContainer.setAttribute('role', 'alert');
-  toastContainer.setAttribute('aria-live', 'assertive');
-  toastContainer.setAttribute('aria-atomic', 'true');
-
-  toastContainer.innerHTML = `
-    <div class="d-flex">
-      <div class="toast-body">${mensagem}</div>
-      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fechar"></button>
-    </div>
-  `;
-
-  document.body.appendChild(toastContainer);
-  const toast = new bootstrap.Toast(toastContainer);
-  toast.show();
-
-  toastContainer.addEventListener('hidden.bs.toast', () => {
-    toastContainer.remove();
-  });
-}
-
-</script>
-
-<script>
-function excluircliente(slug) {
-  if (confirm('Tem certeza que deseja excluir este cliente?')) {
-    fetch(`/clientes/${slug}/excluir/`, {
-      method: 'POST',
-      headers: {
-        'X-Requested-With': 'XMLHttpRequest',
-        'Content-Type': 'application/json',
-        'X-CSRFToken': getCookie('csrftoken')
-      },
-      body: JSON.stringify({})
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        document.getElementById(`cliente-${slug}`)?.remove();
-        mostrarToast(data.message || 'Cliente excluído com sucesso!');
-      } else {
-        mostrarToast('Erro ao excluir cliente.', 'danger');
+    .then(res => res.text())
+    .then(html => {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const novaLista = doc.querySelector('#lista-clientes');
+      if (novaLista) {
+        document.querySelector('#lista-clientes')?.replaceWith(novaLista);
       }
     })
-    .catch(error => {
-      console.error('Erro:', error);
-      mostrarToast('Erro ao excluir cliente.', 'danger');
+    .catch(err => {
+      console.error('Erro ao atualizar lista:', err);
+      mostrarToast('Erro ao atualizar lista de clientes.', 'danger');
     });
-  }
 }
 
-function getCookie(name) {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== '') {
-    const cookies = document.cookie.split(';');
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      if (cookie.substring(0, name.length + 1) === (name + '=')) {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
-}
 </script>
-
-
 
 {% endblock %}

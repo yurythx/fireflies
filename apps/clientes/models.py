@@ -1,16 +1,15 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.text import slugify
+from unidecode import unidecode
 import re
-from django.db.utils import IntegrityError
 
-# Modelo de Cliente
-class Cliente(models.Model):  # Alterado para Cliente
-    """Modelo de Cliente."""  # Alterado para Cliente
+class Cliente(models.Model):
+    """Modelo de Cliente."""
 
     class Meta:
-        verbose_name = 'Cliente'  # Alterado para Cliente
-        verbose_name_plural = 'Clientes'  # Alterado para Clientes
+        verbose_name = 'Cliente'
+        verbose_name_plural = 'Clientes'
 
     nome = models.CharField(max_length=255)
     slug = models.SlugField(unique=True, blank=True, null=False, max_length=255)
@@ -21,42 +20,47 @@ class Cliente(models.Model):  # Alterado para Cliente
     data_nascimento = models.DateField(null=True, blank=True)
     data_cadastro = models.DateTimeField(auto_now_add=True)
     endereco = models.OneToOneField('enderecos.Endereco', on_delete=models.CASCADE, null=True, blank=True)
+  
 
     def __str__(self):
         return self.nome
 
     def clean(self):
-        """Validações personalizadas de CPF e CNPJ."""  # Alterado para Cliente
+        """Validações e formatações personalizadas de CPF e CNPJ."""
+
         if self.cpf:
-            if not re.match(r'^\d{3}\.\d{3}\.\d{3}-\d{2}$', self.cpf):
-                raise ValidationError({'cpf': "Formato de CPF inválido. Use XXX.XXX.XXX-XX"})
+            cpf_numeros = re.sub(r'\D', '', self.cpf)
+
+            if len(cpf_numeros) != 11:
+                raise ValidationError({'cpf': "CPF deve conter 11 dígitos."})
+
+            # Formata como XXX.XXX.XXX-XX
+            self.cpf = f"{cpf_numeros[:3]}.{cpf_numeros[3:6]}.{cpf_numeros[6:9]}-{cpf_numeros[9:]}"
         
         if self.cnpj:
-            if not re.match(r'^\d{2}\.\d{3}\.\d{3}/0001-\d{2}$', self.cnpj):
-                raise ValidationError({'cnpj': "Formato de CNPJ inválido. Use XX.XXX.XXX/0001-XX"})
+            cnpj_numeros = re.sub(r'\D', '', self.cnpj)
+
+            if len(cnpj_numeros) != 14:
+                raise ValidationError({'cnpj': "CNPJ deve conter 14 dígitos."})
+
+            # Formata como XX.XXX.XXX/0001-XX
+            self.cnpj = f"{cnpj_numeros[:2]}.{cnpj_numeros[2:5]}.{cnpj_numeros[5:8]}/{cnpj_numeros[8:12]}-{cnpj_numeros[12:]}"
+        
+        # Pelo menos um dos dois deve ser informado
+        if not self.cpf and not self.cnpj:
+            raise ValidationError("Informe pelo menos o CPF ou o CNPJ.")
 
     def save(self, *args, **kwargs):
-        """Criação ou atualização do slug automaticamente antes de salvar o cliente."""  # Alterado para Cliente
-        if not self.slug:
-            self.slug = slugify(self.nome)
+        """Geração automática e segura de slug único."""
 
-        # Garantir que o slug seja único, ignorando o próprio objeto no update
-        original_slug = self.slug
-        counter = 1
-        while True:
-            try:
-                super().save(*args, **kwargs)  # Tenta salvar o objeto
-                break  # Se não gerar erro, finaliza o loop
-            except IntegrityError:  # Caso ocorra erro de unicidade (slug duplicado)
-                # Se já houver um slug duplicado, incrementamos o número
-                # Encontramos o maior número de sufixo usado e incrementamos
-                max_suffix = Cliente.objects.filter(slug__startswith=original_slug).aggregate(models.Max('slug'))  # Alterado para Cliente
-                if max_suffix['slug__max']:
-                    # Se já existir um sufixo, pegamos o maior número e incrementamos
-                    suffix_number = int(max_suffix['slug__max'].split('-')[-1]) + 1
-                else:
-                    # Caso não haja sufixo, começamos pelo número 1
-                    suffix_number = 1
-                self.slug = f"{original_slug}-{suffix_number}"
-        
-        super().save(*args, **kwargs)  # Salva o objeto
+        if not self.slug:
+            base_slug = slugify(unidecode(self.nome))
+            slug = base_slug
+            counter = 1
+            while Cliente.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug
+
+        self.full_clean()  # Garante que clean() será chamado
+        super().save(*args, **kwargs)

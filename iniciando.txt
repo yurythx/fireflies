@@ -36,6 +36,7 @@ Instalar os seguintes pacotes Iniciais.
         pip install django-session-timeout
         pip install django-crispy-forms
         pip install crispy-bootstrap5
+        pip install unidecode
 
         pip install django_summernote
         pip install django-allauth

@@ -11,24 +11,19 @@
   </div>
 </div>
 
-<!-- FORMULÁRIO -->
-<form id="cliente-form" method="post" action="{{ request.path }}">
+<!-- FORMULÁRIO DE PRODUTO -->
+<form id="produto-form" method="post" action="{{ request.path }}">
   {% csrf_token %}
 
   <div class="container-fluid">
     <div class="row">
-      <div class="col-md-6">
-        <fieldset>
-          <legend class="fs-5 text-primary">Dados do Cliente</legend>
+      <div class="col-md-12">
+        
+          <legend class="fs-5 text-primary">Dados do Produto</legend>
           {{ form|crispy }}
-        </fieldset>
+       
       </div>
-      <div class="col-md-6">
-        <fieldset>
-          <legend class="fs-5 text-primary">Endereço</legend>
-          {{ endereco_form|crispy }}
-        </fieldset>
-      </div>
+     
     </div>
   </div>
 

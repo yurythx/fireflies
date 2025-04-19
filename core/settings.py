@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'apps.clientes',
     'apps.fornecedores',
     'apps.enderecos',
+    'apps.produtos',
    
     
 ]

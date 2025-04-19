@@ -3,14 +3,14 @@
   <h2>Confirmar Exclusão</h2>
 
   <div class="alert alert-warning" role="alert">
-    <strong>Atenção!</strong> A exclusão é permanente. Tem certeza que deseja excluir <strong>{{ fornecedor.nome }}</strong>?
+    <strong>Atenção!</strong> A exclusão é permanente. Tem certeza que deseja excluir <strong>{{ produto.nome }}</strong>?
   </div>
 
-  <form method="post" action="{% url 'fornecedores:excluir_fornecedor' fornecedor.slug %}">
+  <form method="post" action="{% url 'produtos:excluir_produto' produto.slug %}">
     {% csrf_token %}
     <div class="mt-4 d-flex justify-content-end">
       <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancelar</button>
-      <button type="submit" class="btn btn-danger" id="btn-excluir-fornecedor">Excluir</button>
+      <button type="submit" class="btn btn-danger" id="btn-excluir-produto">Excluir</button>
     </div>
   </form>
 </div>

@@ -26,30 +26,104 @@
 
 <!-- Scripts personalizados -->
 <script>
-    // Função para obter o token CSRF dos cookies
-    function getCookie(name) {
-        let cookieValue = null;
-        // Verifica se existe algum cookie
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                // Se o cookie for encontrado, retorna o valor decodificado
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
+  
+  // Função para mostrar mensagens de toast
+  function mostrarToast(mensagem, tipo = 'success') {
+    const toastContainer = document.createElement('div');
+    toastContainer.className = `toast align-items-center text-bg-${tipo} border-0 position-fixed bottom-0 end-0 m-3`;
+    toastContainer.setAttribute('role', 'alert');
+    toastContainer.setAttribute('aria-live', 'assertive');
+    toastContainer.setAttribute('aria-atomic', 'true');
+
+    toastContainer.innerHTML = `
+      <div class="d-flex">
+        <div class="toast-body">${mensagem}</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fechar"></button>
+      </div>
+    `;
+
+    document.body.appendChild(toastContainer);
+    const toast = new bootstrap.Toast(toastContainer);
+    toast.show();
+
+    toastContainer.addEventListener('hidden.bs.toast', () => toastContainer.remove());
+  }
+
+  // Função para obter o valor de um cookie
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.startsWith(name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
         }
-        return cookieValue;
+      }
     }
+    return cookieValue;
+  }
 
-    const csrftoken = getCookie('csrftoken');  // Obtém o token CSRF
+  // Função para ativar os listeners do endereço (Estado e Cidade)
+  function ativarListenersEndereco() {
+        const estadoSelect = document.getElementById('id_estado');
+        const cidadeSelect = document.getElementById('id_cidade');
+        if (!estadoSelect || !cidadeSelect) return;
 
-    // Configura o jQuery para incluir o token CSRF em todas as requisições AJAX
-    $.ajaxSetup({
-        headers: { 'X-CSRFToken': csrftoken }
-    });
+        const cidadeSelecionada = cidadeSelect.value;
+
+        // Define a mensagem inicial padrão se nenhum estado estiver selecionado
+        if (!estadoSelect.value) {
+        cidadeSelect.innerHTML = '<option value="">Selecione um estado</option>';
+        }
+
+        estadoSelect.addEventListener('change', () => {
+        const estadoId = estadoSelect.value;
+
+        // Exibe "Carregando..." enquanto busca as cidades
+        cidadeSelect.innerHTML = '<option value="">Carregando...</option>';
+
+        if (estadoId) {
+            fetch(`${urlCidadesPorEstado}${estadoId}/`)
+            .then(res => res.json())
+            .then(data => {
+                cidadeSelect.innerHTML = ''; // Limpa opções anteriores
+
+                // Adiciona a opção padrão "Selecione uma cidade"
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = 'Selecione uma cidade';
+                cidadeSelect.appendChild(defaultOption);
+
+                // Adiciona as cidades recebidas
+                data.cidades?.forEach(cidade => {
+                const option = document.createElement('option');
+                option.value = cidade.id;
+                option.textContent = cidade.nome;
+                cidadeSelect.appendChild(option);
+                });
+
+                // Mantém seleção se já houver
+                if (cidadeSelecionada) {
+                cidadeSelect.value = cidadeSelecionada;
+                }
+            })
+            .catch(() => {
+                cidadeSelect.innerHTML = '<option value="">Erro ao carregar cidades</option>';
+            });
+        } else {
+            // Caso nenhum estado seja selecionado
+            cidadeSelect.innerHTML = '<option value="">Selecione um estado</option>';
+        }
+        });
+
+        // Dispara o evento 'change' se já houver um estado selecionado ao iniciar
+        if (estadoSelect.value) {
+        estadoSelect.dispatchEvent(new Event('change'));
+        }
+  }
+
 </script>
 
 <script>

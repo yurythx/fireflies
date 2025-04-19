@@ -15,5 +15,5 @@ urlpatterns = [
     path('detalhes/<slug:slug>/', FornecedorDetailView.as_view(), name='detalhes_fornecedor'),
     path('novo/', FornecedorCreateView.as_view(), name='novo_fornecedor'),
     path('<slug:slug>/editar/', FornecedorUpdateView.as_view(), name='editar_fornecedor'),
-    path('fornecedor/<slug:slug>/excluir/', FornecedorDeleteView.as_view(), name='excluir_fornecedor'),
+    path('excluir/<slug:slug>/', FornecedorDeleteView.as_view(), name='excluir_fornecedor'),
 ]

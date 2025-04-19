@@ -1,0 +1,12 @@
+<!-- produtos/detalhes_produto_modal.html -->
+<div class="p-3">
+    <h5 class="text-primary mb-3">Detalhes do Produto</h5>
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item"><strong>Nome:</strong> {{ produto.nome }}</li>
+      <li class="list-group-item"><strong>SKU:</strong> {{ produto.sku }}</li>
+      <li class="list-group-item"><strong>Preço:</strong> R$ {{ produto.preco }}</li>
+      <li class="list-group-item"><strong>Descrição:</strong> {{ produto.descricao|default:"Não informada" }}</li>
+      
+      <li class="list-group-item"><strong>Categoria:</strong> {{ produto.categoria.nome|default:"Não informada" }}</li>
+    </ul>
+  </div>

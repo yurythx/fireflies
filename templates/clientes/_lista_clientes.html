@@ -1,12 +1,12 @@
 <div class="list-group shadow-sm" id="lista-clientes">
   {% for cliente in clientes %}
-    <div class="list-group-item d-flex justify-content-between align-items-center mb-3 p-3 rounded-3 border border-light bg-light">
+    <div class="list-group-item d-flex justify-content-between align-items-center mb-3 p-3 rounded-3 border border-light bg-light" id="cliente-{{ cliente.slug }}">
       <div class="d-flex align-items-center">
         <span class="badge bg-primary me-3">{{ forloop.counter }}</span>
         <div>
           <h5 class="mb-1">
             <a href="javascript:void(0);" class="text-primary fw-bold text-decoration-none"
-               onclick="abrirModalDetalhes('{% url 'clientes:detalhes_cliente' cliente.slug %}')">
+               onclick="abrirModalGenerico('{% url 'clientes:detalhes_cliente' cliente.slug %}', 'Detalhes do Cliente')">
               {{ cliente.nome }}
             </a>
           </h5>
@@ -21,17 +21,17 @@
 
       <div class="d-flex gap-2">
         <button class="btn btn-sm btn-primary"
-                onclick="abrirModalDetalhes('{% url 'clientes:detalhes_cliente' cliente.slug %}')"
+                onclick="abrirModalGenerico('{% url 'clientes:detalhes_cliente' cliente.slug %}', 'Detalhes do Cliente')"
                 title="Detalhes do Cliente">
           <i class="fas fa-info-circle"></i>
         </button>
         <button class="btn btn-sm btn-outline-warning"
-                onclick="abrirModal('{% url 'clientes:editar_cliente' cliente.slug %}', 'Editar Cliente')"
+                onclick="abrirModalGenerico('{% url 'clientes:editar_cliente' cliente.slug %}', 'Editar Cliente')"
                 title="Editar Cliente">
           <i class="fas fa-edit me-1"></i> Editar
         </button>
         <button class="btn btn-sm btn-outline-danger"
-                onclick="abrirModal('{% url 'clientes:excluir_cliente' cliente.slug %}', 'Excluir Cliente')"
+                onclick="abrirModalGenerico('{% url 'clientes:excluir_cliente' cliente.slug %}', 'Excluir Cliente')"
                 title="Excluir Cliente">
           <i class="fas fa-trash-alt me-1"></i> Excluir
         </button>

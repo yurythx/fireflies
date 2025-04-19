@@ -15,8 +15,9 @@ urlpatterns = [
     path("config/", include("apps.config.urls")),
     path("articles/", include("apps.articles.urls")),
      path("enderecos/", include("apps.enderecos.urls")),
-    path("clientes/", include("apps.clientes.urls")),
-    path('fornecedores/', include('apps.fornecedores.urls', namespace='fornecedores')),  # Namespace configurado!
+    path("clientes/", include("apps.clientes.urls" , namespace='clientes')),
+    path('fornecedores/', include('apps.fornecedores.urls', namespace='fornecedores')),
+    path('produtos/', include('apps.produtos.urls', namespace='produtos')),  # Namespace configurado!
 
     path('tinymce/', include('tinymce.urls')),
 
