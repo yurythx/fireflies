@@ -1,49 +1,47 @@
-{# Estende o template base que define o layout padrão do site #}
 {% extends 'includes/base.html' %}
 
-{# Carrega a tag 'static' para usar arquivos estáticos como imagens e CSS #}
 {% load static %}
 
-{# Bloco de título da página (usado no <title> do HTML) #}
 {% block title %}Buscar Artigo{% endblock %}
 
-{# Bloco de metadados (útil para SEO e redes sociais) #}
 {% block meta %}
 <meta name="description" content="Busque artigos sobre diversos assuntos de interesse.">
+<meta name="keywords" content="artigos, busca, categorias, tags, usuários">
+<meta name="author" content="Seu Nome ou Sua Empresa">
 <meta property="og:title" content="Buscar Artigo">
 <meta property="og:image" content="{% static '/pages/assets/img/hero-img.svg' %}">
 {% endblock meta %}
 
-{# Bloco reservado para estilos adicionais da página (se precisar) #}
-{% block stylesheets %}{% endblock stylesheets %}
+{% block stylesheets %}
+  <!-- Link para um arquivo CSS específico (caso tenha um arquivo adicional para esta página) -->
+  <link rel="stylesheet" href="{% static 'pages/css/busca.css' %}">
+{% endblock stylesheets %}
 
-{# Bloco de conteúdo principal da página #}
 {% block content %}
 <main class="main">
 
   <!-- Seção de Destaque (Hero) -->
   <section id="hero" class="hero section dark-background">
 
-    {# Imagem de fundo com mapa do mundo (decorativa) #}
-    <img src="{% static '/pages/assets/img/world-dotted-map.png' %}" alt="World map background" class="hero-bg" data-aos="fade-in">
+    <!-- Imagem de fundo com mapa do mundo (decorativa) -->
+    <img src="{% static '/pages/assets/img/world-dotted-map.png' %}" alt="Mapa do mundo com pontos decorativos" class="hero-bg" loading="lazy" data-aos="fade-in">
 
     <div class="container">
-      <div class="row gy-4 d-flex justify-content-between">
+      <div class="row gy-4 d-flex justify-content-between" data-aos="fade-up" data-aos-once="true">
 
         <!-- Coluna da Esquerda: Título, Formulário e Estatísticas -->
         <div class="col-lg-6 order-2 order-lg-1 d-flex flex-column justify-content-center">
-          
-          {# Título principal da seção #}
+
           <h2 data-aos="fade-up">Buscar Artigo</h2>
           <p data-aos="fade-up" data-aos-delay="100">Pesquise sobre o assunto de seu interesse</p>
 
-          {# Formulário de busca que envia uma requisição GET para a view 'articles:search' #}
+          <!-- Formulário de busca -->
           <form action="{% url 'articles:search' %}" class="form-search d-flex align-items-stretch mb-3" data-aos="fade-up" data-aos-delay="200">
-            <input type="text" class="form-control" placeholder="Buscar..." name="search" value="{{ request.GET.search }}" aria-label="Buscar artigo">
-            <button type="submit" class="btn btn-primary" aria-label="Executar busca">Buscar</button>
+            <input type="text" class="form-control" placeholder="Digite sua pesquisa..." name="search" value="{{ request.GET.search }}" aria-label="Buscar artigo">
+            <button type="submit" class="btn btn-primary" aria-label="Iniciar busca por artigos">Buscar</button>
           </form>
 
-          {# Exibição de resultados de busca, se houver #}
+          <!-- Exibição de resultados de busca -->
           {% if results %}
             <div class="search-results mt-3">
               <h5>Resultados encontrados:</h5>
@@ -53,39 +51,38 @@
                 {% endfor %}
               </ul>
             </div>
-          
-          {# Caso a busca tenha sido feita mas nenhum resultado encontrado #}
+
           {% elif request.GET.search %}
             <p class="mt-3">Nenhum resultado encontrado para "<strong>{{ request.GET.search }}</strong>".</p>
           {% endif %}
 
-          {# Seção de estatísticas com contadores animados #}
+          <!-- Seção de estatísticas com contadores animados -->
           <div class="row gy-4 mt-4" data-aos="fade-up" data-aos-delay="300">
 
             <div class="col-lg-3 col-6">
               <div class="stats-item text-center w-100 h-100">
-                <span data-purecounter-start="0" data-purecounter-end="232" data-purecounter-duration="0" class="purecounter">232</span>
+                <span data-purecounter-start="0" data-purecounter-end="{{ total_articles }}" data-purecounter-duration="1" class="purecounter">{{ total_articles }}</span>
                 <p>Artigos</p>
               </div>
             </div>
 
             <div class="col-lg-3 col-6">
               <div class="stats-item text-center w-100 h-100">
-                <span data-purecounter-start="0" data-purecounter-end="521" data-purecounter-duration="0" class="purecounter">521</span>
+                <span data-purecounter-start="0" data-purecounter-end="{{ total_categories }}" data-purecounter-duration="1" class="purecounter">{{ total_categories }}</span>
                 <p>Categorias</p>
               </div>
             </div>
 
             <div class="col-lg-3 col-6">
               <div class="stats-item text-center w-100 h-100">
-                <span data-purecounter-start="0" data-purecounter-end="1453" data-purecounter-duration="0" class="purecounter">1453</span>
+                <span data-purecounter-start="0" data-purecounter-end="{{ total_tags }}" data-purecounter-duration="1" class="purecounter">{{ total_tags }}</span>
                 <p>Tags</p>
               </div>
             </div>
 
             <div class="col-lg-3 col-6">
               <div class="stats-item text-center w-100 h-100">
-                <span data-purecounter-start="0" data-purecounter-end="32" data-purecounter-duration="0" class="purecounter">32</span>
+                <span data-purecounter-start="0" data-purecounter-end="{{ total_users }}" data-purecounter-duration="1" class="purecounter">{{ total_users }}</span>
                 <p>Usuários</p>
               </div>
             </div>
@@ -96,7 +93,7 @@
 
         <!-- Coluna da Direita: Imagem ilustrativa -->
         <div class="col-lg-5 order-1 order-lg-2 hero-img" data-aos="zoom-out">
-          <img src="{% static '/pages/assets/img/hero-img.svg' %}" class="img-fluid mb-3 mb-lg-0" alt="Hero Image">
+          <img src="{% static '/pages/assets/img/hero-img.svg' %}" class="img-fluid mb-3 mb-lg-0" alt="Imagem ilustrativa sobre artigos" loading="lazy">
         </div>
 
       </div>
@@ -107,5 +104,6 @@
 </main>
 {% endblock content %}
 
-{# Bloco reservado para scripts JavaScript específicos da página #}
-{% block javascripts %}{% endblock javascripts %}
+{% block javascripts %}
+  <!-- Adicione seus scripts JavaScript específicos aqui, caso necessário -->
+{% endblock javascripts %}

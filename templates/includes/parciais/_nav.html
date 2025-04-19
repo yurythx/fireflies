@@ -1,7 +1,9 @@
 
 
 <header id="header" class="header d-flex align-items-center fixed-top">
+  
     <div class="container-fluid container-xl position-relative d-flex align-items-center">
+      
 
       <a href="{% url 'pages' %}" class="logo d-flex align-items-center me-auto">
         <!-- Uncomment the line below if you also wish to use an image logo -->
@@ -9,17 +11,20 @@
         <h1 class="sitename">FireFlies</h1>
       </a>
 
+      
+
       <nav id="navmenu" class="navmenu">
         <ul>
           <li><a href="{% url 'pages' %}" class="active">Inicio<br></a></li>
           <li><a href="{% url 'articles:index_articles' %}">Artigos</a></li>
           <li class="dropdown"><a href="#"><span>Cadastros</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+            
             <ul>
               
               <li>
                   <li><a href="{% url 'clientes:lista_clientes' %}">Cadastro de Clientes</a></li>
                   <li><a href="{% url 'fornecedores:lista_fornecedores'%}">Cadastro de Fornecedores</a></li>
-                  <li><a href="#">Cadastro de Usúarios</a></li>
+                  <li><a href="{% url 'accounts:lista_usuarios'%}">Cadastro de Usúarios</a></li>
                   <li><a href="{% url 'produtos:lista_produtos'%}">Cadastro de Produtos</a></li>
                   
                   <li><a href="#">Cadastro de Veículos</a></li>
@@ -47,3 +52,4 @@
 
     </div>
 </header>
+

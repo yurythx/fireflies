@@ -171,16 +171,15 @@
     <script>
         tinymce.init({
             selector: '#id_content', // Asegure-se de que o id do seu campo de conteúdo seja 'id_content'
-            plugins: 'image link media code paste',  // Adiciona o plugin de mídia, além de outros
-            toolbar: 'undo redo | bold italic | link image | media | code',  // Barra de ferramentas com novo plugin
-            image_upload_url: '/upload_image/', // URL do endpoint para upload de imagem
-            file_picker_types: 'image', // Definir que o seletor de arquivo só pode pegar imagens
-            entity_encoding: 'raw', // Previne que caracteres especiais sejam escapados
-            relative_urls: false, // Previne a conversão de URLs relativas para absolutas
-            remove_trailing_brs: true, // Remove <br> no final do conteúdo
-            convert_urls: false, // Evita que o TinyMCE converta links de imagem
-            content_css: 'https://cdn.jsdelivr.net/npm/tinymce@5.10.0/skins/ui/oxide/skin.min.css', // CSS do TinyMCE
+            plugins: 'paste image link media code table lists preview',
+            toolbar: 'undo redo | formatselect | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist | link image media table | code preview',
+            paste_as_text: false, // ❌ NÃO ativa colagem como texto puro
+            paste_data_images: true, // Permite colar imagens de áreas de transferência
+            convert_urls: false,
+            relative_urls: false,
+            entity_encoding: 'raw',
+            content_css: false,  // Ou pode carregar um CSS para simular o estilo do site original
         });
-    </script>
+    </script>    
 {% endblock %}
 

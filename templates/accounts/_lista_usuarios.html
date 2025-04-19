@@ -1,0 +1,37 @@
+<div class="list-group shadow-sm" id="lista-usuarios">
+  {% for account in accounts %}
+    <div class="list-group-item d-flex justify-content-between align-items-center mb-3 p-3 rounded-3 border border-light bg-light" id="usuario-{{ account.id }}">
+      <div class="d-flex align-items-center">
+        <span class="badge bg-primary me-3">{{ forloop.counter }}</span>
+        <div>
+          <h5 class="mb-1">
+            <a href="javascript:void(0);" class="text-primary fw-bold text-decoration-none"
+               onclick="abrirModalGenerico('{% url 'accounts:detalhes_usuario' account.id %}', 'Detalhes do Usuário')">
+              {{ account.nome }}
+            </a>
+          </h5>
+          <p class="mb-1 text-muted">{{ account.email }}</p>
+          {% if account.cpf %}
+            <p class="mb-1"><strong>CPF:</strong> {{ account.cpf }}</p>
+          {% endif %}
+        </div>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-sm btn-primary"
+                onclick="abrirModalGenerico('{% url 'accounts:detalhes_usuario' account.id %}', 'Detalhes do Usuário')">
+          <i class="fas fa-info-circle"></i>
+        </button>
+        <button class="btn btn-sm btn-outline-warning"
+                onclick="abrirModalGenerico('{% url 'accounts:editar_usuario' account.id %}', 'Editar Usuário')">
+          <i class="fas fa-edit me-1"></i> Editar
+        </button>
+        <button class="btn btn-sm btn-outline-danger"
+                onclick="abrirModalGenerico('{% url 'accounts:excluir_usuario' account.id %}', 'Excluir Usuário')">
+          <i class="fas fa-trash-alt me-1"></i> Excluir
+        </button>
+      </div>
+    </div>
+  {% empty %}
+    <div class="list-group-item text-center text-muted">Nenhum usuário encontrado.</div>
+  {% endfor %}
+</div>

@@ -1,0 +1,39 @@
+{% load crispy_forms_tags %}
+{% load static %}
+
+<!-- TOAST para sucesso -->
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 1055">
+  <div id="toast-success" class="toast align-items-center text-bg-success border-0" role="alert">
+    <div class="d-flex">
+      <div class="toast-body" id="toast-message"></div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fechar"></button>
+    </div>
+  </div>
+</div>
+
+<!-- FORMULÁRIO PARA USUÁRIO -->
+<form id="usuario-form" method="post" action="{{ request.path }}">
+  {% csrf_token %}
+
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-6">
+        <fieldset>
+          <legend class="fs-5 text-primary">Dados do Usuário</legend>
+          {{ form|crispy }}  <!-- Formulário de usuário, com campos como username, email, cpf -->
+        </fieldset>
+      </div>
+      <!-- Caso precise adicionar algum outro campo relacionado ao usuário, adicione aqui -->
+    </div>
+  </div>
+
+  <div id="form-errors" class="alert alert-danger d-none mt-3"></div>
+
+  <div class="modal-footer mt-3">
+    <button type="submit" class="btn btn-primary" id="submit-btn">
+      <span id="submit-spinner" class="spinner-border spinner-border-sm me-2 d-none" role="status" aria-hidden="true"></span>
+      Salvar
+    </button>
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+  </div>
+</form>

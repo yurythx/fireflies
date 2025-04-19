@@ -1,0 +1,11 @@
+<!-- usuarios/detalhes_usuario_modal.html -->
+<div class="p-3">
+  <h5 class="text-primary mb-3">Detalhes do Usuário</h5>
+  <ul class="list-group list-group-flush">
+    <li class="list-group-item"><strong>Nome:</strong> {{ accounts.nome }}</li>
+    <li class="list-group-item"><strong>Email:</strong> {{ accounts.email }}</li>
+    <li class="list-group-item"><strong>CPF:</strong> {{ accounts.cpf|default:"Não informado" }}</li>
+    <li class="list-group-item"><strong>Data de criação:</strong> {{ accounts.date_joined|date:"d/m/y" }}</li>
+    <li class="list-group-item"><strong>Último login:</strong> {{ accounts.last_login|date:"d/m/y H:i" }}</li>
+  </ul>
+</div>
