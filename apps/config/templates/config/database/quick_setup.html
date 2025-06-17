@@ -1,0 +1,361 @@
+{% extends 'config/base_config.html' %}
+{% load static %}
+
+{% block config_title %}{{ page_title|default:"Setup Rápido de Banco" }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.db-option {
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 2px solid #dee2e6;
+    height: 100%;
+}
+
+.db-option:hover {
+    border-color: #0d6efd;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+.db-option.selected {
+    border-color: #198754;
+    background-color: #f8fff9;
+}
+
+.db-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.feature-list {
+    text-align: left;
+    margin-top: 1rem;
+}
+
+.feature-list li {
+    margin-bottom: 0.5rem;
+}
+
+.setup-preview {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+</style>
+{% endblock %}
+
+{% block config_content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">
+                <i class="fas fa-magic me-2"></i>{{ page_title }}
+            </h1>
+            <p class="text-muted mb-0">Configure rapidamente um banco de dados com configurações pré-definidas</p>
+        </div>
+        <a href="{% url 'config:database_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Voltar
+        </a>
+    </div>
+
+    <form method="post" id="quick-setup-form">
+        {% csrf_token %}
+        
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Opções de Banco -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-database me-2"></i>Escolha o Tipo de Banco
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- SQLite -->
+                            <div class="col-md-4 mb-3">
+                                <div class="card db-option h-100" data-db-type="sqlite" onclick="selectDatabase('sqlite')">
+                                    <div class="card-body text-center">
+                                        <div class="db-icon">
+                                            <i class="fas fa-file-alt text-info"></i>
+                                        </div>
+                                        <h5 class="card-title">SQLite</h5>
+                                        <p class="card-text text-muted">Banco local em arquivo</p>
+                                        
+                                        <ul class="feature-list list-unstyled">
+                                            <li><i class="fas fa-check text-success me-1"></i>Fácil configuração</li>
+                                            <li><i class="fas fa-check text-success me-1"></i>Sem servidor necessário</li>
+                                            <li><i class="fas fa-check text-success me-1"></i>Ideal para desenvolvimento</li>
+                                            <li><i class="fas fa-check text-success me-1"></i>Zero configuração</li>
+                                        </ul>
+                                        
+                                        <span class="badge bg-success mt-2">Recomendado para Desenvolvimento</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- PostgreSQL -->
+                            <div class="col-md-4 mb-3">
+                                <div class="card db-option h-100" data-db-type="postgresql" onclick="selectDatabase('postgresql')">
+                                    <div class="card-body text-center">
+                                        <div class="db-icon">
+                                            <i class="fas fa-elephant text-primary"></i>
+                                        </div>
+                                        <h5 class="card-title">PostgreSQL</h5>
+                                        <p class="card-text text-muted">Banco robusto e avançado</p>
+                                        
+                                        <ul class="feature-list list-unstyled">
+                                            <li><i class="fas fa-check text-success me-1"></i>Alta performance</li>
+                                            <li><i class="fas fa-check text-success me-1"></i>Recursos avançados</li>
+                                            <li><i class="fas fa-check text-success me-1"></i>Escalabilidade</li>
+                                            <li><i class="fas fa-check text-success me-1"></i>Padrão da indústria</li>
+                                        </ul>
+                                        
+                                        <span class="badge bg-primary mt-2">Recomendado para Produção</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- MySQL -->
+                            <div class="col-md-4 mb-3">
+                                <div class="card db-option h-100" data-db-type="mysql" onclick="selectDatabase('mysql')">
+                                    <div class="card-body text-center">
+                                        <div class="db-icon">
+                                            <i class="fas fa-database text-warning"></i>
+                                        </div>
+                                        <h5 class="card-title">MySQL</h5>
+                                        <p class="card-text text-muted">Popular e confiável</p>
+                                        
+                                        <ul class="feature-list list-unstyled">
+                                            <li><i class="fas fa-check text-success me-1"></i>Amplamente usado</li>
+                                            <li><i class="fas fa-check text-success me-1"></i>Boa documentação</li>
+                                            <li><i class="fas fa-check text-success me-1"></i>Comunidade ativa</li>
+                                            <li><i class="fas fa-check text-success me-1"></i>Fácil administração</li>
+                                        </ul>
+                                        
+                                        <span class="badge bg-warning mt-2">Boa para Web</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Campo hidden para envio -->
+                        <input type="hidden" name="db_type" id="selected-db-type">
+                    </div>
+                </div>
+
+                <!-- Informações Adicionais -->
+                <div class="card mt-3" id="db-info" style="display: none;">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-info-circle me-1"></i>Informações da Configuração
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div id="db-info-content"></div>
+                    </div>
+                </div>
+
+                <!-- Botões -->
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{% url 'config:database_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-times me-1"></i>Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-primary" id="create-btn" disabled>
+                        <i class="fas fa-magic me-1"></i>Criar Configuração
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <!-- Preview da Configuração -->
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-eye me-1"></i>Preview da Configuração
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div id="config-preview" class="setup-preview">
+                            <p class="text-muted mb-0">Selecione um tipo de banco para ver o preview</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Próximos Passos -->
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-list-ol me-1"></i>Próximos Passos
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <ol class="mb-0">
+                            <li class="mb-2">Escolha o tipo de banco de dados</li>
+                            <li class="mb-2">Clique em "Criar Configuração"</li>
+                            <li class="mb-2">Ajuste os detalhes da conexão</li>
+                            <li class="mb-2">Teste a conexão</li>
+                            <li class="mb-0">Defina como padrão se necessário</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Dicas -->
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-lightbulb me-1"></i>Dicas
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2">
+                                <i class="fas fa-info-circle text-info me-1"></i>
+                                SQLite é perfeito para começar rapidamente
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-info-circle text-info me-1"></i>
+                                PostgreSQL oferece recursos avançados
+                            </li>
+                            <li class="mb-0">
+                                <i class="fas fa-info-circle text-info me-1"></i>
+                                MySQL é uma escolha sólida e popular
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let selectedDbType = null;
+
+const dbConfigs = {
+    sqlite: {
+        name: 'SQLite Local',
+        engine: 'django.db.backends.sqlite3',
+        database: 'db.sqlite3',
+        description: 'Banco de dados local em arquivo. Não requer servidor separado.',
+        info: `
+            <h6>Configuração SQLite</h6>
+            <p>Esta configuração criará um banco SQLite local com as seguintes características:</p>
+            <ul>
+                <li><strong>Arquivo:</strong> db.sqlite3</li>
+                <li><strong>Localização:</strong> Raiz do projeto</li>
+                <li><strong>Servidor:</strong> Não necessário</li>
+                <li><strong>Usuário/Senha:</strong> Não necessário</li>
+            </ul>
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-1"></i>
+                Ideal para desenvolvimento e testes. Para produção, considere PostgreSQL ou MySQL.
+            </div>
+        `
+    },
+    postgresql: {
+        name: 'PostgreSQL Local',
+        engine: 'django.db.backends.postgresql',
+        database: 'havoc_db',
+        host: 'localhost',
+        port: '5432',
+        user: 'postgres',
+        description: 'Banco PostgreSQL com configurações padrão para desenvolvimento.',
+        info: `
+            <h6>Configuração PostgreSQL</h6>
+            <p>Esta configuração criará uma conexão PostgreSQL com:</p>
+            <ul>
+                <li><strong>Servidor:</strong> localhost:5432</li>
+                <li><strong>Banco:</strong> havoc_db</li>
+                <li><strong>Usuário:</strong> postgres</li>
+                <li><strong>Senha:</strong> (você precisará definir)</li>
+            </ul>
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle me-1"></i>
+                Certifique-se de que o PostgreSQL está instalado e rodando.
+            </div>
+        `
+    },
+    mysql: {
+        name: 'MySQL Local',
+        engine: 'django.db.backends.mysql',
+        database: 'havoc_db',
+        host: 'localhost',
+        port: '3306',
+        user: 'root',
+        description: 'Banco MySQL com configurações padrão para desenvolvimento.',
+        info: `
+            <h6>Configuração MySQL</h6>
+            <p>Esta configuração criará uma conexão MySQL com:</p>
+            <ul>
+                <li><strong>Servidor:</strong> localhost:3306</li>
+                <li><strong>Banco:</strong> havoc_db</li>
+                <li><strong>Usuário:</strong> root</li>
+                <li><strong>Senha:</strong> (você precisará definir)</li>
+            </ul>
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle me-1"></i>
+                Certifique-se de que o MySQL está instalado e rodando.
+            </div>
+        `
+    }
+};
+
+function selectDatabase(dbType) {
+    // Remover seleção anterior
+    document.querySelectorAll('.db-option').forEach(option => {
+        option.classList.remove('selected');
+    });
+    
+    // Selecionar novo
+    const selectedOption = document.querySelector(`[data-db-type="${dbType}"]`);
+    selectedOption.classList.add('selected');
+    
+    // Atualizar variáveis
+    selectedDbType = dbType;
+    document.getElementById('selected-db-type').value = dbType;
+    
+    // Habilitar botão
+    document.getElementById('create-btn').disabled = false;
+    
+    // Mostrar informações
+    const infoCard = document.getElementById('db-info');
+    const infoContent = document.getElementById('db-info-content');
+    
+    infoCard.style.display = 'block';
+    infoContent.innerHTML = dbConfigs[dbType].info;
+    
+    // Atualizar preview
+    updatePreview(dbType);
+}
+
+function updatePreview(dbType) {
+    const config = dbConfigs[dbType];
+    const preview = document.getElementById('config-preview');
+    
+    let previewHtml = `
+        <h6>Configuração: ${config.name}</h6>
+        <p><strong>Engine:</strong> ${config.engine}</p>
+        <p><strong>Banco:</strong> ${config.database}</p>
+    `;
+    
+    if (config.host) {
+        previewHtml += `<p><strong>Servidor:</strong> ${config.host}:${config.port}</p>`;
+    }
+    
+    if (config.user) {
+        previewHtml += `<p><strong>Usuário:</strong> ${config.user}</p>`;
+    }
+    
+    previewHtml += `<p class="text-muted mt-2">${config.description}</p>`;
+    
+    preview.innerHTML = previewHtml;
+}
+</script>
+{% endblock %}

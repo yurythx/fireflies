@@ -1,0 +1,3285 @@
+/* ===== DJANGO THEME SYSTEM ===== */
+
+/* Theme Toggle Functionality */
+.theme-toggle {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 2rem;
+    padding: 0.25rem;
+    transition: var(--transition);
+}
+
+.theme-toggle:hover {
+    background-color: var(--bg-secondary);
+}
+
+.theme-option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.theme-option.active {
+    background-color: var(--django-green);
+    color: white;
+}
+
+.theme-option:hover:not(.active) {
+    background-color: var(--bg-secondary);
+    color: var(--text-color);
+}
+
+/* Django-style Navigation */
+.navbar-django {
+    background-color: var(--django-green) !important;
+    border-bottom: 3px solid var(--django-green-dark);
+    min-height: var(--navbar-height);
+}
+
+.navbar-django .navbar-brand {
+    color: white !important;
+    font-weight: 400;
+    font-size: 1.5rem;
+    font-family: var(--font-family-sans-serif);
+}
+
+.navbar-django .navbar-brand:hover {
+    color: #f8f9fa !important;
+}
+
+.navbar-django .nav-link {
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-weight: 400;
+    font-family: var(--font-family-sans-serif);
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    margin: 0 0.125rem;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+/* Navbar icon alignment */
+.navbar-django .nav-link i {
+    width: 16px;
+    height: 16px;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* Navbar alignment improvements */
+.navbar-django .navbar-nav {
+    align-items: center;
+}
+
+.navbar-django .nav-item {
+    display: flex;
+    align-items: center;
+}
+
+.navbar-django .nav-link {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+}
+
+.navbar-django .dropdown-toggle::after {
+    margin-left: 0.5rem;
+}
+
+/* Avatar alignment */
+.navbar-django .avatar-sm {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* User dropdown alignment */
+.navbar-django .dropdown-toggle {
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Search form alignment */
+.navbar-django .form-django {
+    display: flex;
+    align-items: center;
+}
+
+/* Navbar brand alignment */
+.navbar-django .navbar-brand {
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+}
+
+/* Mobile toggle alignment */
+.navbar-django .navbar-toggler {
+    border: none;
+    padding: 0.25rem 0.5rem;
+}
+
+.navbar-django .navbar-toggler:focus {
+    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
+}
+
+/* Dropdown item icon alignment */
+.navbar-django .dropdown-item i {
+    width: 18px;
+    height: 18px;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* Brand icon alignment */
+.navbar-django .navbar-brand i {
+    margin-right: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.navbar-django .nav-link:hover {
+    color: white !important;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.navbar-django .nav-link.active {
+    color: white !important;
+    background-color: rgba(255, 255, 255, 0.2);
+    font-weight: 500;
+}
+
+/* Dropdown menu improvements */
+.navbar-django .dropdown-menu {
+    border: 1px solid var(--border-color);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    border-radius: var(--border-radius);
+    padding: 0.5rem 0;
+}
+
+.navbar-django .dropdown-item {
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.navbar-django .dropdown-item:hover {
+    background-color: rgba(12, 75, 51, 0.1);
+    color: var(--django-green);
+}
+
+.navbar-django .dropdown-item.active {
+    background-color: var(--django-green);
+    color: white;
+}
+
+.navbar-django .dropdown-header {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* User avatar in navbar */
+.navbar-django .user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    margin-right: 0.5rem;
+    object-fit: cover;
+}
+
+/* Theme toggle button */
+.navbar-django .theme-toggle {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 1.5rem;
+    padding: 0.25rem;
+    gap: 0.25rem;
+    transition: all 0.2s ease;
+}
+
+.navbar-django .theme-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.navbar-django .theme-option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.navbar-django .theme-option:hover {
+    color: rgba(255, 255, 255, 0.9);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.navbar-django .theme-option.active {
+    background-color: var(--django-green);
+    color: white;
+}
+
+.navbar-django .theme-option:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.5);
+    outline-offset: 2px;
+}
+
+/* Django-style Footer */
+.footer-django {
+    background-color: var(--django-green-dark);
+    color: white;
+    font-family: var(--font-family-sans-serif);
+}
+
+.footer-django h5, .footer-django h6 {
+    color: white;
+    font-weight: 500;
+}
+
+.footer-django a {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+}
+
+.footer-django a:hover {
+    color: white;
+    text-decoration: underline;
+}
+
+.footer-django .text-muted {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Django-style Cards */
+.card-django {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background-color: var(--bg-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: var(--transition);
+}
+
+.card-django:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.card-django .card-header {
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 500;
+    font-family: var(--font-family-sans-serif);
+}
+
+/* Django-style Forms */
+.form-django .form-label {
+    font-family: var(--font-family-sans-serif);
+    font-weight: 500;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+}
+
+.form-django .form-control,
+.form-django .form-select {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: var(--font-family-sans-serif);
+}
+
+.form-django .form-control:focus,
+.form-django .form-select:focus {
+    border-color: var(--django-green);
+    box-shadow: 0 0 0 0.2rem rgba(12, 75, 51, 0.25);
+}
+
+/* Django-style Alerts */
+.alert-django {
+    border: none;
+    border-left: 4px solid;
+    border-radius: var(--border-radius);
+    font-family: var(--font-family-sans-serif);
+}
+
+.alert-django.alert-success {
+    border-left-color: var(--django-green);
+    background-color: rgba(12, 75, 51, 0.1);
+    color: var(--django-green-dark);
+}
+
+/* Django-style Typography Classes */
+.text-django-green {
+    color: var(--django-green) !important;
+}
+
+.bg-django-green {
+    background-color: var(--django-green) !important;
+}
+
+.border-django-green {
+    border-color: var(--django-green) !important;
+}
+
+/* Django-style Sidebar */
+.sidebar-django {
+    background-color: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    min-height: calc(100vh - var(--navbar-height));
+    font-family: var(--font-family-sans-serif);
+}
+
+.sidebar-django .nav-link {
+    color: var(--text-color);
+    padding: 0.75rem 1rem;
+    border-radius: var(--border-radius);
+    margin: 0.125rem 0.5rem;
+    transition: var(--transition);
+}
+
+.sidebar-django .nav-link:hover {
+    background-color: rgba(12, 75, 51, 0.1);
+    color: var(--django-green);
+}
+
+.sidebar-django .nav-link.active {
+    background-color: var(--django-green);
+    color: white;
+}
+
+/* Django-style Breadcrumb */
+.breadcrumb-django {
+    background-color: transparent;
+    padding: 0;
+    margin: 0;
+    font-family: var(--font-family-sans-serif);
+}
+
+.breadcrumb-django .breadcrumb-item {
+    color: var(--text-muted);
+}
+
+.breadcrumb-django .breadcrumb-item.active {
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.breadcrumb-django .breadcrumb-item + .breadcrumb-item::before {
+    content: "›";
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+/* Django-style Tables */
+.table-django {
+    font-family: var(--font-family-sans-serif);
+    color: var(--text-color);
+}
+
+.table-django th {
+    background-color: var(--bg-secondary);
+    border-bottom: 2px solid var(--border-color);
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.table-django td {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.table-django tbody tr:hover {
+    background-color: rgba(12, 75, 51, 0.05);
+}
+
+/* Dark Theme Specific Styles */
+[data-theme="dark"] .navbar-django {
+    background-color: var(--django-green-dark) !important;
+    border-bottom-color: #000000;
+}
+
+[data-theme="dark"] .footer-django {
+    background-color: #000000;
+}
+
+[data-theme="dark"] .card-django {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .sidebar-django {
+    background-color: var(--card-bg);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .theme-toggle {
+        padding: 0.125rem;
+    }
+    
+    .theme-option {
+        width: 1.75rem;
+        height: 1.75rem;
+    }
+    
+    .sidebar-django {
+        min-height: auto;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .theme-toggle,
+    .navbar-django,
+    .sidebar-django,
+    .footer-django {
+        display: none !important;
+    }
+}
+
+/* Animation for theme transitions */
+* {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Focus styles for accessibility */
+.theme-option:focus {
+    outline: 2px solid var(--django-green);
+    outline-offset: 2px;
+}
+
+/* Enhanced Dark Theme Support */
+[data-theme="dark"] {
+    --bg-color: #1a1a1a;
+    --text-color: #ffffff;
+    --card-bg: #2d2d2d;
+    --border-color: #495057;
+    --input-bg: #3d3d3d;
+    --input-border: #495057;
+    --navbar-bg: #092E20;
+    --footer-bg: #092E20;
+    --sidebar-bg: #2d2d2d;
+    --text-muted: #6c757d;
+    --bg-secondary: #343a40;
+}
+
+/* Improved text color classes for dark theme */
+[data-theme="dark"] .text-light {
+    color: #f8f9fa !important;
+}
+
+[data-theme="dark"] .text-dark {
+    color: #adb5bd !important;
+}
+
+[data-theme="dark"] .text-muted {
+    color: #6c757d !important;
+}
+
+[data-theme="dark"] .text-white {
+    color: #ffffff !important;
+}
+
+/* Form improvements for dark theme */
+[data-theme="dark"] .form-control {
+    background-color: var(--input-bg);
+    border-color: var(--input-border);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .form-control:focus {
+    background-color: var(--input-bg);
+    border-color: var(--django-green-light);
+    color: var(--text-color);
+    box-shadow: 0 0 0 0.2rem rgba(68, 183, 139, 0.25);
+}
+
+[data-theme="dark"] .form-select {
+    background-color: var(--input-bg);
+    border-color: var(--input-border);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .form-label {
+    color: var(--text-color);
+}
+
+/* Card improvements for dark theme */
+[data-theme="dark"] .card-header {
+    background-color: rgba(68, 183, 139, 0.1);
+    border-color: var(--border-color);
+    color: var(--text-color);
+}
+
+/* Alert improvements for dark theme */
+[data-theme="dark"] .alert {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .alert-success {
+    background-color: rgba(25, 135, 84, 0.2);
+    border-color: #198754;
+    color: #75b798;
+}
+
+[data-theme="dark"] .alert-info {
+    background-color: rgba(13, 202, 240, 0.2);
+    border-color: #0dcaf0;
+    color: #6edff6;
+}
+
+[data-theme="dark"] .alert-warning {
+    background-color: rgba(255, 193, 7, 0.2);
+    border-color: #ffc107;
+    color: #ffda6a;
+}
+
+[data-theme="dark"] .alert-danger {
+    background-color: rgba(220, 53, 69, 0.2);
+    border-color: #dc3545;
+    color: #ea868f;
+}
+
+/* Table improvements for dark theme */
+[data-theme="dark"] .table-django tbody tr:hover {
+    background-color: rgba(68, 183, 139, 0.1);
+}
+
+[data-theme="dark"] .table-django th {
+    background-color: var(--bg-secondary);
+    color: var(--text-color);
+}
+
+/* Button improvements for dark theme */
+[data-theme="dark"] .btn-outline-primary {
+    color: var(--django-green-light);
+    border-color: var(--django-green-light);
+}
+
+[data-theme="dark"] .btn-outline-primary:hover {
+    background-color: var(--django-green-light);
+    border-color: var(--django-green-light);
+    color: #000000;
+}
+
+/* Badge improvements for dark theme */
+[data-theme="dark"] .badge {
+    background-color: var(--django-green-light) !important;
+    color: #000000 !important;
+}
+
+/* Dropdown improvements for dark theme */
+[data-theme="dark"] .dropdown-menu {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .dropdown-item {
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .dropdown-item:hover {
+    background-color: rgba(68, 183, 139, 0.1);
+    color: var(--text-color);
+}
+
+/* Modal improvements for dark theme */
+[data-theme="dark"] .modal-content {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .modal-header {
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .modal-footer {
+    border-color: var(--border-color);
+}
+
+/* Enhanced Form Styling */
+.form-container {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-django .btn {
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    font-family: var(--font-family-sans-serif);
+}
+
+.form-django .form-check-label {
+    font-family: var(--font-family-sans-serif);
+    color: var(--text-color);
+}
+
+.form-django .input-group-text {
+    background-color: var(--bg-secondary);
+    border-color: var(--border-color);
+    color: var(--text-color);
+}
+
+/* Inline forms (like search, newsletter) */
+.form-django.d-flex,
+.form-django.row {
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+/* Dark theme form improvements */
+[data-theme="dark"] .form-container {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .form-django .input-group-text {
+    background-color: var(--bg-secondary);
+    border-color: var(--border-color);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .form-django .form-check-label {
+    color: var(--text-color);
+}
+
+/* Better form spacing */
+.form-django .mb-3:last-child {
+    margin-bottom: 0 !important;
+}
+
+.form-django .row .col-md-6:last-child .mb-3:last-child {
+    margin-bottom: 0 !important;
+}
+
+/* Enhanced Text Colors for Better Contrast */
+/* Light theme text colors */
+.text-body {
+    color: var(--text-color) !important;
+}
+
+.text-secondary {
+    color: #6c757d !important;
+}
+
+.text-muted {
+    color: #6c757d !important;
+}
+
+/* Form-specific text colors */
+.form-label {
+    color: var(--text-color) !important;
+    font-weight: 500;
+}
+
+.form-text {
+    color: #6c757d !important;
+    font-size: 0.875rem;
+}
+
+.form-control::placeholder {
+    color: #6c757d !important;
+    opacity: 0.7;
+}
+
+/* Dark theme text color improvements */
+[data-theme="dark"] .text-body {
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .text-secondary {
+    color: #adb5bd !important;
+}
+
+[data-theme="dark"] .text-muted {
+    color: #adb5bd !important;
+}
+
+[data-theme="dark"] .form-label {
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .form-text {
+    color: #adb5bd !important;
+}
+
+[data-theme="dark"] .form-control::placeholder {
+    color: #adb5bd !important;
+    opacity: 0.7;
+}
+
+/* Specific contrast improvements for form elements */
+[data-theme="dark"] .text-light {
+    color: #f8f9fa !important;
+}
+
+[data-theme="dark"] .text-dark {
+    color: #adb5bd !important;
+}
+
+/* Alert text colors for better contrast */
+[data-theme="dark"] .alert-danger {
+    color: #f5c2c7 !important;
+    background-color: #2c0b0e !important;
+    border-color: #842029 !important;
+}
+
+[data-theme="dark"] .alert-warning {
+    color: #ffecb5 !important;
+    background-color: #332701 !important;
+    border-color: #997404 !important;
+}
+
+[data-theme="dark"] .alert-info {
+    color: #b6effb !important;
+    background-color: #032830 !important;
+    border-color: #087990 !important;
+}
+
+[data-theme="dark"] .alert-success {
+    color: #d1e7dd !important;
+    background-color: #0a3622 !important;
+    border-color: #0f5132 !important;
+}
+
+/* Breadcrumb improvements */
+[data-theme="dark"] .breadcrumb-item a {
+    color: var(--django-green-light) !important;
+}
+
+[data-theme="dark"] .breadcrumb-item.active {
+    color: var(--text-color) !important;
+}
+
+/* Badge improvements for dark theme */
+[data-theme="dark"] .badge.bg-secondary {
+    background-color: #495057 !important;
+    color: #fff !important;
+}
+
+[data-theme="dark"] .badge.bg-light {
+    background-color: #495057 !important;
+    color: #fff !important;
+}
+
+/* Link improvements */
+[data-theme="dark"] a {
+    color: var(--django-green-light) !important;
+}
+
+[data-theme="dark"] a:hover {
+    color: #44b78b !important;
+}
+
+/* Table text improvements */
+[data-theme="dark"] .table td,
+[data-theme="dark"] .table th {
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .table-striped > tbody > tr:nth-of-type(odd) > td {
+    color: var(--text-color) !important;
+}
+
+/* Enhanced Button Hover Effects and Dark Mode Support */
+/* Primary buttons */
+.btn-primary {
+    background-color: var(--django-green);
+    border-color: var(--django-green);
+    color: #ffffff;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: var(--django-green-dark);
+    border-color: var(--django-green-dark);
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(12, 75, 51, 0.3);
+}
+
+.btn-primary:focus,
+.btn-primary.focus {
+    background-color: var(--django-green-dark);
+    border-color: var(--django-green-dark);
+    color: #ffffff;
+    box-shadow: 0 0 0 0.2rem rgba(12, 75, 51, 0.25);
+}
+
+.btn-primary:active,
+.btn-primary.active {
+    background-color: var(--django-green-dark);
+    border-color: var(--django-green-dark);
+    color: #ffffff;
+}
+
+/* Dark theme primary buttons */
+[data-theme="dark"] .btn-primary {
+    background-color: var(--django-green-light);
+    border-color: var(--django-green-light);
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .btn-primary:hover {
+    background-color: #44b78b;
+    border-color: #44b78b;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(68, 183, 139, 0.3);
+}
+
+[data-theme="dark"] .btn-primary:focus,
+[data-theme="dark"] .btn-primary.focus {
+    background-color: #44b78b;
+    border-color: #44b78b;
+    color: #ffffff !important;
+    box-shadow: 0 0 0 0.2rem rgba(68, 183, 139, 0.25);
+}
+
+[data-theme="dark"] .btn-primary:active,
+[data-theme="dark"] .btn-primary.active {
+    background-color: var(--django-green-dark);
+    border-color: var(--django-green-dark);
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .btn-primary:disabled,
+[data-theme="dark"] .btn-primary.disabled {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: #ffffff !important;
+    opacity: 0.65;
+}
+
+/* Success buttons */
+.btn-success:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(25, 135, 84, 0.3);
+}
+
+[data-theme="dark"] .btn-success {
+    background-color: #198754;
+    border-color: #198754;
+    color: #ffffff;
+}
+
+[data-theme="dark"] .btn-success:hover {
+    background-color: #157347;
+    border-color: #146c43;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(25, 135, 84, 0.3);
+}
+
+/* Danger buttons */
+.btn-danger:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+[data-theme="dark"] .btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: #ffffff;
+}
+
+[data-theme="dark"] .btn-danger:hover {
+    background-color: #bb2d3b;
+    border-color: #b02a37;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+/* Warning buttons */
+.btn-warning:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(255, 193, 7, 0.3);
+}
+
+[data-theme="dark"] .btn-warning {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #1a1a1a;
+}
+
+[data-theme="dark"] .btn-warning:hover {
+    background-color: #ffca2c;
+    border-color: #ffc720;
+    color: #1a1a1a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(255, 193, 7, 0.3);
+}
+
+/* Info buttons */
+.btn-info:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(13, 202, 240, 0.3);
+}
+
+[data-theme="dark"] .btn-info {
+    background-color: #0dcaf0;
+    border-color: #0dcaf0;
+    color: #1a1a1a;
+}
+
+[data-theme="dark"] .btn-info:hover {
+    background-color: #3dd5f3;
+    border-color: #25cff2;
+    color: #1a1a1a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(13, 202, 240, 0.3);
+}
+
+/* Secondary buttons */
+.btn-secondary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3);
+}
+
+[data-theme="dark"] .btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: #ffffff;
+}
+
+[data-theme="dark"] .btn-secondary:hover {
+    background-color: #5c636a;
+    border-color: #565e64;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3);
+}
+
+/* Outline buttons dark mode */
+[data-theme="dark"] .btn-outline-primary {
+    color: var(--django-green-light);
+    border-color: var(--django-green-light);
+}
+
+[data-theme="dark"] .btn-outline-primary:hover {
+    background-color: var(--django-green-light);
+    border-color: var(--django-green-light);
+    color: #ffffff !important;
+    transform: translateY(-1px);
+}
+
+[data-theme="dark"] .btn-outline-secondary {
+    color: #adb5bd;
+    border-color: #6c757d;
+}
+
+[data-theme="dark"] .btn-outline-secondary:hover {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+[data-theme="dark"] .btn-outline-success {
+    color: #75b798;
+    border-color: #198754;
+}
+
+[data-theme="dark"] .btn-outline-success:hover {
+    background-color: #198754;
+    border-color: #198754;
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+[data-theme="dark"] .btn-outline-danger {
+    color: #ea868f;
+    border-color: #dc3545;
+}
+
+[data-theme="dark"] .btn-outline-danger:hover {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+[data-theme="dark"] .btn-outline-warning {
+    color: #ffda6a;
+    border-color: #ffc107;
+}
+
+[data-theme="dark"] .btn-outline-warning:hover {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #1a1a1a;
+    transform: translateY(-1px);
+}
+
+[data-theme="dark"] .btn-outline-info {
+    color: #6edff6;
+    border-color: #0dcaf0;
+}
+
+[data-theme="dark"] .btn-outline-info:hover {
+    background-color: #0dcaf0;
+    border-color: #0dcaf0;
+    color: #1a1a1a;
+    transform: translateY(-1px);
+}
+
+/* Enhanced Dark Mode Contrast Improvements */
+/* Background improvements */
+[data-theme="dark"] .bg-secondary {
+    background-color: #495057 !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .bg-light {
+    background-color: #495057 !important;
+    color: #ffffff !important;
+}
+
+/* Card improvements */
+[data-theme="dark"] .card-header {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .card-footer {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-color) !important;
+}
+
+/* List group improvements */
+[data-theme="dark"] .list-group-item {
+    background-color: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .list-group-item:hover {
+    background-color: var(--bg-secondary) !important;
+}
+
+[data-theme="dark"] .list-group-item.active {
+    background-color: var(--django-green-light) !important;
+    border-color: var(--django-green-light) !important;
+    color: #1a1a1a !important;
+}
+
+/* Dropdown improvements */
+[data-theme="dark"] .dropdown-menu {
+    background-color: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .dropdown-item {
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .dropdown-item:hover,
+[data-theme="dark"] .dropdown-item:focus {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .dropdown-item.active {
+    background-color: var(--django-green-light) !important;
+    color: #1a1a1a !important;
+}
+
+[data-theme="dark"] .dropdown-divider {
+    border-color: var(--border-color) !important;
+}
+
+/* Pagination improvements */
+[data-theme="dark"] .page-link {
+    background-color: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+    color: var(--django-green-light) !important;
+}
+
+[data-theme="dark"] .page-link:hover {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border-color) !important;
+    color: var(--django-green-light) !important;
+}
+
+[data-theme="dark"] .page-item.active .page-link {
+    background-color: var(--django-green-light) !important;
+    border-color: var(--django-green-light) !important;
+    color: #1a1a1a !important;
+}
+
+[data-theme="dark"] .page-item.disabled .page-link {
+    background-color: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+    color: #6c757d !important;
+}
+
+/* ========================================
+   TOAST IMPROVEMENTS FOR BOTH THEMES
+======================================== */
+
+/* Light mode toasts - fix transparency and contrast */
+[data-theme="light"] .toast {
+    background-color: #ffffff !important;
+    border: 1px solid #dee2e6 !important;
+    color: #212529 !important;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+[data-theme="light"] .toast-header {
+    background-color: #f8f9fa !important;
+    border-bottom: 1px solid #dee2e6 !important;
+    color: #212529 !important;
+}
+
+[data-theme="light"] .toast-body {
+    background-color: #ffffff !important;
+    color: #212529 !important;
+}
+
+/* Success toast - light mode */
+[data-theme="light"] .toast.bg-success,
+[data-theme="light"] .toast .toast-header.bg-success {
+    background-color: #d1e7dd !important;
+    border-color: #badbcc !important;
+    color: #0f5132 !important;
+}
+
+[data-theme="light"] .toast.bg-success .toast-body {
+    background-color: #d1e7dd !important;
+    color: #0f5132 !important;
+}
+
+/* Error/Danger toast - light mode */
+[data-theme="light"] .toast.bg-danger,
+[data-theme="light"] .toast .toast-header.bg-danger {
+    background-color: #f8d7da !important;
+    border-color: #f5c2c7 !important;
+    color: #842029 !important;
+}
+
+[data-theme="light"] .toast.bg-danger .toast-body {
+    background-color: #f8d7da !important;
+    color: #842029 !important;
+}
+
+/* Warning toast - light mode */
+[data-theme="light"] .toast.bg-warning,
+[data-theme="light"] .toast .toast-header.bg-warning {
+    background-color: #fff3cd !important;
+    border-color: #ffecb5 !important;
+    color: #664d03 !important;
+}
+
+[data-theme="light"] .toast.bg-warning .toast-body {
+    background-color: #fff3cd !important;
+    color: #664d03 !important;
+}
+
+/* Info toast - light mode */
+[data-theme="light"] .toast.bg-info,
+[data-theme="light"] .toast .toast-header.bg-info {
+    background-color: #d1ecf1 !important;
+    border-color: #b6effb !important;
+    color: #055160 !important;
+}
+
+[data-theme="light"] .toast.bg-info .toast-body {
+    background-color: #d1ecf1 !important;
+    color: #055160 !important;
+}
+
+/* Primary toast - light mode */
+[data-theme="light"] .toast.bg-primary,
+[data-theme="light"] .toast .toast-header.bg-primary {
+    background-color: var(--django-green-light) !important;
+    border-color: var(--django-green) !important;
+    color: #ffffff !important;
+}
+
+[data-theme="light"] .toast.bg-primary .toast-body {
+    background-color: var(--django-green-light) !important;
+    color: #ffffff !important;
+}
+
+/* Close button in toasts - light mode */
+[data-theme="light"] .toast .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* Dark mode toasts - Melhorado para maior visibilidade */
+[data-theme="dark"] .toast {
+    background-color: #2d3748 !important;
+    border: 2px solid #4a5568 !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+    opacity: 1 !important;
+}
+
+[data-theme="dark"] .toast-header {
+    background-color: #1a202c !important;
+    border-bottom: 1px solid #4a5568 !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .toast-body {
+    background-color: #2d3748 !important;
+    color: #ffffff !important;
+    font-weight: 500 !important;
+}
+
+/* Success toast - dark mode */
+[data-theme="dark"] .toast.bg-success,
+[data-theme="dark"] .toast .toast-header.bg-success {
+    background-color: #1e4d3a !important;
+    border: 2px solid #198754 !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 25px rgba(25, 135, 84, 0.3) !important;
+}
+
+[data-theme="dark"] .toast.bg-success .toast-body {
+    background-color: #1e4d3a !important;
+    color: #ffffff !important;
+    font-weight: 500 !important;
+}
+
+/* Error/Danger toast - dark mode */
+[data-theme="dark"] .toast.bg-danger,
+[data-theme="dark"] .toast .toast-header.bg-danger {
+    background-color: #5a1e1e !important;
+    border: 2px solid #dc3545 !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 25px rgba(220, 53, 69, 0.3) !important;
+}
+
+[data-theme="dark"] .toast.bg-danger .toast-body {
+    background-color: #5a1e1e !important;
+    color: #ffffff !important;
+    font-weight: 500 !important;
+}
+
+/* Warning toast - dark mode */
+[data-theme="dark"] .toast.bg-warning,
+[data-theme="dark"] .toast .toast-header.bg-warning {
+    background-color: #5a4a1e !important;
+    border: 2px solid #ffc107 !important;
+    color: #1a1a1a !important;
+    box-shadow: 0 10px 25px rgba(255, 193, 7, 0.3) !important;
+}
+
+[data-theme="dark"] .toast.bg-warning .toast-body {
+    background-color: #5a4a1e !important;
+    color: #ffffff !important;
+    font-weight: 500 !important;
+}
+
+/* Info toast - dark mode */
+[data-theme="dark"] .toast.bg-info,
+[data-theme="dark"] .toast .toast-header.bg-info {
+    background-color: #1e3a5a !important;
+    border: 2px solid #0dcaf0 !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 25px rgba(13, 202, 240, 0.3) !important;
+}
+
+[data-theme="dark"] .toast.bg-info .toast-body {
+    background-color: #1e3a5a !important;
+    color: #ffffff !important;
+    font-weight: 500 !important;
+}
+
+/* Botão de fechar dos toasts no modo escuro */
+[data-theme="dark"] .toast .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%) !important;
+    opacity: 0.8 !important;
+}
+
+[data-theme="dark"] .toast .btn-close:hover {
+    opacity: 1 !important;
+}
+
+/* Melhorar contraste geral dos toasts no modo escuro */
+[data-theme="dark"] .toast {
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+}
+
+/* Garantir que os toasts sejam sempre visíveis */
+[data-theme="dark"] .toast-container .toast {
+    min-width: 300px !important;
+    max-width: 400px !important;
+}
+
+/* Animação melhorada para toasts no modo escuro */
+[data-theme="dark"] .toast.showing {
+    opacity: 1 !important;
+    transform: translateX(0) !important;
+}
+
+[data-theme="dark"] .toast.hide {
+    opacity: 0 !important;
+    transform: translateX(100%) !important;
+}
+
+/* Primary toast - dark mode */
+[data-theme="dark"] .toast.bg-primary,
+[data-theme="dark"] .toast .toast-header.bg-primary {
+    background-color: var(--django-green-light) !important;
+    border-color: var(--django-green-light) !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .toast.bg-primary .toast-body {
+    background-color: var(--django-green-light) !important;
+    color: #ffffff !important;
+}
+
+/* Close button in toasts - dark mode */
+[data-theme="dark"] .toast .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* Progress bar improvements */
+[data-theme="dark"] .progress {
+    background-color: var(--bg-secondary) !important;
+}
+
+[data-theme="dark"] .progress-bar {
+    background-color: var(--django-green-light) !important;
+}
+
+/* Accordion improvements */
+[data-theme="dark"] .accordion-item {
+    background-color: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .accordion-header button {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .accordion-header button:not(.collapsed) {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .accordion-body {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+}
+
+/* Offcanvas improvements */
+[data-theme="dark"] .offcanvas {
+    background-color: var(--bg-color) !important;
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .offcanvas-header {
+    border-color: var(--border-color) !important;
+}
+
+/* Popover and tooltip improvements */
+[data-theme="dark"] .popover {
+    background-color: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .popover-header {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .popover-body {
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .tooltip-inner {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+}
+
+/* Spinner improvements */
+[data-theme="dark"] .spinner-border {
+    color: var(--django-green-light) !important;
+}
+
+[data-theme="dark"] .spinner-grow {
+    color: var(--django-green-light) !important;
+}
+
+/* Fix for elements that might appear white in dark mode */
+/* Ensure text-light has proper contrast */
+[data-theme="dark"] .text-light {
+    color: #f8f9fa !important;
+}
+
+/* Fix for white backgrounds in dark mode */
+[data-theme="dark"] .bg-white {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+}
+
+/* Border improvements */
+[data-theme="dark"] .border-light {
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .border-white {
+    border-color: var(--border-color) !important;
+}
+
+/* Ensure proper contrast for all text elements */
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] h5,
+[data-theme="dark"] h6 {
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] p {
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] small {
+    color: #adb5bd !important;
+}
+
+/* Fix for specific Bootstrap components that might have contrast issues */
+[data-theme="dark"] .close {
+    color: var(--text-color) !important;
+    opacity: 0.8;
+}
+
+[data-theme="dark"] .close:hover {
+    color: var(--text-color) !important;
+    opacity: 1;
+}
+
+/* Ensure proper contrast for code elements */
+[data-theme="dark"] code {
+    background-color: var(--bg-secondary) !important;
+    color: #ff6b6b !important;
+}
+
+[data-theme="dark"] pre {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-color) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* Fix for blockquotes */
+[data-theme="dark"] blockquote {
+    border-left-color: var(--django-green-light) !important;
+    color: var(--text-color) !important;
+}
+
+/* Fix for horizontal rules */
+[data-theme="dark"] hr {
+    border-color: var(--border-color) !important;
+    opacity: 0.5;
+}
+
+/* Ensure proper contrast for all interactive elements */
+[data-theme="dark"] .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* Fix for any remaining white text issues */
+[data-theme="dark"] .text-white {
+    color: #f8f9fa !important;
+}
+
+/* Ensure form elements have proper contrast */
+[data-theme="dark"] .form-select:focus {
+    border-color: var(--django-green-light) !important;
+    box-shadow: 0 0 0 0.2rem rgba(68, 183, 139, 0.25) !important;
+}
+
+[data-theme="dark"] .form-check-input:checked {
+    background-color: var(--django-green-light) !important;
+    border-color: var(--django-green-light) !important;
+}
+
+[data-theme="dark"] .form-check-input:focus {
+    border-color: var(--django-green-light) !important;
+    box-shadow: 0 0 0 0.2rem rgba(68, 183, 139, 0.25) !important;
+}
+
+[data-theme="dark"] .form-range:focus::-webkit-slider-thumb {
+    box-shadow: 0 0 0 1px var(--bg-color), 0 0 0 0.2rem rgba(68, 183, 139, 0.25) !important;
+}
+
+[data-theme="dark"] .form-range::-webkit-slider-thumb {
+    background-color: var(--django-green-light) !important;
+}
+
+[data-theme="dark"] .form-range::-moz-range-thumb {
+    background-color: var(--django-green-light) !important;
+    border-color: var(--django-green-light) !important;
+}
+
+/* Fix for any custom elements that might have contrast issues */
+[data-theme="dark"] .custom-control-label::before {
+    background-color: var(--input-bg) !important;
+    border-color: var(--input-border) !important;
+}
+
+[data-theme="dark"] .custom-control-input:checked ~ .custom-control-label::before {
+    background-color: var(--django-green-light) !important;
+    border-color: var(--django-green-light) !important;
+}
+
+/* Comprehensive Dark Mode Fixes for All Elements */
+/* Badge improvements for better contrast */
+[data-theme="dark"] .badge.bg-secondary {
+    background-color: #6c757d !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .badge.bg-light {
+    background-color: #6c757d !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .badge.bg-warning {
+    background-color: #ffc107 !important;
+    color: #1a1a1a !important;
+}
+
+[data-theme="dark"] .badge.bg-info {
+    background-color: #0dcaf0 !important;
+    color: #1a1a1a !important;
+}
+
+/* Text color fixes for all contexts */
+[data-theme="dark"] .text-dark {
+    color: #adb5bd !important;
+}
+
+[data-theme="dark"] .text-light {
+    color: #f8f9fa !important;
+}
+
+[data-theme="dark"] .text-white {
+    color: #ffffff !important;
+}
+
+/* Background fixes */
+[data-theme="dark"] .bg-light {
+    background-color: #495057 !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .bg-white {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .bg-dark {
+    background-color: #1a1a1a !important;
+    color: #ffffff !important;
+}
+
+/* Border fixes */
+[data-theme="dark"] .border-light {
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .border-white {
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .border-dark {
+    border-color: #495057 !important;
+}
+
+/* Navbar specific fixes */
+[data-theme="dark"] .navbar-light {
+    background-color: var(--bg-color) !important;
+}
+
+[data-theme="dark"] .navbar-light .navbar-brand {
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .navbar-light .navbar-nav .nav-link {
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .navbar-light .navbar-nav .nav-link:hover {
+    color: var(--django-green-light) !important;
+}
+
+[data-theme="dark"] .navbar-light .navbar-nav .nav-link.active {
+    color: var(--django-green-light) !important;
+}
+
+[data-theme="dark"] .navbar-light .navbar-toggler {
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .navbar-light .navbar-toggler-icon {
+    filter: invert(1);
+}
+
+/* Footer specific fixes */
+[data-theme="dark"] .bg-dark.text-light {
+    background-color: #1a1a1a !important;
+    color: #f8f9fa !important;
+}
+
+/* Card specific fixes */
+[data-theme="dark"] .card.bg-light {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .card.bg-white {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+}
+
+/* List group specific fixes */
+[data-theme="dark"] .list-group-item.bg-light {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+}
+
+/* Table specific fixes */
+[data-theme="dark"] .table-light {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .table-light th,
+[data-theme="dark"] .table-light td {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-color) !important;
+}
+
+/* Alert specific fixes */
+[data-theme="dark"] .alert-light {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-color) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* Button specific fixes */
+[data-theme="dark"] .btn-light {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .btn-light:hover {
+    background-color: #5c636a !important;
+    border-color: #565e64 !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .btn-outline-light {
+    color: #adb5bd !important;
+    border-color: #6c757d !important;
+}
+
+[data-theme="dark"] .btn-outline-light:hover {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    color: #ffffff !important;
+}
+
+/* Input group specific fixes */
+[data-theme="dark"] .input-group-text.bg-light {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-color) !important;
+    border-color: var(--input-border) !important;
+}
+
+/* Breadcrumb specific fixes */
+[data-theme="dark"] .breadcrumb.bg-light {
+    background-color: var(--bg-secondary) !important;
+}
+
+/* Jumbotron/Hero specific fixes */
+[data-theme="dark"] .jumbotron.bg-light {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+}
+
+/* Media object fixes */
+[data-theme="dark"] .media .text-muted {
+    color: #adb5bd !important;
+}
+
+/* Figure and caption fixes */
+[data-theme="dark"] .figure-caption {
+    color: #adb5bd !important;
+}
+
+/* Mark and highlight fixes */
+[data-theme="dark"] mark {
+    background-color: #ffc107 !important;
+    color: #1a1a1a !important;
+}
+
+/* Blockquote fixes */
+[data-theme="dark"] blockquote.blockquote-light {
+    border-left-color: var(--border-color) !important;
+    color: var(--text-color) !important;
+}
+
+/* Utility Classes for Common Inline Styles */
+/* Avatar and Profile Picture Utilities */
+.avatar-sm {
+    width: 40px !important;
+    height: 40px !important;
+    object-fit: cover;
+}
+
+.avatar-md {
+    width: 50px !important;
+    height: 50px !important;
+    object-fit: cover;
+}
+
+.avatar-lg {
+    width: 80px !important;
+    height: 80px !important;
+    object-fit: cover;
+}
+
+.avatar-xl {
+    width: 150px !important;
+    height: 150px !important;
+    object-fit: cover;
+}
+
+/* Image Utilities */
+.img-cover {
+    object-fit: cover;
+}
+
+.img-contain {
+    object-fit: contain;
+}
+
+.img-height-sm {
+    height: 120px;
+}
+
+.img-height-md {
+    height: 200px;
+}
+
+.img-height-lg {
+    height: 300px;
+}
+
+/* Icon Container Utilities */
+.icon-container-sm {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-container-md {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-container-lg {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Accessibility Improvements */
+.sr-only-focusable {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+.sr-only-focusable:focus {
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    padding: 0.25rem 0.5rem !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    clip: auto !important;
+    white-space: normal !important;
+    background-color: var(--bs-primary) !important;
+    color: white !important;
+    text-decoration: none !important;
+    border-radius: 0.25rem !important;
+}
+
+/* Focus Indicators */
+.focus-ring:focus {
+    outline: 2px solid var(--django-green) !important;
+    outline-offset: 2px !important;
+}
+
+[data-theme="dark"] .focus-ring:focus {
+    outline-color: var(--django-green-light) !important;
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+    .card-django {
+        border: 2px solid var(--border-color) !important;
+    }
+
+    .btn {
+        border-width: 2px !important;
+    }
+
+    .form-control {
+        border-width: 2px !important;
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .card-django:hover {
+        transform: none !important;
+    }
+
+    .user-card-django:hover {
+        transform: none !important;
+    }
+}
+
+/* ========================================
+   SISTEMA ABRANGENTE DE ESPAÇAMENTO
+   Aplicado em todo o projeto
+======================================== */
+
+/* Card System - Espaçamento Profissional */
+.card-django-body-spacious {
+    padding: 2rem !important;
+}
+
+.card-django-body-comfortable {
+    padding: 1.5rem !important;
+}
+
+.card-django-body-compact {
+    padding: 1rem !important;
+}
+
+.card-django-header-spacious {
+    background-color: var(--bg-secondary) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    padding: 1rem 2rem !important;
+}
+
+.card-django-header-comfortable {
+    background-color: var(--bg-secondary) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    padding: 1rem 1.5rem !important;
+}
+
+/* Form System - Espaçamento Consistente */
+.form-section {
+    margin-bottom: 2rem !important;
+}
+
+.form-section:last-child {
+    margin-bottom: 0 !important;
+}
+
+.form-group-spacious {
+    margin-bottom: 2rem !important;
+}
+
+.form-group-comfortable {
+    margin-bottom: 1.5rem !important;
+}
+
+.form-group-compact {
+    margin-bottom: 1rem !important;
+}
+
+.form-label-enhanced {
+    font-weight: 500;
+    margin-bottom: 0.75rem !important;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-control-enhanced {
+    padding: 0.75rem 1rem !important;
+    border: 1px solid var(--input-border) !important;
+    border-radius: 0.375rem !important;
+    transition: all 0.15s ease-in-out;
+}
+
+.form-control-enhanced:focus {
+    border-color: var(--django-green) !important;
+    box-shadow: 0 0 0 0.2rem rgba(68, 183, 139, 0.25) !important;
+}
+
+/* List System - Espaçamento Organizado */
+.list-item-spacious {
+    padding: 1.5rem 0 !important;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 0 !important;
+}
+
+.list-item-comfortable {
+    padding: 1rem 0 !important;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 0 !important;
+}
+
+.list-item-compact {
+    padding: 0.75rem 0 !important;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 0 !important;
+}
+
+.list-item-spacious:last-child,
+.list-item-comfortable:last-child,
+.list-item-compact:last-child {
+    border-bottom: none !important;
+    padding-bottom: 0 !important;
+}
+
+/* Table System - Espaçamento Adequado */
+.table-spacious td,
+.table-spacious th {
+    padding: 1rem !important;
+    vertical-align: middle;
+}
+
+.table-comfortable td,
+.table-comfortable th {
+    padding: 0.75rem !important;
+    vertical-align: middle;
+}
+
+.table-compact td,
+.table-compact th {
+    padding: 0.5rem !important;
+    vertical-align: middle;
+}
+
+/* Info Display System - Hierarquia Visual */
+.info-section {
+    margin-bottom: 2rem !important;
+}
+
+.info-section:last-child {
+    margin-bottom: 0 !important;
+}
+
+.info-item {
+    margin-bottom: 1.5rem !important;
+}
+
+.info-item:last-child {
+    margin-bottom: 0 !important;
+}
+
+.info-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem !important;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-value {
+    margin-bottom: 0 !important;
+    padding: 0.75rem 0 !important;
+    border-bottom: 1px solid var(--border-color);
+    min-height: 2.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.info-value:last-child {
+    border-bottom: none !important;
+}
+
+/* Stats System - Estatísticas Organizadas */
+.stats-container {
+    padding: 0 !important;
+}
+
+.stats-item {
+    padding: 1.5rem !important;
+    text-align: center;
+    border-right: 1px solid var(--border-color);
+}
+
+.stats-item:last-child {
+    border-right: none !important;
+}
+
+.stats-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: var(--text-color);
+}
+
+.stats-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0;
+}
+
+/* Activity System - Atividades e Timeline */
+.activity-container {
+    padding: 1.5rem !important;
+}
+
+.activity-item {
+    padding: 1rem 0 !important;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 0 !important;
+    display: flex;
+    align-items: flex-start;
+}
+
+.activity-item:last-child {
+    border-bottom: none !important;
+    padding-bottom: 0 !important;
+}
+
+.activity-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg-secondary);
+    border-radius: 50%;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.activity-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.activity-title {
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+    color: var(--text-color);
+}
+
+.activity-meta {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0;
+}
+
+/* Navigation System - Navegação Espaçosa */
+.nav-section {
+    margin-bottom: 1rem !important;
+}
+
+.nav-item-enhanced {
+    margin-bottom: 0.25rem !important;
+}
+
+.nav-link-enhanced {
+    padding: 0.75rem 1rem !important;
+    border-radius: 0.375rem !important;
+    transition: all 0.15s ease-in-out;
+}
+
+.nav-link-enhanced:hover {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-color) !important;
+}
+
+.nav-link-enhanced.active {
+    background-color: var(--django-green) !important;
+    color: white !important;
+}
+
+/* Button System - Botões Espaçosos */
+.btn-group-spacious .btn {
+    margin-right: 0.75rem !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.btn-group-spacious .btn:last-child {
+    margin-right: 0 !important;
+}
+
+.btn-enhanced {
+    padding: 0.75rem 1.5rem !important;
+    font-weight: 500;
+    border-radius: 0.375rem !important;
+    transition: all 0.15s ease-in-out;
+}
+
+.btn-enhanced-lg {
+    padding: 1rem 2rem !important;
+    font-size: 1.1rem;
+}
+
+.btn-enhanced-sm {
+    padding: 0.5rem 1rem !important;
+    font-size: 0.875rem;
+}
+
+/* Badge System - Badges Espaçosos */
+.badge-enhanced {
+    font-size: 0.75rem !important;
+    padding: 0.375rem 0.75rem !important;
+    margin-right: 0.5rem !important;
+    margin-bottom: 0.25rem !important;
+    font-weight: 500;
+}
+
+.badge-group {
+    margin-bottom: 1rem !important;
+}
+
+.badge-group .badge-enhanced:last-child {
+    margin-right: 0 !important;
+}
+
+/* Search System - Busca Espaçosa */
+.search-container {
+    margin-bottom: 2rem !important;
+}
+
+.search-form {
+    padding: 1.5rem !important;
+    background-color: var(--bg-secondary);
+    border-radius: 0.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.search-input-enhanced {
+    padding: 1rem !important;
+    font-size: 1.1rem;
+    border-radius: 0.5rem !important;
+}
+
+.search-results-container {
+    margin-top: 2rem !important;
+}
+
+.search-result-item {
+    padding: 1.5rem !important;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 0 !important;
+}
+
+.search-result-item:last-child {
+    border-bottom: none !important;
+}
+
+.search-result-title {
+    margin-bottom: 0.5rem !important;
+    font-weight: 600;
+}
+
+.search-result-meta {
+    margin-bottom: 0.75rem !important;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.search-result-excerpt {
+    margin-bottom: 0 !important;
+    line-height: 1.6;
+}
+
+/* Dashboard System - Dashboard Espaçoso */
+.dashboard-section {
+    margin-bottom: 2.5rem !important;
+}
+
+.dashboard-section:last-child {
+    margin-bottom: 0 !important;
+}
+
+.dashboard-card {
+    margin-bottom: 1.5rem !important;
+}
+
+.dashboard-stat-card {
+    padding: 2rem !important;
+    text-align: center;
+    border-radius: 0.5rem !important;
+    border: 1px solid var(--border-color);
+    background-color: var(--card-bg);
+}
+
+.dashboard-stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--django-green);
+}
+
+.dashboard-stat-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Article System - Artigos Espaçosos */
+.article-container {
+    margin-bottom: 2rem !important;
+}
+
+.article-header {
+    margin-bottom: 2rem !important;
+    padding-bottom: 1.5rem !important;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.article-title {
+    margin-bottom: 1rem !important;
+    line-height: 1.3;
+}
+
+.article-meta {
+    margin-bottom: 1.5rem !important;
+}
+
+.article-meta-item {
+    margin-right: 1.5rem !important;
+    margin-bottom: 0.5rem !important;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.article-meta-item:last-child {
+    margin-right: 0 !important;
+}
+
+.article-content {
+    margin-bottom: 2rem !important;
+    line-height: 1.7;
+}
+
+.article-content h1,
+.article-content h2,
+.article-content h3,
+.article-content h4,
+.article-content h5,
+.article-content h6 {
+    margin-top: 2rem !important;
+    margin-bottom: 1rem !important;
+}
+
+.article-content p {
+    margin-bottom: 1.5rem !important;
+}
+
+.article-content ul,
+.article-content ol {
+    margin-bottom: 1.5rem !important;
+    padding-left: 2rem !important;
+}
+
+.article-content li {
+    margin-bottom: 0.5rem !important;
+}
+
+.article-footer {
+    margin-top: 2rem !important;
+    padding-top: 1.5rem !important;
+    border-top: 1px solid var(--border-color);
+}
+
+/* User System - Usuários Espaçosos */
+.user-card-enhanced {
+    padding: 1.5rem !important;
+    border-radius: 0.5rem !important;
+    border: 1px solid var(--border-color);
+    background-color: var(--card-bg);
+    margin-bottom: 1.5rem !important;
+    transition: all 0.15s ease-in-out;
+}
+
+.user-card-enhanced:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.user-avatar-section {
+    margin-bottom: 1rem !important;
+}
+
+.user-info-section {
+    margin-bottom: 1rem !important;
+}
+
+.user-actions-section {
+    margin-top: 1rem !important;
+    padding-top: 1rem !important;
+    border-top: 1px solid var(--border-color);
+}
+
+/* Config System - Configurações Espaçosas */
+.config-section {
+    margin-bottom: 2.5rem !important;
+}
+
+.config-section:last-child {
+    margin-bottom: 0 !important;
+}
+
+.config-group {
+    margin-bottom: 2rem !important;
+}
+
+.config-item {
+    margin-bottom: 1.5rem !important;
+    padding: 1rem !important;
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    background-color: var(--bg-secondary);
+}
+
+.config-item:last-child {
+    margin-bottom: 0 !important;
+}
+
+.config-label {
+    font-weight: 600;
+    margin-bottom: 0.5rem !important;
+    color: var(--text-color);
+}
+
+.config-description {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem !important;
+}
+
+.config-value {
+    margin-bottom: 0 !important;
+}
+
+/* ========================================
+   RESPONSIVIDADE PARA SISTEMA DE ESPAÇAMENTO
+======================================== */
+
+@media (max-width: 768px) {
+    /* Cards responsivos */
+    .card-django-body-spacious {
+        padding: 1.5rem !important;
+    }
+
+    .card-django-body-comfortable {
+        padding: 1rem !important;
+    }
+
+    .card-django-header-spacious,
+    .card-django-header-comfortable {
+        padding: 1rem !important;
+    }
+
+    /* Forms responsivos */
+    .form-section {
+        margin-bottom: 1.5rem !important;
+    }
+
+    .form-group-spacious {
+        margin-bottom: 1.5rem !important;
+    }
+
+    .form-group-comfortable {
+        margin-bottom: 1rem !important;
+    }
+
+    /* Stats responsivos */
+    .stats-item {
+        padding: 1rem !important;
+        border-right: none !important;
+        border-bottom: 1px solid var(--border-color) !important;
+    }
+
+    .stats-item:last-child {
+        border-bottom: none !important;
+    }
+
+    /* Activity responsivo */
+    .activity-container {
+        padding: 1rem !important;
+    }
+
+    .activity-item {
+        padding: 0.75rem 0 !important;
+    }
+
+    .activity-icon {
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.75rem;
+    }
+
+    /* Dashboard responsivo */
+    .dashboard-section {
+        margin-bottom: 2rem !important;
+    }
+
+    .dashboard-stat-card {
+        padding: 1.5rem !important;
+    }
+
+    .dashboard-stat-value {
+        font-size: 1.5rem;
+    }
+
+    /* Article responsivo */
+    .article-header {
+        margin-bottom: 1.5rem !important;
+        padding-bottom: 1rem !important;
+    }
+
+    .article-meta-item {
+        margin-right: 1rem !important;
+    }
+
+    .article-content {
+        margin-bottom: 1.5rem !important;
+    }
+
+    .article-content h1,
+    .article-content h2,
+    .article-content h3,
+    .article-content h4,
+    .article-content h5,
+    .article-content h6 {
+        margin-top: 1.5rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+
+    .article-content p {
+        margin-bottom: 1rem !important;
+    }
+
+    /* User cards responsivos */
+    .user-card-enhanced {
+        padding: 1rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    /* Config responsivo */
+    .config-section {
+        margin-bottom: 2rem !important;
+    }
+
+    .config-group {
+        margin-bottom: 1.5rem !important;
+    }
+
+    .config-item {
+        margin-bottom: 1rem !important;
+        padding: 0.75rem !important;
+    }
+
+    /* Search responsivo */
+    .search-form {
+        padding: 1rem !important;
+    }
+
+    .search-input-enhanced {
+        padding: 0.75rem !important;
+        font-size: 1rem;
+    }
+
+    .search-result-item {
+        padding: 1rem !important;
+    }
+
+    /* Buttons responsivos */
+    .btn-enhanced {
+        padding: 0.625rem 1.25rem !important;
+    }
+
+    .btn-enhanced-lg {
+        padding: 0.75rem 1.5rem !important;
+        font-size: 1rem;
+    }
+
+    .btn-group-spacious .btn {
+        margin-right: 0.5rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+}
+
+@media (max-width: 576px) {
+    /* Extra small screens */
+    .card-django-body-spacious,
+    .card-django-body-comfortable {
+        padding: 1rem !important;
+    }
+
+    .form-section {
+        margin-bottom: 1rem !important;
+    }
+
+    .dashboard-section {
+        margin-bottom: 1.5rem !important;
+    }
+
+    .article-header {
+        margin-bottom: 1rem !important;
+    }
+
+    .config-section {
+        margin-bottom: 1.5rem !important;
+    }
+
+    .activity-container {
+        padding: 0.75rem !important;
+    }
+
+    .search-container {
+        margin-bottom: 1.5rem !important;
+    }
+}
+
+/* ========================================
+   DARK MODE PARA SISTEMA DE ESPAÇAMENTO
+======================================== */
+
+[data-theme="dark"] .card-django-header-spacious,
+[data-theme="dark"] .card-django-header-comfortable {
+    background-color: var(--bg-secondary) !important;
+    border-bottom-color: var(--border-color) !important;
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .form-label-enhanced {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .form-control-enhanced {
+    background-color: var(--input-bg) !important;
+    border-color: var(--input-border) !important;
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .form-control-enhanced:focus {
+    border-color: var(--django-green-light) !important;
+    box-shadow: 0 0 0 0.2rem rgba(68, 183, 139, 0.25) !important;
+}
+
+[data-theme="dark"] .list-item-spacious,
+[data-theme="dark"] .list-item-comfortable,
+[data-theme="dark"] .list-item-compact {
+    border-bottom-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .info-label {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .info-value {
+    border-bottom-color: var(--border-color) !important;
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .stats-item {
+    border-right-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .stats-value {
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .stats-label {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .activity-item {
+    border-bottom-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .activity-icon {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .activity-title {
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .activity-meta {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .nav-link-enhanced:hover {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .nav-link-enhanced.active {
+    background-color: var(--django-green-light) !important;
+    color: var(--bg-color) !important;
+}
+
+[data-theme="dark"] .search-form {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .search-input-enhanced {
+    background-color: var(--input-bg) !important;
+    border-color: var(--input-border) !important;
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .search-result-item {
+    border-bottom-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .search-result-title {
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .search-result-meta {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .search-result-excerpt {
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .dashboard-stat-card {
+    background-color: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .dashboard-stat-value {
+    color: var(--django-green-light) !important;
+}
+
+[data-theme="dark"] .dashboard-stat-label {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .article-header {
+    border-bottom-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .article-title {
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .article-meta-item {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .article-content {
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .article-footer {
+    border-top-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .user-card-enhanced {
+    background-color: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .user-actions-section {
+    border-top-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .config-item {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .config-label {
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .config-description {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .config-value {
+    color: var(--text-color) !important;
+}
+
+/* ========================================
+   CORREÇÕES ESPECÍFICAS PARA LISTAGEM DE USUÁRIOS
+   Resolve problemas de contraste no dark mode
+======================================== */
+
+/* Bootstrap Subtle Backgrounds - Dark Mode Fixes */
+[data-theme="dark"] .bg-success-subtle {
+    background-color: rgba(25, 135, 84, 0.2) !important;
+    border: 1px solid rgba(25, 135, 84, 0.3) !important;
+}
+
+[data-theme="dark"] .text-success {
+    color: #75b798 !important;
+}
+
+[data-theme="dark"] .bg-danger-subtle {
+    background-color: rgba(220, 53, 69, 0.2) !important;
+    border: 1px solid rgba(220, 53, 69, 0.3) !important;
+}
+
+[data-theme="dark"] .text-danger {
+    color: #ea868f !important;
+}
+
+[data-theme="dark"] .bg-warning-subtle {
+    background-color: rgba(255, 193, 7, 0.2) !important;
+    border: 1px solid rgba(255, 193, 7, 0.3) !important;
+}
+
+[data-theme="dark"] .text-warning {
+    color: #ffda6a !important;
+}
+
+[data-theme="dark"] .bg-info-subtle {
+    background-color: rgba(13, 202, 240, 0.2) !important;
+    border: 1px solid rgba(13, 202, 240, 0.3) !important;
+}
+
+[data-theme="dark"] .text-info {
+    color: #6edff6 !important;
+}
+
+[data-theme="dark"] .bg-secondary-subtle {
+    background-color: rgba(108, 117, 125, 0.2) !important;
+    border: 1px solid rgba(108, 117, 125, 0.3) !important;
+}
+
+[data-theme="dark"] .text-secondary {
+    color: #adb5bd !important;
+}
+
+[data-theme="dark"] .bg-primary-subtle {
+    background-color: rgba(13, 110, 253, 0.2) !important;
+    border: 1px solid rgba(13, 110, 253, 0.3) !important;
+}
+
+[data-theme="dark"] .text-primary {
+    color: #6ea8fe !important;
+}
+
+/* Table specific fixes for user listing */
+[data-theme="dark"] .table-django-light {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .table-django-light th {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-color) !important;
+    border-bottom-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .table-hover tbody tr:hover {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-color) !important;
+}
+
+/* User card specific fixes */
+[data-theme="dark"] .user-card-django {
+    background-color: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .user-card-django .card-title {
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .user-card-django .card-django-text {
+    color: var(--text-secondary) !important;
+}
+
+/* Text color fixes for user listing */
+[data-theme="dark"] .fw-semibold {
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .text-secondary.small {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .text-secondary.smaller {
+    color: var(--text-secondary) !important;
+}
+
+/* Badge enhanced fixes */
+[data-theme="dark"] .badge-enhanced {
+    font-weight: 600 !important;
+}
+
+[data-theme="dark"] .badge-enhanced.bg-success-subtle {
+    background-color: rgba(25, 135, 84, 0.25) !important;
+    color: #75b798 !important;
+    border: 1px solid rgba(25, 135, 84, 0.4) !important;
+}
+
+[data-theme="dark"] .badge-enhanced.bg-danger-subtle {
+    background-color: rgba(220, 53, 69, 0.25) !important;
+    color: #ea868f !important;
+    border: 1px solid rgba(220, 53, 69, 0.4) !important;
+}
+
+[data-theme="dark"] .badge-enhanced.bg-warning-subtle {
+    background-color: rgba(255, 193, 7, 0.25) !important;
+    color: #ffda6a !important;
+    border: 1px solid rgba(255, 193, 7, 0.4) !important;
+}
+
+[data-theme="dark"] .badge-enhanced.bg-info-subtle {
+    background-color: rgba(13, 202, 240, 0.25) !important;
+    color: #6edff6 !important;
+    border: 1px solid rgba(13, 202, 240, 0.4) !important;
+}
+
+[data-theme="dark"] .badge-enhanced.bg-secondary-subtle {
+    background-color: rgba(108, 117, 125, 0.25) !important;
+    color: #adb5bd !important;
+    border: 1px solid rgba(108, 117, 125, 0.4) !important;
+}
+
+[data-theme="dark"] .badge-enhanced.bg-primary-subtle {
+    background-color: rgba(13, 110, 253, 0.25) !important;
+    color: #6ea8fe !important;
+    border: 1px solid rgba(13, 110, 253, 0.4) !important;
+}
+
+/* Dropdown menu fixes for user actions */
+[data-theme="dark"] .dropdown-menu {
+    background-color: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .dropdown-item {
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .dropdown-item:hover {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .dropdown-item.text-danger {
+    color: #ea868f !important;
+}
+
+[data-theme="dark"] .dropdown-item.text-danger:hover {
+    background-color: rgba(220, 53, 69, 0.1) !important;
+    color: #ea868f !important;
+}
+
+/* Pagination fixes */
+[data-theme="dark"] .pagination .page-link {
+    background-color: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .pagination .page-link:hover {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .pagination .page-item.active .page-link {
+    background-color: var(--django-green-light) !important;
+    border-color: var(--django-green-light) !important;
+    color: #ffffff !important;
+}
+
+/* ========================================
+   CORREÇÕES ESPECÍFICAS PARA TABELAS NO DARK MODE
+   Resolve problemas de fundo branco e texto invisível
+======================================== */
+
+/* Table base fixes */
+[data-theme="dark"] .table {
+    --bs-table-bg: transparent !important;
+    --bs-table-color: var(--text-color) !important;
+    color: var(--text-color) !important;
+}
+
+/* Table light header fix */
+[data-theme="dark"] .table-light,
+[data-theme="dark"] .table thead th {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-color) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* Table hover fix */
+[data-theme="dark"] .table-hover > tbody > tr:hover > td,
+[data-theme="dark"] .table-hover > tbody > tr:hover > th {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-color) !important;
+}
+
+/* Table cells */
+[data-theme="dark"] .table td,
+[data-theme="dark"] .table th {
+    border-color: var(--border-color) !important;
+    color: var(--text-color) !important;
+}
+
+/* Table responsive wrapper */
+[data-theme="dark"] .table-responsive {
+    border-color: var(--border-color) !important;
+}
+
+/* Specific fixes for user table */
+[data-theme="dark"] .table .fw-semibold {
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .table .text-body {
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .table .text-secondary {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .table .small {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .table .smaller {
+    color: var(--text-secondary) !important;
+}
+
+/* Badge fixes in tables */
+[data-theme="dark"] .table .badge.bg-success {
+    background-color: #198754 !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .table .badge.bg-danger {
+    background-color: #dc3545 !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .table .badge.bg-warning {
+    background-color: #ffc107 !important;
+    color: #000000 !important;
+}
+
+[data-theme="dark"] .table .badge.bg-secondary {
+    background-color: #6c757d !important;
+    color: #ffffff !important;
+}
+
+/* Button group fixes in tables */
+[data-theme="dark"] .table .btn-group .btn-outline-primary {
+    border-color: var(--django-green-light) !important;
+    color: var(--django-green-light) !important;
+}
+
+[data-theme="dark"] .table .btn-group .btn-outline-primary:hover {
+    background-color: var(--django-green-light) !important;
+    border-color: var(--django-green-light) !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .table .btn-group .btn-outline-secondary {
+    border-color: var(--text-secondary) !important;
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .table .btn-group .btn-outline-secondary:hover {
+    background-color: var(--text-secondary) !important;
+    border-color: var(--text-secondary) !important;
+    color: var(--bg-color) !important;
+}
+
+[data-theme="dark"] .table .btn-group .btn-outline-danger {
+    border-color: #dc3545 !important;
+    color: #dc3545 !important;
+}
+
+[data-theme="dark"] .table .btn-group .btn-outline-danger:hover {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: #ffffff !important;
+}
+
+/* Card body with table */
+[data-theme="dark"] .card-body.p-0 {
+    background-color: transparent !important;
+}
+
+/* Table striped alternative */
+[data-theme="dark"] .table-striped > tbody > tr:nth-of-type(odd) > td,
+[data-theme="dark"] .table-striped > tbody > tr:nth-of-type(odd) > th {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Force text colors in table */
+[data-theme="dark"] .table tbody tr td {
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .table tbody tr td .fw-semibold {
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .table tbody tr td .text-secondary {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .table tbody tr td .small {
+    color: var(--text-secondary) !important;
+}
+
+/* Avatar background fix */
+[data-theme="dark"] .bg-django-green {
+    background-color: var(--django-green-light) !important;
+    color: #ffffff !important;
+}
+
+/* Profile Page Specific Improvements */
+/* Better spacing for profile cards */
+.profile-card-body {
+    padding: 2rem !important;
+}
+
+.profile-info-item {
+    margin-bottom: 1.5rem !important;
+}
+
+.profile-info-item:last-child {
+    margin-bottom: 0 !important;
+}
+
+.profile-info-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem !important;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.profile-info-value {
+    margin-bottom: 0 !important;
+    padding: 0.75rem 0 !important;
+    border-bottom: 1px solid var(--border-color);
+    min-height: 2.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.profile-info-value:last-child {
+    border-bottom: none !important;
+}
+
+/* Better spacing for profile statistics */
+.profile-stats-item {
+    padding: 1rem !important;
+    text-align: center;
+}
+
+.profile-stats-item .border-end {
+    border-right: 1px solid var(--border-color) !important;
+    padding-right: 1rem !important;
+}
+
+/* Profile avatar improvements */
+.profile-avatar-container {
+    margin-bottom: 2rem !important;
+}
+
+.profile-avatar-container img {
+    border: 4px solid var(--border-color) !important;
+    padding: 4px;
+    background-color: var(--card-bg);
+}
+
+/* Profile activity items */
+.profile-activity-item {
+    padding: 1rem 0 !important;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 0 !important;
+}
+
+.profile-activity-item:last-child {
+    border-bottom: none !important;
+    padding-bottom: 0 !important;
+}
+
+.profile-activity-item .activity-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg-secondary);
+    border-radius: 50%;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.profile-activity-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.profile-activity-title {
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+    color: var(--text-color);
+}
+
+.profile-activity-meta {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0;
+}
+
+/* Profile badges improvements */
+.profile-badge {
+    font-size: 0.75rem !important;
+    padding: 0.375rem 0.75rem !important;
+    margin-right: 0.5rem !important;
+    margin-bottom: 0.25rem !important;
+    font-weight: 500;
+}
+
+/* Profile card headers */
+.profile-card-header {
+    background-color: var(--bg-secondary) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    padding: 1rem 1.5rem !important;
+}
+
+.profile-card-header h6 {
+    margin-bottom: 0 !important;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+/* Dark theme adjustments for profile */
+[data-theme="dark"] .profile-info-value {
+    border-bottom-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .profile-activity-item {
+    border-bottom-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .profile-activity-item .activity-icon {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .profile-avatar-container img {
+    border-color: var(--border-color) !important;
+    background-color: var(--card-bg) !important;
+}
+
+/* Responsive improvements for profile */
+@media (max-width: 768px) {
+    .profile-card-body {
+        padding: 1.5rem !important;
+    }
+
+    .profile-info-item {
+        margin-bottom: 1rem !important;
+    }
+
+    .profile-stats-item {
+        padding: 0.75rem !important;
+    }
+
+    .profile-stats-item .border-end {
+        border-right: none !important;
+        border-bottom: 1px solid var(--border-color) !important;
+        padding-right: 0 !important;
+        padding-bottom: 0.75rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+
+    .profile-avatar-container {
+        margin-bottom: 1.5rem !important;
+    }
+}

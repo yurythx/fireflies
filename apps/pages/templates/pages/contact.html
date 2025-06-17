@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Contato - FireFlies{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h2 mb-1 text-sans text-body">
+                        <i class="fas fa-envelope me-2 text-django-green"></i>Contato
+                    </h1>
+                    <p class="text-secondary mb-0 text-body">Entre em contato conosco</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card-django border-0 shadow-sm">
+                <div class="card-body profile-card-body">
+                    <h2 class="text-sans text-body mb-4">Envie uma Mensagem</h2>
+                    
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="name" class="form-label text-sans text-body">Nome *</label>
+                                <input type="text" class="form-control form-control-enhanced" id="name" name="name" required>
+                                <div class="invalid-feedback">
+                                    Por favor, informe seu nome.
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="email" class="form-label text-sans text-body">Email *</label>
+                                <input type="email" class="form-control form-control-enhanced" id="email" name="email" required>
+                                <div class="invalid-feedback">
+                                    Por favor, informe um email válido.
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <label for="subject" class="form-label text-sans text-body">Assunto *</label>
+                                <input type="text" class="form-control form-control-enhanced" id="subject" name="subject" required>
+                                <div class="invalid-feedback">
+                                    Por favor, informe o assunto.
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <label for="message" class="form-label text-sans text-body">Mensagem *</label>
+                                <textarea class="form-control form-control-enhanced" id="message" name="message" rows="5" required></textarea>
+                                <div class="invalid-feedback">
+                                    Por favor, escreva sua mensagem.
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-paper-plane me-2"></i>Enviar Mensagem
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card-django border-0 shadow-sm mb-4">
+                <div class="card-body profile-card-body">
+                    <h4 class="text-sans text-body mb-3">
+                        <i class="fas fa-info-circle me-2 text-django-green"></i>Informações de Contato
+                    </h4>
+                    
+                    <div class="form-group-comfortable">
+                        <small class="text-secondary d-block">Email</small>
+                        <strong>contato@fireflies.com</strong>
+                    </div>
+                    <div class="form-group-comfortable">
+                        <small class="text-secondary d-block">Telefone</small>
+                        <strong>(11) 9999-9999</strong>
+                    </div>
+                    <div class="form-group-comfortable">
+                        <small class="text-secondary d-block">Endereço</small>
+                        <strong>São Paulo, SP - Brasil</strong>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-django border-0 shadow-sm">
+                <div class="card-body profile-card-body">
+                    <h4 class="text-sans text-body mb-3">
+                        <i class="fas fa-clock me-2 text-django-green"></i>Horário de Atendimento
+                    </h4>
+                    
+                    <div class="form-group-comfortable">
+                        <small class="text-secondary d-block">Segunda a Sexta</small>
+                        <strong>9:00 - 18:00</strong>
+                    </div>
+                    <div class="form-group-comfortable">
+                        <small class="text-secondary d-block">Sábado</small>
+                        <strong>9:00 - 12:00</strong>
+                    </div>
+                    <div class="form-group-comfortable">
+                        <small class="text-secondary d-block">Domingo</small>
+                        <strong>Fechado</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

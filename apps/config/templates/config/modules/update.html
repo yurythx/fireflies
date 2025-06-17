@@ -1,0 +1,265 @@
+{% extends 'config/base_config.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Editar {{ object.display_name }} - {{ block.super }}{% endblock %}
+
+{% block config_content %}
+<div class="container-fluid">
+    <!-- Header da Página -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h2 mb-1 text-sans text-body">
+                        <i class="{{ object.menu_icon }} me-2 text-django-green"></i>Editar Módulo
+                    </h1>
+                    <p class="text-secondary mb-0 text-body">{{ object.display_name }} ({{ object.app_name }})</p>
+                </div>
+                <div>
+                    <a href="{% url 'config:module_detail' object.app_name %}" class="btn btn-outline-primary">
+                        <i class="fas fa-eye me-2"></i>Ver Detalhes
+                    </a>
+                    <a href="{% url 'config:module_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Voltar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alertas -->
+    {% if object.is_core %}
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="alert alert-warning">
+                    <i class="fas fa-lock me-2"></i>
+                    <strong>Módulo Principal:</strong> Este é um módulo principal do sistema. 
+                    Algumas configurações não podem ser alteradas para manter a estabilidade do sistema.
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Formulário -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card-django border-0 shadow-sm">
+                <div class="profile-card-header">
+                    <h6 class="mb-0 text-sans text-body">
+                        <i class="fas fa-edit me-2 text-django-green"></i>Configurações do Módulo
+                    </h6>
+                </div>
+                <div class="card-body profile-card-body">
+                    <form method="post" class="form-django">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <!-- Coluna Principal -->
+                            <div class="col-lg-8">
+                                <!-- Informações Básicas -->
+                                <fieldset class="mb-4">
+                                    <legend class="h5 text-sans text-body border-bottom pb-2 mb-3">
+                                        <i class="fas fa-info-circle me-2 text-django-green"></i>Informações Básicas
+                                    </legend>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            {{ form.display_name|as_crispy_field }}
+                                        </div>
+                                        <div class="col-md-4">
+                                            {{ form.module_type|as_crispy_field }}
+                                        </div>
+                                    </div>
+                                    
+                                    {{ form.description|as_crispy_field }}
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            {{ form.status|as_crispy_field }}
+                                        </div>
+                                        <div class="col-md-6">
+                                            {{ form.version|as_crispy_field }}
+                                        </div>
+                                    </div>
+                                </fieldset>
+
+                                <!-- Configurações de Menu -->
+                                <fieldset class="mb-4">
+                                    <legend class="h5 text-sans text-body border-bottom pb-2 mb-3">
+                                        <i class="fas fa-bars me-2 text-django-green"></i>Configurações de Menu
+                                    </legend>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            {{ form.menu_icon|as_crispy_field }}
+                                            <div class="form-text">
+                                                <i class="fas fa-info-circle me-1"></i>
+                                                Use classes do FontAwesome (ex: fas fa-home)
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            {{ form.menu_order|as_crispy_field }}
+                                            <div class="form-text">
+                                                <i class="fas fa-info-circle me-1"></i>
+                                                Menor número = aparece primeiro no menu
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            {{ form.url_pattern|as_crispy_field }}
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check mt-4">
+                                                {{ form.show_in_menu }}
+                                                <label class="form-check-label" for="{{ form.show_in_menu.id_for_label }}">
+                                                    {{ form.show_in_menu.label }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+
+                                <!-- Dependências e Permissões -->
+                                <fieldset class="mb-4">
+                                    <legend class="h5 text-sans text-body border-bottom pb-2 mb-3">
+                                        <i class="fas fa-project-diagram me-2 text-django-green"></i>Dependências e Permissões
+                                    </legend>
+                                    
+                                    {{ form.dependencies|as_crispy_field }}
+                                    <div class="form-text mb-3">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Lista em formato JSON: ["app1", "app2"]
+                                    </div>
+                                    
+                                    {{ form.required_permissions|as_crispy_field }}
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Lista em formato JSON: ["permission1", "permission2"]
+                                    </div>
+                                </fieldset>
+                            </div>
+
+                            <!-- Coluna Lateral -->
+                            <div class="col-lg-4">
+                                <!-- Configurações Avançadas -->
+                                <fieldset class="mb-4">
+                                    <legend class="h5 text-sans text-body border-bottom pb-2 mb-3">
+                                        <i class="fas fa-cogs me-2 text-django-green"></i>Configurações Avançadas
+                                    </legend>
+                                    
+                                    {{ form.module_settings|as_crispy_field }}
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Configurações específicas em formato JSON
+                                    </div>
+                                </fieldset>
+
+                                <!-- Metadados -->
+                                <fieldset class="mb-4">
+                                    <legend class="h5 text-sans text-body border-bottom pb-2 mb-3">
+                                        <i class="fas fa-tags me-2 text-django-green"></i>Metadados
+                                    </legend>
+                                    
+                                    {{ form.author|as_crispy_field }}
+                                    {{ form.documentation_url|as_crispy_field }}
+                                </fieldset>
+
+                                <!-- Preview do Ícone -->
+                                <div class="card border-0 bg-light">
+                                    <div class="card-body text-center">
+                                        <h6 class="card-title">Preview do Ícone</h6>
+                                        <div id="icon-preview" class="mb-2">
+                                            <i class="{{ object.menu_icon }} fa-3x text-django-green"></i>
+                                        </div>
+                                        <small class="text-muted" id="icon-class">{{ object.menu_icon }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botões de Ação -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <button type="submit" class="btn btn-primary btn-lg">
+                                            <i class="fas fa-save me-2"></i>Salvar Alterações
+                                        </button>
+                                        <button type="reset" class="btn btn-outline-secondary btn-lg">
+                                            <i class="fas fa-undo me-2"></i>Limpar
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <a href="{% url 'config:module_detail' object.app_name %}" class="btn btn-outline-primary btn-lg">
+                                            <i class="fas fa-eye me-2"></i>Ver Detalhes
+                                        </a>
+                                        <a href="{% url 'config:module_list' %}" class="btn btn-outline-secondary btn-lg">
+                                            <i class="fas fa-times me-2"></i>Cancelar
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Preview do ícone em tempo real
+    const iconField = document.getElementById('id_menu_icon');
+    const iconPreview = document.getElementById('icon-preview');
+    const iconClass = document.getElementById('icon-class');
+    
+    if (iconField && iconPreview && iconClass) {
+        iconField.addEventListener('input', function() {
+            const iconValue = this.value.trim();
+            if (iconValue) {
+                iconPreview.innerHTML = `<i class="${iconValue} fa-3x text-django-green"></i>`;
+                iconClass.textContent = iconValue;
+            } else {
+                iconPreview.innerHTML = `<i class="fas fa-puzzle-piece fa-3x text-django-green"></i>`;
+                iconClass.textContent = 'fas fa-puzzle-piece';
+            }
+        });
+    }
+    
+    // Validação de JSON em tempo real
+    const jsonFields = ['id_dependencies', 'id_required_permissions', 'id_module_settings'];
+    
+    jsonFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.addEventListener('input', function() {
+                try {
+                    if (this.value.trim()) {
+                        JSON.parse(this.value);
+                        this.classList.remove('is-invalid');
+                        this.classList.add('is-valid');
+                    } else {
+                        this.classList.remove('is-invalid', 'is-valid');
+                    }
+                } catch (e) {
+                    this.classList.remove('is-valid');
+                    this.classList.add('is-invalid');
+                }
+            });
+        }
+    });
+    
+    // Auto-resize para textareas
+    const textareas = document.querySelectorAll('textarea');
+    textareas.forEach(textarea => {
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+    });
+});
+</script>
+{% endblock %}

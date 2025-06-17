@@ -1,0 +1,488 @@
+/* ===== FIREFLIES THEME - INSPIRED BY THE LAST OF US ===== */
+
+/* CSS Variables for FireFlies Theme */
+:root {
+    /* FireFlies Brand Colors (inspired by TLOU) */
+    --fireflies-green: #2d5a27;
+    --fireflies-green-light: #4a7c59;
+    --fireflies-green-glow: #6b8e23;
+    --fireflies-yellow: #ffd700;
+    --fireflies-yellow-glow: #ffff00;
+    
+    /* Dark Theme Colors */
+    --dark-bg: #0a0a0a;
+    --dark-surface: #1a1a1a;
+    --dark-surface-light: #2a2a2a;
+    --dark-border: #333333;
+    --dark-text: #e0e0e0;
+    --dark-text-muted: #a0a0a0;
+    
+    /* Primary Colors */
+    --primary-color: #222;
+    --primary-light: #444;
+    --secondary-color: #fff;
+    --accent-color: #7ed6a7;
+    --success-color: #43a047;
+    --error-color: #d32f2f;
+    
+    /* Semantic Colors */
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+    
+    /* Typography */
+    --font-family-sans-serif: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-family-mono: 'Fira Mono', 'Monaco', 'Consolas', monospace;
+    
+    /* Spacing & Layout */
+    --border-radius: 0.5rem;
+    --box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
+    --transition: all 0.2s ease-in-out;
+
+    --color-bg-light: #f8f8f8;
+    --color-bg-dark: #181818;
+    --color-bg-secondary-light: #ffffff;
+    --color-bg-secondary-dark: #23272a;
+    --color-text-light: #181818;
+    --color-text-dark: #f8f8f8;
+    --color-text-secondary-light: #444;
+    --color-text-secondary-dark: #bdbdbd;
+    --color-accent-yellow: #ffe066;
+    --color-accent-yellow-light: #ffd600;
+    --color-accent-green: #7fff00;
+    --color-accent-green-light: #43a047;
+    --color-accent-blue: #3ecfff;
+    --color-accent-blue-light: #1976d2;
+    --color-error-dark: #ff4d4f;
+    --color-error-light: #d32f2f;
+    --color-success-dark: #00e676;
+    --color-success-light: #388e3c;
+
+    --coke-red: #E41A1C;
+    --bg-light: #fff;
+    --bg-dark: #181818;
+    --text-light: #222;
+    --text-dark: #fff;
+    --card-light: #f7f7f7;
+    --card-dark: #232323;
+    --transition: 0.3s cubic-bezier(.4,0,.2,1);
+}
+
+/* Dark Theme (Default for FireFlies) */
+body {
+    background: var(--secondary-color);
+    color: var(--primary-color);
+    font-family: 'Roboto', Arial, sans-serif;
+    transition: var(--transition);
+}
+
+body.dark-mode {
+    background: var(--bg-dark);
+    color: var(--text-dark);
+}
+
+/* Navbar Styling */
+.navbar-django {
+    background: var(--primary-color);
+    color: var(--secondary-color);
+    border-bottom: 1px solid #eee;
+    box-shadow: var(--box-shadow);
+}
+
+body.dark-mode .navbar-django {
+    background: var(--bg-dark);
+    color: var(--text-dark);
+}
+
+.navbar-brand {
+    font-weight: bold;
+    color: var(--accent-color);
+    font-size: 1.5rem;
+}
+
+.navbar-brand:hover {
+    color: var(--accent-color);
+}
+
+.navbar-brand img {
+    height: 40px;
+    width: auto;
+    vertical-align: middle;
+}
+
+.navbar-nav .nav-link {
+    color: var(--dark-text) !important;
+    transition: var(--transition);
+}
+
+.navbar-nav .nav-link:hover {
+    color: var(--accent-color) !important;
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
+}
+
+.navbar-nav .nav-link.active {
+    color: var(--primary-light) !important;
+    background-color: rgba(74, 124, 89, 0.1);
+    border-radius: var(--border-radius);
+}
+
+/* Cards */
+.card {
+    background: var(--secondary-color);
+    color: var(--primary-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    transition: var(--transition);
+}
+
+body.dark-mode .card {
+    background: var(--card-dark);
+    color: var(--text-dark);
+}
+
+.card:hover {
+    box-shadow: var(--box-shadow-glow);
+    border-color: var(--primary-light);
+}
+
+.card-header {
+    background-color: var(--dark-surface-light);
+    border-bottom: 1px solid var(--dark-border);
+    color: var(--dark-text);
+}
+
+.card-body {
+    color: var(--dark-text);
+}
+
+/* Buttons */
+.btn-primary {
+    background: var(--accent-color);
+    color: var(--primary-color);
+    border: none;
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+}
+
+.btn-primary:hover {
+    background: var(--primary-light);
+    color: var(--accent-color);
+}
+
+body.dark-mode .btn-primary {
+    background: var(--color-accent-yellow);
+    color: var(--color-bg-dark);
+}
+
+body.dark-mode .btn-primary:hover {
+    background: var(--color-accent-green);
+    color: #fff;
+}
+
+.btn-outline-primary {
+    color: var(--primary-light);
+    border-color: var(--primary-light);
+    background-color: transparent;
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 0 15px rgba(107, 142, 35, 0.4);
+}
+
+.btn-accent {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+    color: var(--dark-bg);
+    font-weight: 600;
+}
+
+.btn-accent:hover {
+    background-color: var(--accent-glow);
+    border-color: var(--accent-glow);
+    color: var(--dark-bg);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+/* Forms */
+.form-control, .form-select {
+    background-color: var(--dark-surface-light);
+    border: 1px solid var(--dark-border);
+    color: var(--dark-text);
+    transition: var(--transition);
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: var(--dark-surface-light);
+    border-color: var(--primary-light);
+    color: var(--dark-text);
+    box-shadow: 0 0 0 0.2rem rgba(107, 142, 35, 0.25);
+}
+
+.form-control::placeholder {
+    color: var(--dark-text-muted);
+}
+
+/* Alerts */
+.alert {
+    border-radius: var(--border-radius);
+    border: none;
+}
+
+.alert-primary {
+    background-color: rgba(45, 90, 39, 0.2);
+    color: var(--primary-light);
+    border-left: 4px solid var(--primary-color);
+}
+
+.alert-success {
+    background: var(--success-color);
+    color: #fff;
+}
+
+body.dark-mode .alert-success {
+    background: var(--color-success-dark);
+    color: #fff;
+}
+
+.alert-danger, .alert-error {
+    background: var(--error-color);
+    color: #fff;
+}
+
+body.dark-mode .alert-danger, body.dark-mode .alert-error {
+    background: var(--color-error-dark);
+    color: #fff;
+}
+
+.alert-warning {
+    background-color: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+    border-left: 4px solid #ffc107;
+}
+
+/* FireFlies Glow Effect */
+.fireflies-glow {
+    position: relative;
+}
+
+.fireflies-glow::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle, rgba(107, 142, 35, 0.1) 0%, transparent 70%);
+    border-radius: inherit;
+    opacity: 0;
+    transition: var(--transition);
+    pointer-events: none;
+}
+
+.fireflies-glow:hover::before {
+    opacity: 1;
+}
+
+/* FireFlies Icon Animation */
+.fireflies-icon {
+    animation: fireflies-pulse 2s ease-in-out infinite;
+}
+
+@keyframes fireflies-pulse {
+    0%, 100% {
+        opacity: 0.7;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.1);
+        filter: drop-shadow(0 0 5px var(--accent-color));
+    }
+}
+
+/* FireFlies Loading Animation */
+.fireflies-loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--dark-border);
+    border-radius: 50%;
+    border-top-color: var(--accent-color);
+    animation: fireflies-spin 1s ease-in-out infinite;
+}
+
+@keyframes fireflies-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* FireFlies Particles Effect */
+.fireflies-particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.fireflies-particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background-color: var(--accent-color);
+    border-radius: 50%;
+    animation: fireflies-float 6s ease-in-out infinite;
+    opacity: 0.6;
+}
+
+@keyframes fireflies-float {
+    0%, 100% {
+        transform: translateY(0px) scale(1);
+        opacity: 0.6;
+    }
+    50% {
+        transform: translateY(-20px) scale(1.2);
+        opacity: 1;
+    }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--dark-surface);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-light);
+}
+
+/* Text Utilities */
+.text-fireflies {
+    color: var(--primary-color) !important;
+}
+
+.text-fireflies-glow {
+    color: var(--accent-color) !important;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.bg-fireflies {
+    background-color: var(--primary-color) !important;
+}
+
+.bg-fireflies-dark {
+    background-color: var(--dark-surface) !important;
+}
+
+/* Footer */
+footer {
+    background: var(--bg-dark);
+    color: var(--text-dark);
+    padding: 2rem 0;
+    text-align: center;
+    margin-top: 2rem;
+}
+
+footer a {
+    color: var(--coke-red);
+    transition: var(--transition);
+}
+
+footer a:hover {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+/* Theme Toggle */
+.theme-toggle {
+    background: none;
+    border: none;
+    color: var(--color-accent-yellow-light);
+    font-size: 1.5rem;
+    cursor: pointer;
+    margin-left: 1rem;
+    transition: color var(--transition);
+}
+
+body.dark-mode .theme-toggle {
+    color: var(--color-accent-yellow);
+}
+
+.theme-option {
+    color: var(--dark-text-muted);
+    background-color: transparent;
+    border: none;
+    transition: var(--transition);
+}
+
+.theme-option:hover {
+    color: var(--accent-color);
+    background-color: rgba(255, 215, 0, 0.1);
+}
+
+.theme-option.active {
+    color: var(--accent-color);
+    background-color: rgba(255, 215, 0, 0.2);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .navbar-brand {
+        font-size: 1.2rem;
+    }
+    
+    .fireflies-particles {
+        display: none;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .fireflies-glow::before,
+    .fireflies-particles,
+    .fireflies-loading {
+        display: none !important;
+    }
+    
+    body {
+        background-color: white !important;
+        color: black !important;
+    }
+    
+    .card {
+        background-color: white !important;
+        border: 1px solid #ccc !important;
+        box-shadow: none !important;
+    }
+}
+
+/* Transição suave para todos os elementos */
+* {
+    transition: background var(--transition), color var(--transition), border-color var(--transition);
+}
+
+a {
+    color: var(--primary-color);
+    text-decoration: underline;
+    transition: var(--transition);
+}
+body.dark-mode a {
+    color: var(--color-accent-blue);
+}
+
+a:hover {
+    color: var(--accent-color);
+} 

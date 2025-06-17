@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Login - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- Header da Página -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h2 mb-1 text-sans text-body">
+                        <i class="fas fa-sign-in-alt me-2 text-django-green"></i>Entrar no Sistema
+                    </h1>
+                    <p class="text-secondary mb-0 text-body">Faça login com seu e-mail ou nome de usuário</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <!-- Card de Login -->
+            <div class="card-django border-0 shadow-sm mb-4">
+                <div class="card-body profile-card-body">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-user-circle fa-3x text-django-green mb-3"></i>
+                        <h3 class="text-sans text-body">Login</h3>
+                    </div>
+
+                    <!-- Formulário de Login -->
+                    <div class="form-django">
+                        {% crispy form %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informações de Ajuda -->
+            <div class="card-django border-0 shadow-sm">
+                <div class="profile-card-header">
+                    <h6 class="mb-0 text-sans text-body">
+                        <i class="fas fa-info-circle me-2 text-django-green"></i>Como fazer login?
+                    </h6>
+                </div>
+                    <div class="row text-center">
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <i class="fas fa-envelope text-django-green me-1"></i>
+                                <small class="text-sans"><strong>Com E-mail:</strong></small>
+                            </div>
+                            <small class="text-muted text-sans">usuario@exemplo.com</small>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <i class="fas fa-user text-django-green me-1"></i>
+                                <small class="text-sans"><strong>Com Usuário:</strong></small>
+                            </div>
+                            <small class="text-muted text-sans">meuusuario</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Links Úteis -->
+            <div class="text-center mt-4">
+                <p class="text-secondary">
+                    Não tem uma conta?
+                    <a href="{% url 'accounts:register' %}" class="text-django-green text-decoration-none">
+                        <i class="fas fa-user-plus me-1"></i>Criar Conta
+                    </a>
+                </p>
+                <p class="text-secondary">
+                    Esqueceu a senha?
+                    <a href="{% url 'accounts:password_reset' %}" class="text-django-green text-decoration-none">
+                        <i class="fas fa-key me-1"></i>Recuperar Senha
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-focus no campo de login
+    const loginField = document.querySelector('input[name="username"]');
+    if (loginField) {
+        loginField.focus();
+    }
+
+    // Elementos do formulário
+    const passwordField = document.querySelector('input[name="password"]');
+    const form = document.querySelector('form');
+
+    // Feedback visual no envio do formulário
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Entrando...';
+                submitBtn.disabled = true;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

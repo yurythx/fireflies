@@ -1,0 +1,425 @@
+{% extends 'config/base.html' %}
+{% load static %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.database-card {
+    transition: all 0.3s ease;
+    border-left: 4px solid #dee2e6;
+}
+
+.database-card.default {
+    border-left-color: #198754;
+    background-color: #f8fff9;
+}
+
+.database-card.inactive {
+    opacity: 0.6;
+    border-left-color: #dc3545;
+}
+
+.database-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.status-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.connection-status {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.connection-status.success {
+    background-color: #198754;
+}
+
+.connection-status.error {
+    background-color: #dc3545;
+}
+
+.connection-status.unknown {
+    background-color: #6c757d;
+}
+
+.btn-test {
+    position: relative;
+}
+
+.btn-test .spinner-border {
+    width: 1rem;
+    height: 1rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">
+                <i class="fas fa-database me-2"></i>{{ page_title }}
+            </h1>
+            <p class="text-muted mb-0">Gerencie as configurações de banco de dados do sistema</p>
+        </div>
+        <div class="btn-group">
+            <a href="{% url 'config:database_quick_setup' %}" class="btn btn-outline-primary">
+                <i class="fas fa-magic me-1"></i>Setup Rápido
+            </a>
+            <a href="{% url 'config:database_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>Nova Configuração
+            </a>
+        </div>
+    </div>
+
+    <!-- Ações Rápidas -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-primary">
+                <div class="card-body text-center">
+                    <i class="fas fa-cog fa-2x text-primary mb-2"></i>
+                    <h5 class="card-title">Selecionar Banco Padrão</h5>
+                    <p class="card-text text-muted">Escolha qual configuração será usada como padrão</p>
+                    <a href="{% url 'config:database_selection' %}" class="btn btn-primary">
+                        <i class="fas fa-check me-1"></i>Selecionar
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <i class="fas fa-rocket fa-2x text-success mb-2"></i>
+                    <h5 class="card-title">Deploy Produção</h5>
+                    <p class="card-text text-muted">Configure banco para ambiente de produção</p>
+                    <button class="btn btn-success" onclick="showProductionHelp()">
+                        <i class="fas fa-info me-1"></i>Ver Comandos
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <i class="fas fa-sync fa-2x text-info mb-2"></i>
+                    <h5 class="card-title">Testar Todas</h5>
+                    <p class="card-text text-muted">Teste a conexão com todas as configurações</p>
+                    <button class="btn btn-info" onclick="testAllConnections()">
+                        <i class="fas fa-play me-1"></i>Testar Todas
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Configurações -->
+    <div class="row">
+        {% for config in configurations %}
+        <div class="col-lg-6 mb-4">
+            <div class="card database-card {% if config.is_default %}default{% elif not config.is_active %}inactive{% endif %}">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-database me-2"></i>{{ config.name }}
+                        </h5>
+                        {% if config.is_default %}
+                            <span class="badge bg-success ms-2 status-badge">PADRÃO</span>
+                        {% endif %}
+                        {% if not config.is_active %}
+                            <span class="badge bg-danger ms-2 status-badge">INATIVO</span>
+                        {% endif %}
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'config:database_edit' config.pk %}">
+                                    <i class="fas fa-edit me-1"></i>Editar
+                                </a>
+                            </li>
+                            <li>
+                                <button class="dropdown-item" onclick="testConnection({{ config.pk }})">
+                                    <i class="fas fa-plug me-1"></i>Testar Conexão
+                                </button>
+                            </li>
+                            {% if not config.is_default %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <button class="dropdown-item text-success" onclick="applyProduction({{ config.pk }})">
+                                    <i class="fas fa-rocket me-1"></i>Aplicar para Produção
+                                </button>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="{% url 'config:database_delete' config.pk %}">
+                                    <i class="fas fa-trash me-1"></i>Excluir
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <p class="mb-1"><strong>Tipo:</strong></p>
+                            <p class="text-muted">{{ config.get_engine_display }}</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <p class="mb-1"><strong>Servidor:</strong></p>
+                            <p class="text-muted">
+                                {% if config.host %}
+                                    {{ config.host }}{% if config.port %}:{{ config.port }}{% endif %}
+                                {% else %}
+                                    Local (SQLite)
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-sm-6">
+                            <p class="mb-1"><strong>Banco:</strong></p>
+                            <p class="text-muted">{{ config.database_name }}</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <p class="mb-1"><strong>Usuário:</strong></p>
+                            <p class="text-muted">{{ config.username|default:"N/A" }}</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Status da Conexão -->
+                    <div class="mt-3 p-2 bg-light rounded">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="connection-status {% if config.last_test_result %}success{% elif config.last_test_result == False %}error{% else %}unknown{% endif %}"></span>
+                                <small class="text-muted">
+                                    {% if config.last_tested_at %}
+                                        Último teste: {{ config.last_tested_at|date:"d/m/Y H:i" }}
+                                    {% else %}
+                                        Nunca testado
+                                    {% endif %}
+                                </small>
+                            </div>
+                            <button class="btn btn-sm btn-outline-primary btn-test" onclick="testConnection({{ config.pk }})">
+                                <i class="fas fa-plug me-1"></i>Testar
+                            </button>
+                        </div>
+                        <div id="test-result-{{ config.pk }}" class="mt-2" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="fas fa-database fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted">Nenhuma configuração encontrada</h4>
+                <p class="text-muted">Crie sua primeira configuração de banco de dados</p>
+                <a href="{% url 'config:database_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i>Criar Configuração
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Paginação -->
+    {% if is_paginated %}
+    <nav aria-label="Paginação">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+                </li>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Próximo</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function testConnection(configId) {
+    const button = document.querySelector(`button[onclick="testConnection(${configId})"]`);
+    const resultDiv = document.getElementById(`test-result-${configId}`);
+    
+    // Mostrar loading
+    button.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Testando...';
+    button.disabled = true;
+    
+    fetch(`/config/database/${configId}/test/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Restaurar botão
+        button.innerHTML = '<i class="fas fa-plug me-1"></i>Testar';
+        button.disabled = false;
+        
+        // Mostrar resultado
+        resultDiv.style.display = 'block';
+        resultDiv.className = `alert alert-${data.success ? 'success' : 'danger'} alert-sm mb-0`;
+        resultDiv.innerHTML = `<i class="fas fa-${data.success ? 'check' : 'times'} me-1"></i>${data.message}`;
+        
+        // Atualizar status visual
+        const statusDot = button.closest('.card').querySelector('.connection-status');
+        statusDot.className = `connection-status ${data.success ? 'success' : 'error'}`;
+        
+        // Ocultar resultado após 5 segundos
+        setTimeout(() => {
+            resultDiv.style.display = 'none';
+        }, 5000);
+    })
+    .catch(error => {
+        button.innerHTML = '<i class="fas fa-plug me-1"></i>Testar';
+        button.disabled = false;
+        
+        resultDiv.style.display = 'block';
+        resultDiv.className = 'alert alert-danger alert-sm mb-0';
+        resultDiv.innerHTML = '<i class="fas fa-times me-1"></i>Erro na requisição';
+    });
+}
+
+function testAllConnections() {
+    const configs = {{ configurations|length }};
+    let tested = 0;
+
+    {% for config in configurations %}
+    setTimeout(() => {
+        testConnection({{ config.pk }});
+    }, tested * 1000);
+    tested++;
+    {% endfor %}
+}
+
+function applyProduction(configId) {
+    if (!confirm('Tem certeza de que deseja aplicar esta configuração para produção?\n\nIsso irá:\n- Definir como configuração padrão\n- Atualizar o arquivo .env\n- Requerer reinicialização do servidor')) {
+        return;
+    }
+
+    const button = document.querySelector(`button[onclick="applyProduction(${configId})"]`);
+    const originalText = button.innerHTML;
+
+    // Mostrar loading
+    button.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Aplicando...';
+    button.disabled = true;
+
+    fetch(`/config/banco-dados/${configId}/aplicar-producao/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Restaurar botão
+        button.innerHTML = originalText;
+        button.disabled = false;
+
+        if (data.success) {
+            // Mostrar sucesso
+            alert(`✅ ${data.message}\n\n` +
+                  `Configurações aplicadas:\n` +
+                  `- Engine: ${data.config.DB_ENGINE}\n` +
+                  `- Banco: ${data.config.DB_NAME}\n` +
+                  `- Host: ${data.config.DB_HOST}\n` +
+                  `- Porta: ${data.config.DB_PORT}\n\n` +
+                  `⚠️ IMPORTANTE: Reinicie o servidor para aplicar as mudanças!`);
+
+            // Recarregar página para mostrar novo status
+            location.reload();
+        } else {
+            alert(`❌ Erro: ${data.message}`);
+        }
+    })
+    .catch(error => {
+        button.innerHTML = originalText;
+        button.disabled = false;
+        alert('❌ Erro na requisição: ' + error.message);
+    });
+}
+
+function showProductionHelp() {
+    const helpText = `🚀 CONFIGURAÇÃO PARA PRODUÇÃO
+
+📋 OPÇÕES DISPONÍVEIS:
+
+1️⃣ VIA INTERFACE WEB:
+   • Clique no menu (⋮) de uma configuração
+   • Selecione "Aplicar para Produção"
+   • Confirme a aplicação
+
+2️⃣ VIA LINHA DE COMANDO:
+   • Listar configurações:
+     python manage.py list_db_configs
+
+   • Testar conexão:
+     python manage.py test_db_config <ID>
+
+   • Aplicar configuração:
+     python manage.py apply_db_config <ID> --update-env
+
+3️⃣ VIA DOCKER:
+   • Desenvolvimento:
+     .\\docker-commands.ps1 dev-up
+
+   • Produção:
+     .\\docker-commands.ps1 deploy
+
+⚠️ IMPORTANTE:
+• Sempre teste a conexão antes de aplicar
+• Faça backup antes de mudanças em produção
+• Reinicie o servidor após aplicar configuração
+• Verifique o arquivo .env após aplicação
+
+💡 DICA: Use configurações diferentes para:
+• Desenvolvimento (SQLite)
+• Teste (PostgreSQL local)
+• Produção (PostgreSQL/MySQL remoto)`;
+
+    alert(helpText);
+}
+
+// Adicionar token CSRF se não existir
+if (!document.querySelector('[name=csrfmiddlewaretoken]')) {
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = '{{ csrf_token }}';
+    document.body.appendChild(csrfInput);
+}
+</script>
+{% endblock %}

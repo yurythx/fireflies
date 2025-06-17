@@ -1,0 +1,543 @@
+{% extends 'config/base_config.html' %}
+{% load crispy_forms_tags %}
+
+{% block config_title %}Variáveis de Ambiente{% endblock %}
+
+{% block breadcrumbs %}
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'config:dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'config:system_config' %}">Sistema</a></li>
+            <li class="breadcrumb-item active">Variáveis de Ambiente</li>
+        </ol>
+    </nav>
+</div>
+{% endblock %}
+
+{% block config_content %}
+<!-- Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h2 mb-1 text-sans text-body">
+                    <i class="fas fa-code me-2 text-django-green"></i>Editor de Variáveis de Ambiente
+                </h1>
+                <p class="text-secondary mb-0 text-body">Edite diretamente o arquivo .env do projeto</p>
+            </div>
+            <div>
+                <a href="{% url 'config:system_config' %}" class="btn btn-outline-secondary btn-enhanced">
+                    <i class="fas fa-arrow-left me-1"></i>Voltar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Status do Arquivo -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="alert {% if env_file_exists %}alert-success{% else %}alert-warning{% endif %}">
+            <div class="d-flex align-items-center">
+                <i class="fas {% if env_file_exists %}fa-check-circle{% else %}fa-exclamation-triangle{% endif %} me-2"></i>
+                <div>
+                    <strong>Status do arquivo .env:</strong>
+                    {% if env_file_exists %}
+                        Arquivo encontrado em: <code>{{ env_file_path }}</code>
+                    {% else %}
+                        Arquivo não encontrado. Um template será criado ao salvar.
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Editor Principal -->
+    <div class="col-lg-9">
+        <div class="card-django border-0 shadow-sm">
+            <div class="card-header card-django-header-comfortable bg-secondary border-0 card-django">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-django-green rounded-circle d-flex align-items-center justify-content-center text-light" style="width: 40px; height: 40px;">
+                                <i class="fas fa-edit"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="mb-0 text-sans text-body">Editor do arquivo .env</h5>
+                            <small class="text-secondary">Edite diretamente as variáveis de ambiente</small>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-outline-info btn-sm" onclick="formatContent()">
+                            <i class="fas fa-magic me-1"></i>Formatar
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="toggleLineNumbers()">
+                            <i class="fas fa-list-ol me-1"></i>Números
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body card-django-body-spacious p-0 card-django">
+                {% crispy form %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar com Informações -->
+    <div class="col-lg-3">
+        <!-- Informações do Arquivo -->
+        <div class="card-django border-0 shadow-sm mb-4">
+            <div class="card-header card-django-header-comfortable bg-info text-light border-0 card-django">
+                <h6 class="mb-0 text-sans text-body">
+                    <i class="fas fa-file-code me-2"></i>Informações do Arquivo
+                </h6>
+            </div>
+            <div class="card-body card-django-body-spacious card-django">
+                <div class="mb-3">
+                    <strong>Status:</strong>
+                    {% if env_file_exists %}
+                        <span class="badge bg-success ms-2">Existe</span>
+                    {% else %}
+                        <span class="badge bg-warning ms-2">Não existe</span>
+                    {% endif %}
+                </div>
+                <div class="mb-3">
+                    <strong>Caminho:</strong>
+                    <small class="d-block text-muted font-monospace">{{ env_file_path }}</small>
+                </div>
+                {% if backup_files %}
+                <div class="mb-3">
+                    <strong>Backups:</strong>
+                    <span class="badge bg-info ms-2">{{ backup_files|length }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Backups Disponíveis -->
+        {% if backup_files %}
+        <div class="card-django border-0 shadow-sm mb-4">
+            <div class="card-header card-django-header-comfortable bg-secondary border-0 card-django">
+                <h6 class="mb-0 text-sans text-body">
+                    <i class="fas fa-history me-2"></i>Backups Recentes
+                </h6>
+            </div>
+            <div class="card-body card-django-body-spacious card-django">
+                {% for backup in backup_files|slice:":5" %}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                        <small class="font-monospace">{{ backup.name }}</small>
+                        <div class="text-muted" style="font-size: 0.75rem;">
+                            {{ backup.modified|date:"d/m/Y H:i" }}
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-outline-primary btn-sm"
+                            onclick="restoreBackup('{{ backup.name }}')">
+                        <i class="fas fa-undo"></i>
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Ações Rápidas -->
+        <div class="card-django border-0 shadow-sm mb-4">
+            <div class="card-header card-django-header-comfortable bg-secondary border-0 card-django">
+                <h6 class="mb-0 text-sans text-body">
+                    <i class="fas fa-bolt me-2"></i>Ações Rápidas
+                </h6>
+            </div>
+            <div class="card-body card-django-body-spacious card-django">
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-outline-warning btn-sm" onclick="generateSecretKey()">
+                        <i class="fas fa-key me-1"></i>Gerar SECRET_KEY
+                    </button>
+                    <button type="button" class="btn btn-outline-info btn-sm" onclick="addEmailConfig()">
+                        <i class="fas fa-envelope me-1"></i>Config Email
+                    </button>
+                    <button type="button" class="btn btn-outline-success btn-sm" onclick="addDatabaseConfig()">
+                        <i class="fas fa-database me-1"></i>Config BD
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="validateSyntax()">
+                        <i class="fas fa-check me-1"></i>Validar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dicas de Segurança -->
+        <div class="card-django border-0 shadow-sm">
+            <div class="card-header card-django-header-comfortable bg-warning text-body border-0 card-django">
+                <h6 class="mb-0 text-sans text-body">
+                    <i class="fas fa-shield-alt me-2"></i>Dicas de Segurança
+                </h6>
+            </div>
+            <div class="card-body card-django-body-spacious card-django">
+                <div class="small">
+                    <div class="mb-2">
+                        <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                        <strong>DEBUG=False</strong> em produção
+                    </div>
+                    <div class="mb-2">
+                        <i class="fas fa-key text-danger me-2"></i>
+                        <strong>SECRET_KEY</strong> única e segura
+                    </div>
+                    <div class="mb-2">
+                        <i class="fas fa-lock text-success me-2"></i>
+                        <strong>HTTPS</strong> em produção
+                    </div>
+                    <div class="mb-0">
+                        <i class="fas fa-save text-info me-2"></i>
+                        <strong>Backup</strong> antes de alterar
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.font-monospace {
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
+}
+
+#id_env_content {
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    resize: vertical;
+    min-height: 500px;
+}
+
+#id_env_content:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    background-color: #fff;
+}
+
+.line-numbers {
+    background: linear-gradient(to bottom, #f1f3f4 0%, #f1f3f4 100%);
+    border-right: 1px solid #dee2e6;
+    color: #6c757d;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    padding: 10px 8px;
+    text-align: right;
+    user-select: none;
+    width: 50px;
+}
+
+.editor-container {
+    position: relative;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    overflow: hidden;
+}
+
+.editor-container.line-numbers-enabled {
+    display: flex;
+}
+
+.editor-container.line-numbers-enabled #id_env_content {
+    border: none;
+    border-radius: 0;
+    flex: 1;
+}
+
+.card-django {
+    transition: transform 0.2s ease;
+}
+
+.card-django:hover {
+    transform: translateY(-2px);
+}
+
+.syntax-error {
+    background-color: #f8d7da !important;
+    border-color: #dc3545 !important;
+}
+
+.syntax-valid {
+    background-color: #d1e7dd !important;
+    border-color: #198754 !important;
+}
+</style>
+
+<script>
+let lineNumbersEnabled = false;
+
+document.addEventListener('DOMContentLoaded', function() {
+    const envTextarea = document.getElementById('id_env_content');
+
+    if (envTextarea) {
+        // Cria container para o editor
+        const container = document.createElement('div');
+        container.className = 'editor-container';
+        envTextarea.parentNode.insertBefore(container, envTextarea);
+        container.appendChild(envTextarea);
+
+        // Validação em tempo real
+        envTextarea.addEventListener('input', function() {
+            validateSyntax();
+        });
+
+        // Atalhos de teclado
+        envTextarea.addEventListener('keydown', function(e) {
+            // Ctrl+S para salvar
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                document.querySelector('input[name="submit"]').click();
+            }
+
+            // Tab para indentação
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 4;
+            }
+        });
+
+        // Auto-save no localStorage
+        envTextarea.addEventListener('input', function() {
+            localStorage.setItem('env_content_backup', this.value);
+        });
+
+        // Recupera auto-save se existir
+        const backup = localStorage.getItem('env_content_backup');
+        if (backup && backup !== envTextarea.value) {
+            if (confirm('Encontrado backup local. Deseja restaurar?')) {
+                envTextarea.value = backup;
+            }
+        }
+    }
+});
+
+function generateSecretKey() {
+    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*(-_=+)';
+    let key = 'django-insecure-';
+    for (let i = 0; i < 50; i++) {
+        key += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+
+    const envTextarea = document.getElementById('id_env_content');
+    if (envTextarea) {
+        const content = envTextarea.value;
+        const lines = content.split('\n');
+
+        // Procura linha com DJANGO_SECRET_KEY
+        let found = false;
+        for (let i = 0; i < lines.length; i++) {
+            if (lines[i].startsWith('DJANGO_SECRET_KEY=')) {
+                lines[i] = `DJANGO_SECRET_KEY=${key}`;
+                found = true;
+                break;
+            }
+        }
+
+        // Se não encontrou, adiciona no início
+        if (!found) {
+            lines.unshift(`DJANGO_SECRET_KEY=${key}`);
+        }
+
+        envTextarea.value = lines.join('\n');
+        showToast('Nova SECRET_KEY gerada!', 'success');
+    }
+}
+
+function addEmailConfig() {
+    const envTextarea = document.getElementById('id_env_content');
+    if (envTextarea) {
+        const emailConfig = `
+# Configurações de Email
+EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_USE_SSL=False
+EMAIL_HOST_USER=seu-email@gmail.com
+EMAIL_HOST_PASSWORD=sua-senha-de-app
+DEFAULT_FROM_EMAIL=noreply@seusite.com
+`;
+        envTextarea.value += emailConfig;
+        showToast('Configuração de email adicionada!', 'info');
+    }
+}
+
+function addDatabaseConfig() {
+    const envTextarea = document.getElementById('id_env_content');
+    if (envTextarea) {
+        const dbConfig = `
+# Configurações de Banco de Dados
+DATABASE_ENGINE=postgresql
+DATABASE_NAME=seu_banco
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_USER=seu_usuario
+DATABASE_PASSWORD=sua_senha
+`;
+        envTextarea.value += dbConfig;
+        showToast('Configuração de banco adicionada!', 'info');
+    }
+}
+
+function validateSyntax() {
+    const envTextarea = document.getElementById('id_env_content');
+    if (!envTextarea) return;
+
+    const content = envTextarea.value;
+    const lines = content.split('\n');
+    let hasError = false;
+
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line || line.startsWith('#')) continue;
+
+        if (!line.includes('=')) {
+            hasError = true;
+            break;
+        }
+
+        const key = line.split('=')[0].trim();
+        if (!key || key.includes(' ')) {
+            hasError = true;
+            break;
+        }
+    }
+
+    envTextarea.classList.remove('syntax-error', 'syntax-valid');
+    if (hasError) {
+        envTextarea.classList.add('syntax-error');
+    } else {
+        envTextarea.classList.add('syntax-valid');
+    }
+
+    return !hasError;
+}
+
+function formatContent() {
+    const envTextarea = document.getElementById('id_env_content');
+    if (!envTextarea) return;
+
+    const lines = envTextarea.value.split('\n');
+    const formatted = [];
+    let currentSection = '';
+
+    for (const line of lines) {
+        const trimmed = line.trim();
+
+        if (trimmed.startsWith('#') && trimmed.includes('=====')) {
+            // Seção principal
+            formatted.push('');
+            formatted.push(line);
+            currentSection = trimmed;
+        } else if (trimmed.startsWith('#') && !currentSection) {
+            // Comentário sem seção
+            formatted.push(line);
+        } else if (trimmed.includes('=') && !trimmed.startsWith('#')) {
+            // Variável
+            const [key, ...valueParts] = trimmed.split('=');
+            const value = valueParts.join('=');
+            formatted.push(`${key.trim()}=${value}`);
+        } else if (trimmed) {
+            // Outras linhas
+            formatted.push(line);
+        }
+    }
+
+    envTextarea.value = formatted.join('\n');
+    showToast('Conteúdo formatado!', 'success');
+}
+
+function toggleLineNumbers() {
+    const container = document.querySelector('.editor-container');
+    const envTextarea = document.getElementById('id_env_content');
+
+    if (!container || !envTextarea) return;
+
+    lineNumbersEnabled = !lineNumbersEnabled;
+
+    if (lineNumbersEnabled) {
+        container.classList.add('line-numbers-enabled');
+
+        // Cria div de números de linha
+        const lineNumbers = document.createElement('div');
+        lineNumbers.className = 'line-numbers';
+        lineNumbers.id = 'line-numbers';
+
+        container.insertBefore(lineNumbers, envTextarea);
+        updateLineNumbers();
+
+        // Atualiza números quando o conteúdo muda
+        envTextarea.addEventListener('input', updateLineNumbers);
+        envTextarea.addEventListener('scroll', syncScroll);
+
+    } else {
+        container.classList.remove('line-numbers-enabled');
+        const lineNumbers = document.getElementById('line-numbers');
+        if (lineNumbers) {
+            lineNumbers.remove();
+        }
+    }
+}
+
+function updateLineNumbers() {
+    const envTextarea = document.getElementById('id_env_content');
+    const lineNumbers = document.getElementById('line-numbers');
+
+    if (!envTextarea || !lineNumbers) return;
+
+    const lines = envTextarea.value.split('\n');
+    const numbers = [];
+
+    for (let i = 1; i <= lines.length; i++) {
+        numbers.push(i);
+    }
+
+    lineNumbers.textContent = numbers.join('\n');
+}
+
+function syncScroll() {
+    const envTextarea = document.getElementById('id_env_content');
+    const lineNumbers = document.getElementById('line-numbers');
+
+    if (!envTextarea || !lineNumbers) return;
+
+    lineNumbers.scrollTop = envTextarea.scrollTop;
+}
+
+function restoreBackup(backupName) {
+    if (confirm(`Deseja restaurar o backup ${backupName}? O conteúdo atual será perdido.`)) {
+        // Implementar restauração de backup via AJAX
+        showToast('Funcionalidade em desenvolvimento', 'warning');
+    }
+}
+
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type} position-fixed top-0 end-0 m-3`;
+    toast.style.zIndex = '9999';
+    toast.innerHTML = `
+        <i class="fas fa-check me-2"></i>${message}
+        <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+    `;
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        if (toast.parentElement) {
+            toast.remove();
+        }
+    }, 3000);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,291 @@
+{% extends 'config/base_config.html' %}
+
+{% load crispy_forms_tags %}
+
+    {% block config_title %}
+        Editar Usuário
+    {% endblock %}
+
+    {% block breadcrumbs %}
+
+        <div class="container my-5">
+
+            <nav aria-label="breadcrumb">
+
+                <ol class="breadcrumb">
+
+                    <li class="breadcrumb-item"><a href="
+                        {% url 'config:dashboard' %}
+                        ">Dashboard</a></li>
+
+                        <li class="breadcrumb-item"><a href="
+                            {% url 'config:user_list' %}
+                            ">Usuários</a></li>
+
+                            <li class="breadcrumb-item"><a href="
+                                {% url 'config:user_detail' user_detail.slug %}
+                                ">
+                                {{ user_detail.email }}
+                            </a></li>
+
+                            <li class="breadcrumb-item active">Editar</li>
+
+                            </ol>
+
+                        </nav>
+
+                    </div>
+
+                {% endblock %}
+
+                {% block config_content %}
+                    <!-- Header -->
+
+                        <div class="row mb-4">
+
+                            <div class="col-12">
+
+                                <div class="d-flex justify-content-between align-items-center">
+
+                                    <div>
+
+                                        <h1 class="h2 mb-1 text-sans text-body">
+                                            <i class="fas fa-user-edit me-2 text-django-green"></i>Editar Usuário </h1>
+
+                                                <p class="text-secondary mb-0 text-body">Atualize as informações de
+                                                    {{ user_detail.get_full_name|default:user_detail.email }}
+                                                </p>
+
+                                            </div>
+
+                                            <div>
+                                                <a href="
+                                                    {% url 'config:user_detail' user_detail.slug %}
+                                                    " class="btn-outline-secondary">
+                                                    <i class="fas fa-arrow-left me-1"></i>Voltar </a>
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                        <div class="row">
+                                            <!-- Formulário Principal -->
+
+                                                <div class="col-lg-8">
+
+                                                    <div class="card-django-django border-0 shadow-sm border-0 shadow-sm border-0 shadow-sm">
+
+                                                        <div class="profile-card-header bg-secondary border-0 card-django border-0 shadow-sm">
+
+                                                            <div class="d-flex align-items-center">
+
+                                                                <div class="flex-shrink-0">
+
+                                                                    <div class="bg-django-green rounded-circle d-flex align-items-center justify-content-center text-light" style="width: 40px; height: 40px;">
+                                                                        <i class="fas fa-user-edit"></i>
+                                                                        </div>
+
+                                                                    </div>
+
+                                                                    <div class="flex-grow-1 ms-3">
+
+                                                                        <h5 class="mb-0 text-sans text-body">Informações do Usuário</h5>
+
+                                                                            <small class="text-secondary">Atualize os dados do usuário</small>
+                                                                            </div>
+
+                                                                        </div>
+
+                                                                    </div>
+
+                                                                    <div class="card-django-body p-4 card-django border-0 shadow-sm">
+                                                                        {% crispy form %}
+                                                                        </div>
+
+                                                                    </div>
+
+                                                                </div>
+
+                                                                <!-- Sidebar com Informações -->
+
+                                                                    <div class="col-lg-4">
+                                                                        <!-- Informações Atuais -->
+
+                                                                            <div class="card-django-django border-0 shadow-sm mb-4 border-0 shadow-sm border-0 shadow-sm">
+
+                                                                                <div class="profile-card-header bg-info text-light border-0 card-django border-0 shadow-sm">
+
+                                                                                    <h6 class="mb-0 text-sans text-body">
+                                                                                        <i class="fas fa-info-circle me-2 text-django-green"></i>Informações Atuais </h6>
+
+                                                                                        </div>
+
+                                                                                        <div class="card-django-body card-django border-0 shadow-sm">
+
+                                                                                            <div class="mb-3">
+                                                                                                <label class="form-label fw-bold">E-mail atual:</label>
+
+                                                                                                    <p class="form-control-plaintext text-body">
+                                                                                                        {{ user_detail.email }}
+                                                                                                    </p>
+
+                                                                                                </div>
+
+                                                                                                <div class="mb-3">
+                                                                                                    <label class="form-label fw-bold">Nome atual:</label>
+
+                                                                                                        <p class="form-control-plaintext text-body">
+                                                                                                            {{ user_detail.get_full_name|default:"Não informado" }}
+                                                                                                        </p>
+
+                                                                                                    </div>
+
+                                                                                                    <div class="mb-3">
+                                                                                                        <label class="form-label fw-bold">Status atual:</label>
+
+                                                                                                            <div>
+                                                                                                                {% if user_detail.is_active %}
+                                                                                                                    <span class="badge bg-success">
+                                                                                                                        <i class="fas fa-check me-1"></i>Ativo </span>
+                                                                                                                            {% else %}
+                                                                                                                            <span class="badge bg-danger">
+                                                                                                                                <i class="fas fa-times me-1"></i>Inativo </span>
+                                                                                                                                {% endif %}
+
+                                                                                                                                {% if user_detail.is_verified %}
+                                                                                                                                    <span class="badge bg-info">
+                                                                                                                                        <i class="fas fa-check-circle me-1"></i>Verificado </span>
+                                                                                                                                        {% endif %}
+                                                                                                                                    </div>
+
+                                                                                                                                </div>
+
+                                                                                                                                <div class="mb-3">
+                                                                                                                                    <label class="form-label fw-bold">Tipo atual:</label>
+
+                                                                                                                                        <div>
+                                                                                                                                            {% if user_detail.is_superuser %}
+                                                                                                                                                <span class="badge bg-danger">
+                                                                                                                                                    <i class="fas fa-crown me-1"></i>Superusuário </span>
+                                                                                                                                                        {% elif user_detail.is_staff %}
+                                                                                                                                                            <span class="badge bg-warning">
+                                                                                                                                                                <i class="fas fa-user-tie me-1"></i>Staff </span>
+                                                                                                                                                                    {% else %}
+                                                                                                                                                                    <span class="badge bg-secondary">
+                                                                                                                                                                        <i class="fas fa-user me-1"></i>Usuário comum </span>
+                                                                                                                                                                        {% endif %}
+                                                                                                                                                                    </div>
+
+                                                                                                                                                                </div>
+
+                                                                                                                                                                <div class="mb-3">
+                                                                                                                                                                    <label class="form-label fw-bold">Criado em:</label>
+
+                                                                                                                                                                        <p class="form-control-plaintext text-body">
+                                                                                                                                                                            {{ user_detail.date_joined|date:"d/m/Y H:i" }}
+                                                                                                                                                                        </p>
+
+                                                                                                                                                                    </div>
+
+                                                                                                                                                                    <div class="mb-3">
+                                                                                                                                                                        <label class="form-label fw-bold">Último acesso:</label>
+
+                                                                                                                                                                            <p class="form-control-plaintext text-body">
+                                                                                                                                                                                {{ user_detail.last_login|date:"d/m/Y H:i"|default:"Nunca" }}
+                                                                                                                                                                            </p>
+
+                                                                                                                                                                        </div>
+
+                                                                                                                                                                    </div>
+
+                                                                                                                                                                </div>
+
+                                                                                                                                                                <!-- Ações Rápidas -->
+
+                                                                                                                                                                    <div class="card-django-django mb-4 border-0 shadow-sm border-0 shadow-sm">
+
+                                                                                                                                                                        <div class="profile-card-header card-django border-0 shadow-sm">
+
+                                                                                                                                                                            <h5 class="mb-0 text-sans text-body">
+                                                                                                                                                                                <i class="fas fa-bolt me-2 text-django-green"></i>Ações Rápidas </h5>
+
+                                                                                                                                                                                </div>
+
+                                                                                                                                                                                <div class="card-django-body card-django border-0 shadow-sm">
+
+                                                                                                                                                                                    <div class="d-grid gap-2">
+                                                                                                                                                                                        <a href="
+                                                                                                                                                                                            {% url 'config:user_detail' user_detail.slug %}
+                                                                                                                                                                                            " class="btn-outline-primary">
+                                                                                                                                                                                            <i class="fas fa-eye me-1"></i>Ver Detalhes </a>
+                                                                                                                                                                                                {% if user_detail != request.user %}
+                                                                                                                                                                                                    <a href="
+                                                                                                                                                                                                        {% url 'config:user_delete' user_detail.slug %}
+                                                                                                                                                                                                        " class="btn-outline-danger">
+                                                                                                                                                                                                        <i class="fas fa-trash me-1"></i>Deletar Usuário </a>
+                                                                                                                                                                                                        {% endif %}
+                                                                                                                                                                                                        <hr>
+                                                                                                                                                                                                        <a href="
+                                                                                                                                                                                                            {% url 'config:user_list' %}
+                                                                                                                                                                                                            " class="btn-outline-secondary">
+                                                                                                                                                                                                            <i class="fas fa-list me-1"></i>Lista de Usuários </a>
+                                                                                                                                                                                                                <a href="
+                                                                                                                                                                                                                    {% url 'config:user_create' %}
+                                                                                                                                                                                                                    " class="btn-outline-success">
+                                                                                                                                                                                                                    <i class="fas fa-plus me-1"></i>Criar Novo Usuário </a>
+                                                                                                                                                                                                                    </div>
+
+                                                                                                                                                                                                                </div>
+
+                                                                                                                                                                                                            </div>
+
+                                                                                                                                                                                                            <!-- Dicas -->
+
+                                                                                                                                                                                                                <div class="card-django-django border-0 shadow-sm border-0 shadow-sm">
+
+                                                                                                                                                                                                                    <div class="profile-card-header card-django border-0 shadow-sm">
+
+                                                                                                                                                                                                                        <h5 class="mb-0 text-sans text-body">
+                                                                                                                                                                                                                            <i class="fas fa-lightbulb me-2 text-django-green"></i>Dicas </h5>
+
+                                                                                                                                                                                                                            </div>
+
+                                                                                                                                                                                                                            <div class="card-django-body card-django border-0 shadow-sm">
+
+                                                                                                                                                                                                                                <div class="alert-info">
+                                                                                                                                                                                                                                    <small>
+                                                                                                                                                                                                                                        <i class="fas fa-info-circle me-1"></i>
+                                                                                                                                                                                                                                            <strong>Importante:</strong> Alterações nas permissões podem afetar o acesso do usuário ao sistema. </small>
+                                                                                                                                                                                                                                            </div>
+
+                                                                                                                                                                                                                                            <div class="alert-warning">
+                                                                                                                                                                                                                                                <small>
+                                                                                                                                                                                                                                                    <i class="fas fa-exclamation-triangle me-1"></i>
+                                                                                                                                                                                                                                                        <strong>Atenção:</strong> Desativar um usuário impedirá seu acesso ao sistema. </small>
+                                                                                                                                                                                                                                                        </div>
+
+                                                                                                                                                                                                                                                        {% if user_detail == request.user %}
+
+                                                                                                                                                                                                                                                            <div class="alert-danger">
+                                                                                                                                                                                                                                                                <small>
+                                                                                                                                                                                                                                                                    <i class="fas fa-shield-alt me-1"></i>
+                                                                                                                                                                                                                                                                        <strong>Aviso:</strong> Você está editando sua própria conta. Tenha cuidado com as alterações. </small>
+                                                                                                                                                                                                                                                                        </div>
+
+                                                                                                                                                                                                                                                                    {% endif %}
+                                                                                                                                                                                                                                                                </div>
+
+                                                                                                                                                                                                                                                            </div>
+
+                                                                                                                                                                                                                                                        </div>
+
+                                                                                                                                                                                                                                                    </div>
+
+                                                                                                                                                                                                                                                </div>
+
+                                                                                                                                                                                                                                                <style> .form-control:focus { border-color: var(--bs-primary); box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25); } .card-django { transition: transform 0.2s ease; } .card-django:hover { transform: translateY(-2px); } </style>
+                                                                                                                                                                                                                                                    <script> document.addEventListener('DOMContentLoaded', function() { // Auto-focus no primeiro campo const firstInput = document.querySelector('input[type= border-0 shadow-sm"text"], input[type="email"]'); if (firstInput) { firstInput.focus(); } // Confirmação para alterações críticas const form = document.querySelector('form'); const criticalFields = ['is_active', 'is_staff', 'is_superuser']; if (form) { form.addEventListener('submit', function(e) { let hasChanges = false; criticalFields.forEach(function(fieldName) { const field = form.querySelector(`[name="${fieldName}"]`); if (field && field.type === 'checkbox') { // Verifica se houve mudança no estado do checkbox const originalValue = field.dataset.original === 'true'; if (field.checked !== originalValue) { hasChanges = true; } } }); if (hasChanges) { if (!confirm('Você está alterando permissões críticas. Tem certeza que deseja continuar?')) { e.preventDefault(); } } }); } // Marca valores originais para comparação criticalFields.forEach(function(fieldName) { const field = form.querySelector(`[name="${fieldName}"]`); if (field && field.type === 'checkbox') { field.dataset.original = field.checked; } }); }); </script>
+                                                                                                                                                                                                                                                    {% endblock %}

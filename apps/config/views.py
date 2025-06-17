@@ -1,9 +1,14 @@
-from django.shortcuts import render
+# Importa views da pasta views
+from .views.dashboard import ConfigDashboardView
+from .views.user_views import UserListView, UserCreateView, UserDetailView, UserUpdateView, UserDeleteView
+from .views.system_config_views import SystemConfigView
 
-# Create your views here.
-
-def index(request):
-    context = {'segment': 'index'}
-
-    html_template = loader.get_template('home/index.html')
-    return HttpResponse(html_template.render(context, request))
+__all__ = [
+    'ConfigDashboardView',
+    'UserListView',
+    'UserCreateView',
+    'UserDetailView',
+    'UserUpdateView',
+    'UserDeleteView',
+    'SystemConfigView',
+]

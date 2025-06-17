@@ -1,0 +1,25 @@
+# Dependências específicas para produção
+# Incluir requirements.txt base + dependências de produção
+
+-r requirements.txt
+
+# Servidor WSGI
+gunicorn==23.0.0
+
+# Banco de dados adicional
+dj-database-url==2.2.0
+psycopg2-binary==2.9.9
+redis==5.2.1
+django-redis==5.4.0
+
+# Monitoramento e logs (opcional)
+sentry-sdk[django]==2.19.2
+
+# Segurança adicional
+django-cors-headers==4.6.0
+
+# Email em produção (opcional)
+django-anymail==12.0
+
+# Backup (opcional)
+django-dbbackup==4.1.0

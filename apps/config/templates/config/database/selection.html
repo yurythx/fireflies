@@ -1,0 +1,304 @@
+{% extends 'config/base_config.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block config_title %}{{ page_title|default:"Selecionar Banco Padrão" }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.selection-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 2px solid #dee2e6;
+}
+
+.selection-card:hover {
+    border-color: #0d6efd;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.selection-card.selected {
+    border-color: #198754;
+    background-color: #f8fff9;
+}
+
+.database-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.env-preview {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+}
+
+.warning-box {
+    background-color: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    margin: 1rem 0;
+}
+</style>
+{% endblock %}
+
+{% block config_content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">
+                <i class="fas fa-cog me-2"></i>{{ page_title }}
+            </h1>
+            <p class="text-muted mb-0">Escolha qual configuração de banco será usada como padrão</p>
+        </div>
+        <a href="{% url 'config:database_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Voltar
+        </a>
+    </div>
+
+    <form method="post" id="selection-form">
+        {% csrf_token %}
+        
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Aviso Importante -->
+                <div class="warning-box">
+                    <h6><i class="fas fa-exclamation-triangle text-warning me-2"></i>Importante</h6>
+                    <p class="mb-0">
+                        Alterar a configuração padrão do banco de dados afetará todo o sistema. 
+                        Certifique-se de que a configuração selecionada está funcionando corretamente.
+                        <strong>Será necessário reiniciar o servidor após a alteração.</strong>
+                    </p>
+                </div>
+
+                <!-- Seleção de Configuração -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-database me-2"></i>Configurações Disponíveis
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row" id="config-cards">
+                            {% for config in form.database_config.field.queryset %}
+                            <div class="col-md-6 mb-3">
+                                <div class="card selection-card h-100" data-config-id="{{ config.pk }}" onclick="selectConfig({{ config.pk }})">
+                                    <div class="card-body text-center">
+                                        <div class="database-icon">
+                                            {% if config.engine == 'django.db.backends.sqlite3' %}
+                                                <i class="fas fa-file-alt text-info"></i>
+                                            {% elif config.engine == 'django.db.backends.postgresql' %}
+                                                <i class="fas fa-elephant text-primary"></i>
+                                            {% elif config.engine == 'django.db.backends.mysql' %}
+                                                <i class="fas fa-database text-warning"></i>
+                                            {% else %}
+                                                <i class="fas fa-database text-secondary"></i>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <h6 class="card-title">{{ config.name }}</h6>
+                                        
+                                        <div class="text-start">
+                                            <p class="mb-1"><strong>Tipo:</strong> {{ config.get_engine_display }}</p>
+                                            {% if config.host %}
+                                                <p class="mb-1"><strong>Servidor:</strong> {{ config.host }}{% if config.port %}:{{ config.port }}{% endif %}</p>
+                                            {% endif %}
+                                            <p class="mb-1"><strong>Banco:</strong> {{ config.name_db }}</p>
+                                            {% if config.user %}
+                                                <p class="mb-1"><strong>Usuário:</strong> {{ config.user }}</p>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        {% if config.is_default %}
+                                            <span class="badge bg-success mt-2">ATUAL PADRÃO</span>
+                                        {% endif %}
+                                        
+                                        <!-- Status da última conexão -->
+                                        <div class="mt-2">
+                                            {% if config.last_test_result %}
+                                                <small class="text-success">
+                                                    <i class="fas fa-check-circle me-1"></i>Última conexão: OK
+                                                </small>
+                                            {% elif config.last_test_result == False %}
+                                                <small class="text-danger">
+                                                    <i class="fas fa-times-circle me-1"></i>Última conexão: Erro
+                                                </small>
+                                            {% else %}
+                                                <small class="text-muted">
+                                                    <i class="fas fa-question-circle me-1"></i>Não testado
+                                                </small>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="col-12">
+                                <div class="text-center py-4">
+                                    <i class="fas fa-database fa-3x text-muted mb-3"></i>
+                                    <h5 class="text-muted">Nenhuma configuração ativa encontrada</h5>
+                                    <p class="text-muted">Crie e ative pelo menos uma configuração de banco</p>
+                                    <a href="{% url 'config:database_create' %}" class="btn btn-primary">
+                                        <i class="fas fa-plus me-1"></i>Criar Configuração
+                                    </a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Campo hidden do formulário -->
+                        <div style="display: none;">
+                            {{ form.database_config }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Opções -->
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-cogs me-2"></i>Opções
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check">
+                            {{ form.update_env }}
+                            <label class="form-check-label" for="{{ form.update_env.id_for_label }}">
+                                {{ form.update_env.label }}
+                            </label>
+                            <div class="form-text">{{ form.update_env.help_text }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botões -->
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{% url 'config:database_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-times me-1"></i>Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-primary" id="apply-btn" disabled>
+                        <i class="fas fa-check me-1"></i>Aplicar Configuração
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <!-- Preview das Variáveis .env -->
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-file-code me-1"></i>Preview do .env
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div id="env-preview" class="env-preview">
+                            <p class="text-muted mb-0">Selecione uma configuração para ver o preview</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Informações -->
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-info-circle me-1"></i>Informações
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2">
+                                <i class="fas fa-arrow-right text-primary me-2"></i>
+                                A configuração padrão será usada por todo o sistema
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-arrow-right text-primary me-2"></i>
+                                O arquivo .env será atualizado automaticamente
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-arrow-right text-primary me-2"></i>
+                                Reinicie o servidor após a alteração
+                            </li>
+                            <li class="mb-0">
+                                <i class="fas fa-arrow-right text-primary me-2"></i>
+                                Faça backup antes de alterar
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let selectedConfigId = null;
+
+function selectConfig(configId) {
+    // Remover seleção anterior
+    document.querySelectorAll('.selection-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    
+    // Selecionar novo
+    const selectedCard = document.querySelector(`[data-config-id="${configId}"]`);
+    selectedCard.classList.add('selected');
+    
+    // Atualizar campo hidden
+    document.getElementById('id_database_config').value = configId;
+    
+    // Habilitar botão
+    document.getElementById('apply-btn').disabled = false;
+    
+    // Atualizar preview
+    updateEnvPreview(configId);
+    
+    selectedConfigId = configId;
+}
+
+function updateEnvPreview(configId) {
+    // Fazer requisição AJAX para buscar dados da configuração
+    fetch(`/config/banco-dados/${configId}/preview/`, {
+        method: 'GET',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            let envContent = `# Configuração de Banco de Dados: ${data.name}\n`;
+            envContent += `DB_ENGINE=${data.engine}\n`;
+            envContent += `DB_NAME=${data.name_db}\n`;
+            envContent += `DB_USER=${data.user || ''}\n`;
+            envContent += `DB_PASSWORD=${data.password ? '***' : ''}\n`;
+            envContent += `DB_HOST=${data.host || ''}\n`;
+            envContent += `DB_PORT=${data.port || ''}\n`;
+
+            document.getElementById('env-preview').innerHTML = `<pre class="mb-0">${envContent}</pre>`;
+        } else {
+            document.getElementById('env-preview').innerHTML = '<p class="text-danger">Erro ao carregar preview</p>';
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        document.getElementById('env-preview').innerHTML = '<p class="text-danger">Erro ao carregar preview</p>';
+    });
+}
+
+// Marcar configuração atual como selecionada
+document.addEventListener('DOMContentLoaded', function() {
+    const currentValue = document.getElementById('id_database_config').value;
+    if (currentValue) {
+        selectConfig(currentValue);
+    }
+});
+</script>
+{% endblock %}

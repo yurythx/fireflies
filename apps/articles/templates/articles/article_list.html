@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="text-sans text-body">Artigos</h1>
+                <div>
+                    <a href="{% url 'articles:search' %}" class="btn btn-outline-primary me-2">
+                        <i class="fas fa-search me-2"></i>Buscar
+                    </a>
+                    {% if user.is_authenticated and user.is_staff or user.is_superuser %}
+                        <a href="{% url 'articles:article_create' %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Novo Artigo
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% if articles %}
+                <div class="row g-4 stagger-container">
+                    {% for article in articles %}
+                    <div class="col-md-6 scroll-reveal">
+                        <div class="card h-100 border-0 shadow-sm hover-lift">
+                            {% if article.featured_image %}
+                                <div class="img-container img-container-16-9">
+                                    <img src="{{ article.featured_image.url }}"
+                                         class="img-optimized"
+                                         alt="{{ article.featured_image_alt|default:article.title }}"
+                                         loading="lazy"
+                                         onerror="this.style.display='none'">
+                                    <div class="img-overlay"></div>
+                                </div>
+                            {% endif %}
+                            <div class="card-body d-flex flex-column">
+                                <div class="mb-2">
+                                    {% if article.category %}
+                                        <span class="badge bg-primary">
+                                            {% if article.category.icon %}<i class="{{ article.category.icon }} me-1"></i>{% endif %}
+                                            {{ article.category.name }}
+                                        </span>
+                                    {% endif %}
+                                    {% if article.is_featured %}
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="fas fa-star me-1"></i>Destaque
+                                        </span>
+                                    {% endif %}
+                                </div>
+
+                                <h5 class="card-title">
+                                    <a href="{{ article.get_absolute_url }}" class="text-decoration-none text-dark">
+                                        {{ article.title }}
+                                    </a>
+                                </h5>
+
+                                <p class="card-text text-muted">{{ article.excerpt|truncatechars:120 }}</p>
+                                
+                                <div class="mt-auto">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-secondary">
+                                            <i class="fas fa-user me-1"></i>{{ article.author.get_full_name|default:article.author.username }}
+                                        </small>
+                                        <small class="text-secondary">
+                                            <i class="fas fa-calendar me-1"></i>{{ article.published_at|date:"d/m/Y" }}
+                                        </small>
+                                    </div>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center mt-2">
+                                        <div>
+                                            {% for tag in article.tags.all|slice:":3" %}
+                                                <span class="badge bg-secondary text-white me-1">{{ tag.name }}</span>
+                                            {% endfor %}
+                                        </div>
+                                        <div class="text-secondary small">
+                                            <i class="fas fa-eye me-1"></i>{{ article.view_count }}
+                                            <i class="fas fa-clock ms-2 me-1"></i>{{ article.reading_time }} min
+                                        </div>
+                                    </div>
+
+                                    {% if user.is_authenticated and user.is_staff or user.is_superuser %}
+                                    <div class="d-flex justify-content-end mt-3 pt-2 border-top">
+                                        <a href="{% url 'articles:article_update' article.slug %}"
+                                           class="btn btn-sm btn-outline-warning me-2"
+                                           title="Editar artigo">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'articles:article_delete' article.slug %}"
+                                           class="btn btn-sm btn-outline-danger"
+                                           title="Deletar artigo">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Paginação -->
+                {% if page_obj.has_other_pages %}
+                <nav aria-label="Paginação" class="mt-5">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+                            </li>
+                        {% endif %}
+                        
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Próximo</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-newspaper fa-5x text-secondary mb-3"></i>
+                    <h3 class="text-secondary text-sans text-body">Nenhum artigo encontrado</h3>
+                    <p class="text-secondary text-body">Ainda não há artigos publicados.</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Artigos em Destaque -->
+            {% if featured_articles %}
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0"><i class="fas fa-star me-2"></i>Artigos em Destaque</h6>
+                </div>
+                <div class="card-body">
+                    {% for featured in featured_articles %}
+                    <div class="d-flex mb-3 {% if not forloop.last %}border-bottom pb-3{% endif %}">
+                        {% if featured.featured_image %}
+                            <img src="{{ featured.featured_image.url }}" class="me-3 rounded" style="width: 60px; height: 60px; object-fit: cover;" alt="{{ featured.title }}">
+                        {% endif %}
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1">
+                                <a href="{{ featured.get_absolute_url }}" class="text-decoration-none text-dark">
+                                    {{ featured.title|truncatechars:50 }}
+                                </a>
+                            </h6>
+                            <small class="text-muted">
+                                <i class="fas fa-calendar me-1"></i>{{ featured.published_at|date:"d/m/Y" }}
+                            </small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Busca -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h6 class="mb-0"><i class="fas fa-search me-2"></i>Buscar Artigos</h6>
+                </div>
+                <div class="card-body">
+                    <form method="get" action="{% url 'articles:search' %}" aria-label="Formulário de busca" role="form">
+                        <div class="input-group">
+                            <input type="text" name="q" class="form-control" placeholder="Digite sua busca...">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,414 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Moderação de Comentários{% endblock %}
+
+{% block extra_css %}
+<style>
+.stats-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    display: block;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    opacity: 0.9;
+}
+
+.comment-card {
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    transition: all 0.2s ease;
+}
+
+.comment-card:hover {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.comment-header {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-bottom: 1px solid #dee2e6;
+    border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.comment-body {
+    padding: 1rem;
+}
+
+.comment-actions {
+    padding: 0.75rem 1rem;
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    border-radius: 0 0 0.5rem 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+.status-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.comment-meta {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.filter-tabs {
+    margin-bottom: 1.5rem;
+}
+
+.search-box {
+    margin-bottom: 1.5rem;
+}
+
+.comment-content {
+    max-height: 100px;
+    overflow-y: auto;
+    background-color: #f8f9fa;
+    padding: 0.75rem;
+    border-radius: 0.25rem;
+    margin: 0.5rem 0;
+}
+
+.reply-indicator {
+    background-color: #e3f2fd;
+    border-left: 3px solid #2196f3;
+    padding: 0.5rem;
+    margin: 0.5rem 0;
+    border-radius: 0.25rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3">
+                    <i class="fas fa-shield-alt"></i>
+                    Moderação de Comentários
+                </h1>
+                <a href="{% url 'articles:comment_stats' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-chart-bar"></i>
+                    Estatísticas
+                </a>
+            </div>
+
+            <!-- Estatísticas -->
+            <div class="stats-card">
+                <div class="row">
+                    <div class="col-md-3 stat-item">
+                        <span class="stat-number">{{ stats.total }}</span>
+                        <span class="stat-label">Total de Comentários</span>
+                    </div>
+                    <div class="col-md-3 stat-item">
+                        <span class="stat-number">{{ stats.pending }}</span>
+                        <span class="stat-label">Aguardando Aprovação</span>
+                    </div>
+                    <div class="col-md-3 stat-item">
+                        <span class="stat-number">{{ stats.approved }}</span>
+                        <span class="stat-label">Aprovados</span>
+                    </div>
+                    <div class="col-md-3 stat-item">
+                        <span class="stat-number">{{ stats.spam }}</span>
+                        <span class="stat-label">Spam</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filtros -->
+            <div class="filter-tabs">
+                <ul class="nav nav-pills">
+                    <li class="nav-item">
+                        <a class="nav-link {% if status_filter == 'pending' %}active{% endif %}" 
+                           href="?status=pending">
+                            <i class="fas fa-clock"></i>
+                            Pendentes ({{ stats.pending }})
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if status_filter == 'approved' %}active{% endif %}" 
+                           href="?status=approved">
+                            <i class="fas fa-check"></i>
+                            Aprovados ({{ stats.approved }})
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if status_filter == 'spam' %}active{% endif %}" 
+                           href="?status=spam">
+                            <i class="fas fa-ban"></i>
+                            Spam ({{ stats.spam }})
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if not status_filter %}active{% endif %}" 
+                           href="?">
+                            <i class="fas fa-list"></i>
+                            Todos
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Busca -->
+            <div class="search-box">
+                <form method="get" class="row g-3">
+                    <div class="col-md-8">
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input type="text" class="form-control" name="search" 
+                                   value="{{ search }}" placeholder="Buscar por conteúdo, autor, email ou artigo...">
+                            <input type="hidden" name="status" value="{{ status_filter }}">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"></i>
+                                Buscar
+                            </button>
+                            {% if search %}
+                            <a href="?status={{ status_filter }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i>
+                                Limpar
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Lista de comentários -->
+            {% if comments %}
+                {% for comment in comments %}
+                <div class="comment-card" id="comment-{{ comment.id }}">
+                    <div class="comment-header">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <h6 class="mb-1">
+                                    <i class="fas fa-user"></i>
+                                    {{ comment.author_name }}
+                                    {% if comment.user %}
+                                        <span class="badge bg-info">Registrado</span>
+                                    {% endif %}
+                                    {% if comment.is_reply %}
+                                        <span class="badge bg-secondary">Resposta</span>
+                                    {% endif %}
+                                </h6>
+                                <div class="comment-meta">
+                                    <i class="fas fa-envelope"></i> {{ comment.email }}
+                                    {% if comment.website %}
+                                        | <i class="fas fa-globe"></i> 
+                                        <a href="{{ comment.website }}" target="_blank" rel="nofollow">
+                                            {{ comment.website|truncatechars:30 }}
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <div class="mb-1">
+                                    {% if comment.is_approved %}
+                                        <span class="badge bg-success status-badge">Aprovado</span>
+                                    {% elif comment.is_spam %}
+                                        <span class="badge bg-danger status-badge">Spam</span>
+                                    {% else %}
+                                        <span class="badge bg-warning status-badge">Pendente</span>
+                                    {% endif %}
+                                </div>
+                                <div class="comment-meta">
+                                    <i class="fas fa-clock"></i> {{ comment.created_at|date:"d/m/Y H:i" }}
+                                    {% if comment.approved_at %}
+                                        <br><i class="fas fa-check"></i> {{ comment.approved_at|date:"d/m/Y H:i" }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="comment-body">
+                        <!-- Artigo -->
+                        <div class="mb-2">
+                            <strong>Artigo:</strong>
+                            <a href="{% url 'articles:article_detail' comment.article.slug %}" target="_blank" class="text-decoration-none">
+                                {{ comment.article.title }}
+                                <i class="fas fa-external-link-alt fa-xs"></i>
+                            </a>
+                        </div>
+
+                        <!-- Comentário pai (se for resposta) -->
+                        {% if comment.parent %}
+                        <div class="reply-indicator">
+                            <strong>Em resposta a {{ comment.parent.author_name }}:</strong>
+                            <div class="mt-1">{{ comment.parent.content|truncatechars:100 }}</div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Conteúdo -->
+                        <div class="comment-content">
+                            {{ comment.content|linebreaks }}
+                        </div>
+
+                        <!-- Dados técnicos -->
+                        <div class="comment-meta">
+                            {% if comment.ip_address %}
+                                <i class="fas fa-map-marker-alt"></i> IP: {{ comment.ip_address }}
+                            {% endif %}
+                            {% if comment.user_agent %}
+                                | <i class="fas fa-desktop"></i> {{ comment.user_agent|truncatechars:50 }}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="comment-actions">
+                        {% if not comment.is_approved and not comment.is_spam %}
+                            <form method="post" action="{% url 'articles:moderate_comment_action' comment.id %}" class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="approve">
+                                <button type="submit" class="btn btn-success btn-sm">
+                                    <i class="fas fa-check"></i>
+                                    Aprovar
+                                </button>
+                            </form>
+                        {% endif %}
+
+                        {% if not comment.is_spam %}
+                            <form method="post" action="{% url 'articles:moderate_comment_action' comment.id %}" class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="spam">
+                                <button type="submit" class="btn btn-warning btn-sm">
+                                    <i class="fas fa-ban"></i>
+                                    Marcar como Spam
+                                </button>
+                            </form>
+                        {% endif %}
+
+                        <form method="post" action="{% url 'articles:moderate_comment_action' comment.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="delete">
+                            <button type="submit" class="btn btn-danger btn-sm" 
+                                    onclick="return confirm('Tem certeza que deseja excluir este comentário?')">
+                                <i class="fas fa-trash"></i>
+                                Excluir
+                            </button>
+                        </form>
+
+                        <a href="{% url 'articles:article_detail' comment.article.slug %}#comment-{{ comment.id }}"
+                           target="_blank" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-eye"></i>
+                            Ver no Site
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <!-- Paginação -->
+                {% if comments.has_other_pages %}
+                <nav aria-label="Paginação" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if comments.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ comments.previous_page_number }}&status={{ status_filter }}&search={{ search }}">
+                                    <i class="fas fa-chevron-left"></i>
+                                    Anterior
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {% for num in comments.paginator.page_range %}
+                            {% if comments.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% elif num > comments.number|add:'-3' and num < comments.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}&status={{ status_filter }}&search={{ search }}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if comments.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ comments.next_page_number }}&status={{ status_filter }}&search={{ search }}">
+                                    Próxima
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Nenhum comentário encontrado</h5>
+                    {% if search %}
+                        <p class="text-muted">Tente ajustar os termos de busca.</p>
+                    {% else %}
+                        <p class="text-muted">Não há comentários para moderar no momento.</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-refresh para comentários pendentes
+{% if status_filter == 'pending' %}
+setTimeout(function() {
+    location.reload();
+}, 60000); // Refresh a cada 1 minuto
+{% endif %}
+
+// Confirmação para ações em lote
+document.addEventListener('DOMContentLoaded', function() {
+    const forms = document.querySelectorAll('form[action*="moderar"]');
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const action = this.querySelector('input[name="action"]').value;
+            let message = '';
+            
+            switch(action) {
+                case 'approve':
+                    message = 'Aprovar este comentário?';
+                    break;
+                case 'spam':
+                    message = 'Marcar este comentário como spam?';
+                    break;
+                case 'delete':
+                    message = 'Excluir permanentemente este comentário?';
+                    break;
+            }
+            
+            if (message && !confirm(message)) {
+                e.preventDefault();
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

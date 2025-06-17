@@ -1,0 +1,195 @@
+{% load static %}
+
+<nav class="navbar navbar-expand-lg navbar-django">
+    <div class="container">
+        <!-- Brand -->
+        <a class="navbar-brand" href="{% url 'pages:home' %}">
+            <i class="fas fa-bug me-2 fireflies-icon"></i>FireFlies
+        </a>
+        
+        <!-- Mobile Toggle -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <!-- Navigation Links -->
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <!-- Main Navigation -->
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'pages:home' %}">
+                        <i class="fas fa-home me-1"></i>Home
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'articles' in request.resolver_match.namespace %}active{% endif %}" href="{% url 'articles:article_list' %}">
+                        <i class="fas fa-newspaper me-1"></i>Artigos
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}" href="{% url 'pages:about' %}">
+                        <i class="fas fa-info-circle me-1"></i>Sobre
+                    </a>
+                </li>
+              
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}" href="{% url 'pages:contact' %}">
+                        <i class="fas fa-envelope me-1"></i>Contato
+                    </a>
+                </li>
+
+                <!-- Dropdown Pages -->
+                <!-- <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false" aria-label="Menu de páginas">
+                        <i class="fas fa-file-alt me-1"></i>Páginas
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'pages:page_list' %}">
+                            <i class="fas fa-list me-2"></i>Todas as Páginas
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{% url 'pages:privacy' %}">
+                            <i class="fas fa-shield-alt me-2"></i>Privacidade
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'pages:terms' %}">
+                            <i class="fas fa-file-contract me-2"></i>Termos
+                        </a></li>
+                    </ul>
+                </li> -->
+            </ul>
+            
+            <!-- Search Form -->
+            <form class="d-flex me-3 form-django" method="get" action="{% url 'articles:search' %}" aria-label="Formulário de busca" role="form">
+                <div class="input-group">
+                    <input class="form-control form-control-enhanced form-control-sm" type="search" name="q" placeholder="Buscar..."
+                           aria-label="Campo de busca" aria-describedby="search-button" value="{{ request.GET.q }}">
+                    <button class="btn btn-outline-light btn-sm text-sans" type="submit"
+                            id="search-button" aria-label="Buscar">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+            
+            <!-- User Menu -->
+            <ul class="navbar-nav align-items-center">
+                <!-- Theme Toggle -->
+                <li class="nav-item me-2">
+                    <div class="theme-toggle" role="radiogroup" aria-label="Escolher tema">
+                        <button class="theme-option" data-theme="light" title="Tema claro" aria-label="Tema claro" role="radio">
+                            <i class="fas fa-sun"></i>
+                        </button>
+                        <button class="theme-option" data-theme="dark" title="Tema escuro" aria-label="Tema escuro" role="radio">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                    </div>
+                </li>
+
+                {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false" aria-label="Menu do usuário">
+                            <div class="avatar-sm me-2">
+                                <div class="bg-django-green rounded-circle d-flex align-items-center justify-content-center" style="width: 24px; height: 24px;">
+                                    <i class="fas fa-user text-white small"></i>
+                                </div>
+                            </div>
+                            <span class="d-none d-md-inline">{{ user.get_full_name|default:user.username }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <h6 class="dropdown-header text-sans text-body">
+                                    <i class="fas fa-user me-2"></i>{{ user.email }}
+                                </h6>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            
+                            <!-- Profile -->
+                            {% if request.resolver_match.url_name == 'profile' %}
+                            <li><span class="dropdown-item active bg-django-green text-light">
+                                <i class="fas fa-user-circle me-2"></i>Meu Perfil (atual)
+                            </span></li>
+                            {% else %}
+                            <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">
+                                <i class="fas fa-user-circle me-2"></i>Meu Perfil
+                            </a></li>
+                            {% endif %}
+                            
+                            <!-- Admin Links -->
+                            {% if user.is_staff %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <h6 class="dropdown-header text-django-green text-sans text-body">
+                                        <i class="fas fa-cog me-2"></i>Administração
+                                    </h6>
+                                </li>
+                                <li><a class="dropdown-item" href="{% url 'config:dashboard' %}">
+                                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'config:database_list' %}">
+                                    <i class="fas fa-database me-2"></i>Banco de Dados
+                                </a></li>
+                                <li><a class="dropdown-item" href="/admin/">
+                                    <i class="fas fa-tools me-2"></i>Django Admin
+                                </a></li>
+                            {% endif %}
+                            
+                            <li><hr class="dropdown-divider"></li>
+                            
+                            <!-- Settings -->
+                            {% if request.resolver_match.url_name == 'settings' %}
+                            <li><span class="dropdown-item active bg-django-green text-light">
+                                <i class="fas fa-cog me-2"></i>Configurações (atual)
+                            </span></li>
+                            {% else %}
+                            <li><a class="dropdown-item" href="{% url 'accounts:settings' %}">
+                                <i class="fas fa-cog me-2"></i>Configurações
+                            </a></li>
+                            {% endif %}
+                            
+                            <!-- Logout -->
+                            <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}">
+                                <i class="fas fa-sign-out-alt me-2"></i>Sair
+                            </a></li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <!-- Guest Menu -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'accounts:login' %}">
+                            <i class="fas fa-sign-in-alt me-1"></i>Entrar
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-outline-light btn-sm ms-2 btn-enhanced" href="{% url 'accounts:register' %}">
+                            <i class="fas fa-user-plus me-1"></i>Registrar
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Breadcrumbs -->
+{% if breadcrumbs %}
+<nav aria-label="breadcrumb" class="bg-secondary border-bottom">
+    <div class="container">
+        <ol class="breadcrumb mb-0 py-2">
+            {% for breadcrumb in breadcrumbs %}
+                {% if breadcrumb.is_current %}
+                    <li class="breadcrumb-item active" aria-current="page">
+                        {{ breadcrumb.title }}
+                    </li>
+                {% else %}
+                    <li class="breadcrumb-item">
+                        <a href="{{ breadcrumb.url }}" class="text-decoration-none">
+                            {{ breadcrumb.title }}
+                        </a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ol>
+    </div>
+</nav>
+{% endif %}
