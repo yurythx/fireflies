@@ -38,6 +38,18 @@ generate_secret_key() {
     openssl rand -base64 50 | tr -d "=+/" | cut -c1-50
 }
 
+# Função para encontrar porta livre
+find_free_port() {
+    local start_port=$1
+    local port=$start_port
+    
+    while netstat -tuln | grep -q ":$port "; do
+        port=$((port + 1))
+    done
+    
+    echo $port
+}
+
 # Função para verificar se comando existe
 command_exists() {
     command -v "$1" >/dev/null 2>&1
@@ -76,16 +88,36 @@ main() {
         log_success "Usuário já está no grupo docker"
     fi
     
-    # 1.3 Criar arquivo .env se não existir
+    # 1.3 Detectar portas disponíveis
+    log_info "Detectando portas disponíveis..."
+    WEB_PORT=$(find_free_port 8000)
+    DB_PORT=$(find_free_port 5432)
+    REDIS_PORT=$(find_free_port 6379)
+    NGINX_PORT=$(find_free_port 80)
+    NGINX_SSL_PORT=$(find_free_port 443)
+    
+    log_success "Portas detectadas:"
+    log_info "  Web: $WEB_PORT (Django)"
+    log_info "  DB: $DB_PORT (PostgreSQL)"
+    log_info "  Redis: $REDIS_PORT (Cache)"
+    log_info "  Nginx: $NGINX_PORT (HTTP)"
+    log_info "  Nginx SSL: $NGINX_SSL_PORT (HTTPS)"
+    
+    # 1.4 Gerar SECRET_KEY real
+    log_info "Gerando SECRET_KEY segura..."
+    REAL_SECRET_KEY=$(generate_secret_key)
+    log_success "SECRET_KEY gerada: ${REAL_SECRET_KEY:0:20}..."
+    
+    # 1.5 Criar arquivo .env se não existir
     if [[ ! -f .env ]]; then
-        log_info "Criando arquivo .env..."
-        cat > .env << 'EOF'
+        log_info "Criando arquivo .env com configurações otimizadas..."
+        cat > .env << EOF
 # Configuração do Ambiente
 ENVIRONMENT=production
 
 # Configurações do Django
 DEBUG=False
-SECRET_KEY=django-insecure-change-this-in-production
+SECRET_KEY=$REAL_SECRET_KEY
 ALLOWED_HOSTS=localhost,127.0.0.1,192.168.1.100
 
 # Configurações do Banco de Dados
@@ -145,29 +177,51 @@ DATA_UPLOAD_MAX_MEMORY_SIZE=2621440
 # Configurações de Logging
 LOGGING_CONFIG=
 DJANGO_LOG_LEVEL=INFO
+
+# Configurações de Portas (Detectadas Automaticamente)
+DJANGO_PORT=$WEB_PORT
+POSTGRES_PORT=$DB_PORT
+REDIS_PORT=$REDIS_PORT
+NGINX_PORT=$NGINX_PORT
+NGINX_SSL_PORT=$NGINX_SSL_PORT
 EOF
-        log_success "Arquivo .env criado"
+        log_success "Arquivo .env criado com SECRET_KEY real e portas otimizadas"
         IMPROVEMENTS_APPLIED=$((IMPROVEMENTS_APPLIED + 1))
     else
         log_success "Arquivo .env já existe"
+        
+        # 1.6 Corrigir SECRET_KEY se necessário
+        if grep -q "django-insecure-change-this-in-production" .env; then
+            log_info "Corrigindo SECRET_KEY existente..."
+            cp .env .env.backup.$(date +%Y%m%d_%H%M%S)
+            grep -v "^SECRET_KEY=" .env > .env.temp
+            echo "SECRET_KEY=$REAL_SECRET_KEY" > .env
+            cat .env.temp >> .env
+            rm .env.temp
+            log_success "SECRET_KEY corrigida"
+            ERRORS_FIXED=$((ERRORS_FIXED + 1))
+        else
+            log_success "SECRET_KEY já está correta"
+        fi
+        
+        # 1.7 Adicionar configurações de portas se não existirem
+        if ! grep -q "^DJANGO_PORT=" .env; then
+            log_info "Adicionando configurações de portas..."
+            cat >> .env << EOF
+
+# Configurações de Portas (Detectadas Automaticamente)
+DJANGO_PORT=$WEB_PORT
+POSTGRES_PORT=$DB_PORT
+REDIS_PORT=$REDIS_PORT
+NGINX_PORT=$NGINX_PORT
+NGINX_SSL_PORT=$NGINX_SSL_PORT
+EOF
+            log_success "Configurações de portas adicionadas"
+            ERRORS_FIXED=$((ERRORS_FIXED + 1))
+        fi
     fi
     
-    # 1.4 Corrigir SECRET_KEY se necessário
-    if [[ -f .env ]] && grep -q "django-insecure-change-this-in-production" .env; then
-        log_info "Corrigindo SECRET_KEY..."
-        NEW_KEY=$(generate_secret_key)
-        cp .env .env.backup.$(date +%Y%m%d_%H%M%S)
-        grep -v "^SECRET_KEY=" .env > .env.temp
-        echo "SECRET_KEY=$NEW_KEY" > .env
-        cat .env.temp >> .env
-        rm .env.temp
-        log_success "SECRET_KEY corrigida"
-        ERRORS_FIXED=$((ERRORS_FIXED + 1))
-    else
-        log_success "SECRET_KEY já está correta"
-    fi
-    
-    # 1.5 Adicionar ENVIRONMENT se não existir
+    # 1.8 Adicionar ENVIRONMENT se não existir
     if [[ -f .env ]] && ! grep -q "^ENVIRONMENT=" .env; then
         log_info "Adicionando variável ENVIRONMENT..."
         echo "ENVIRONMENT=production" > .env.temp
@@ -177,6 +231,22 @@ EOF
         ERRORS_FIXED=$((ERRORS_FIXED + 1))
     else
         log_success "Variável ENVIRONMENT já existe"
+    fi
+    
+    # 1.9 Atualizar docker-compose.yml com portas detectadas
+    log_info "Atualizando docker-compose.yml com portas detectadas..."
+    if [[ -f docker-compose.yml ]]; then
+        cp docker-compose.yml docker-compose.yml.backup.$(date +%Y%m%d_%H%M%S)
+        
+        # Atualizar portas no docker-compose.yml
+        sed -i "s|      - \"8000:8000\"|      - \"$WEB_PORT:8000\"|" docker-compose.yml
+        sed -i "s|      - \"5432:5432\"|      - \"$DB_PORT:5432\"|" docker-compose.yml
+        sed -i "s|      - \"6379:6379\"|      - \"$REDIS_PORT:6379\"|" docker-compose.yml
+        sed -i "s|      - \"80:80\"|      - \"$NGINX_PORT:80\"|" docker-compose.yml
+        sed -i "s|      - \"443:443\"|      - \"$NGINX_SSL_PORT:443\"|" docker-compose.yml
+        
+        log_success "docker-compose.yml atualizado com portas: $WEB_PORT, $DB_PORT, $REDIS_PORT, $NGINX_PORT, $NGINX_SSL_PORT"
+        IMPROVEMENTS_APPLIED=$((IMPROVEMENTS_APPLIED + 1))
     fi
     
     log_info ""
