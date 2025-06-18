@@ -267,42 +267,22 @@ install_tools() {
 # Função para configurar firewall
 configure_firewall() {
     log "🔥 Configurando firewall..."
-    
-    # Detectar IP da máquina
-    local machine_ip=$(detect_machine_ip)
-    local machine_hostname=$(detect_machine_hostname)
-    
-    log "🌐 IP detectado para firewall: $machine_ip"
-    log "🏷️ Hostname detectado: $machine_hostname"
-    
-    # Verificar se ufw está disponível
-    if command -v ufw &> /dev/null; then
-        # Permitir SSH
-        sudo ufw allow ssh
-        
-        # Permitir portas do Docker
-        sudo ufw allow 8000/tcp
-        sudo ufw allow 8001/tcp
-        sudo ufw allow 5432/tcp
-        sudo ufw allow 6379/tcp
-        
-        # Permitir acesso específico ao IP da máquina
-        sudo ufw allow from $machine_ip to any port 8000
-        sudo ufw allow from $machine_ip to any port 8001
-        
-        # Habilitar firewall
-        echo "y" | sudo ufw enable
-        
-        log "✅ Firewall configurado com regras para:"
-        log "   - SSH (porta 22)"
-        log "   - Django (portas 8000, 8001)"
-        log "   - PostgreSQL (porta 5432)"
-        log "   - Redis (porta 6379)"
-        log "   - IP específico: $machine_ip"
-    else
-        warn "⚠️ ufw não encontrado, pulando configuração de firewall"
-        warn "   Instale com: sudo apt install ufw"
+
+    # --- Bloco seguro para firewall ---
+    echo "[🔐] Configurando firewall com UFW..."
+
+    sudo ufw allow 22       # SSH
+    sudo ufw allow 80       # HTTP
+    sudo ufw allow 443      # HTTPS
+
+    # Só libera a porta 8000 se ainda não estiver liberada
+    if ! sudo ufw status | grep -q "8000"; then
+      sudo ufw allow 8000   # Django local
     fi
+
+    sudo ufw --force enable
+    sudo ufw status verbose
+    # --- Fim do bloco seguro ---
 }
 
 # Função para criar diretórios do projeto
