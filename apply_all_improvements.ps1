@@ -545,8 +545,8 @@ echo "✅ Limpeza concluída"
 # Guia de Deploy - FireFlies
 
 ## Pré-requisitos
-- Docker e Docker Compose instalados
-- Portas disponíveis: $WEB_PORT, $DB_PORT, $REDIS_PORT, $NGINX_PORT, $NGINX_SSL_PORT
+ - Docker e Docker Compose instalados
+ - Portas disponíveis: $WEB_PORT, $DB_PORT, $REDIS_PORT, $NGINX_PORT, $NGINX_SSL_PORT
 
 ## Deploy Rápido
 \`\`\`bash
@@ -577,16 +577,16 @@ docker-compose logs -f
 \`\`\`
 
 ## Portas Utilizadas
-- **Django**: $WEB_PORT
-- **PostgreSQL**: $DB_PORT  
-- **Redis**: $REDIS_PORT
-- **Nginx HTTP**: $NGINX_PORT
-- **Nginx HTTPS**: $NGINX_SSL_PORT
+ - Django: $WEB_PORT
+ - PostgreSQL: $DB_PORT  
+ - Redis: $REDIS_PORT
+ - Nginx HTTP: $NGINX_PORT
+ - Nginx HTTPS: $NGINX_SSL_PORT
 
 ## Troubleshooting
-1. Se uma porta estiver ocupada, o script detectará automaticamente uma alternativa
-2. SECRET_KEY é gerada automaticamente de forma segura
-3. Todos os arquivos de configuração são validados antes do deploy
+ 1. Se uma porta estiver ocupada, o script detectará automaticamente uma alternativa
+ 2. SECRET_KEY é gerada automaticamente de forma segura
+ 3. Todos os arquivos de configuração são validados antes do deploy
 "@
     $deployReadme | Out-File -FilePath "README_DEPLOY.md" -Encoding UTF8
     Write-LogSuccess "README de deploy criado"
@@ -598,41 +598,41 @@ docker-compose logs -f
 
 ## Data: $(Get-Date -Format 'dd/MM/yyyy HH:mm')
 
-### ✅ Problemas Corrigidos
-- SECRET_KEY insegura substituída por chave criptográfica real
-- Variável ENVIRONMENT adicionada ao .env
-- Portas detectadas automaticamente: $WEB_PORT, $DB_PORT, $REDIS_PORT, $NGINX_PORT, $NGINX_SSL_PORT
-- Docker Compose atualizado com portas corretas
+### Problemas Corrigidos
+ - SECRET_KEY insegura substituída por chave criptográfica real
+ - Variável ENVIRONMENT adicionada ao .env
+ - Portas detectadas automaticamente: $WEB_PORT, $DB_PORT, $REDIS_PORT, $NGINX_PORT, $NGINX_SSL_PORT
+ - Docker Compose atualizado com portas corretas
 
-### 🔒 Melhorias de Segurança
-- Arquivo .env.example criado
-- .gitignore atualizado para excluir arquivos sensíveis
-- Configurações de segurança otimizadas
+### Melhorias de Segurança
+ - Arquivo .env.example criado
+ - .gitignore atualizado para excluir arquivos sensíveis
+ - Configurações de segurança otimizadas
 
-### 🧪 Estrutura de Testes
-- Diretórios de teste criados para todos os apps
-- pytest.ini configurado
-- Testes básicos criados para models principais
+### Estrutura de Testes
+ - Diretórios de teste criados para todos os apps
+ - pytest.ini configurado
+ - Testes básicos criados para models principais
 
-### 🔧 Scripts de Manutenção
-- health_check.sh: Verifica saúde do sistema
-- backup.sh: Cria backups automáticos
-- cleanup.sh: Limpa arquivos temporários
+### Scripts de Manutenção
+ - health_check.sh: Verifica saúde do sistema
+ - backup.sh: Cria backups automáticos
+ - cleanup.sh: Limpa arquivos temporários
 
-### 📚 Documentação
-- README_DEPLOY.md: Guia completo de deploy
-- Este arquivo: Registro das melhorias aplicadas
+### Documentação
+ - README_DEPLOY.md: Guia completo de deploy
+ - Este arquivo: Registro das melhorias aplicadas
 
-### 📊 Estatísticas
-- Melhorias aplicadas: $script:IMPROVEMENTS_APPLIED
-- Erros corrigidos: $script:ERRORS_FIXED
-- Avisos: $script:WARNINGS
+### Estatísticas
+ - Melhorias aplicadas: $script:IMPROVEMENTS_APPLIED
+ - Erros corrigidos: $script:ERRORS_FIXED
+ - Avisos: $script:WARNINGS
 
-### 🚀 Próximos Passos
-1. Execute: ./deploy.sh
-2. Verifique: ./scripts/health_check.sh
-3. Configure email no .env
-4. Personalize ALLOWED_HOSTS
+### Próximos Passos
+ 1. Execute: ./deploy.sh
+ 2. Verifique: ./scripts/health_check.sh
+ 3. Configure email no .env
+ 4. Personalize ALLOWED_HOSTS
 "@
     $improvementsDoc | Out-File -FilePath "RESUMO_MELHORIAS_IMPLEMENTADAS.md" -Encoding UTF8
     Write-LogSuccess "Documentação de melhorias criada"
