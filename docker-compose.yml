@@ -1,6 +1,4 @@
-﻿version: '3.8'
-
-services:
+﻿services:
   # Banco de dados PostgreSQL
   db:
     image: postgres:15

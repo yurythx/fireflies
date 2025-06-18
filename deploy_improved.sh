@@ -27,6 +27,124 @@ BACKUP_BEFORE_DEPLOY=true
 CLEANUP_AFTER_DEPLOY=false
 MONITOR_MODE=false
 
+# Garantir que o .env existe e a SECRET_KEY é segura
+ensure_env_and_secret_key() {
+    log_info "Verificando configuração do .env e SECRET_KEY..."
+    
+    if [[ ! -f .env ]]; then
+        log_info "Criando arquivo .env padrão..."
+        
+        # Gerar SECRET_KEY segura
+        local secret_key
+        secret_key=$(openssl rand -base64 50 | tr -d "=+/" | cut -c1-50)
+        
+        # Criar .env básico
+        cat > .env << EOF
+# Configuração do Ambiente
+ENVIRONMENT=production
+
+# Configurações do Django
+DEBUG=False
+SECRET_KEY=$secret_key
+ALLOWED_HOSTS=localhost,127.0.0.1,192.168.1.100
+
+# Configurações do Banco de Dados
+DB_NAME=fireflies_prod
+DB_USER=fireflies_user
+DB_PASSWORD=fireflies_password
+DB_HOST=db
+DB_PORT=5432
+
+# Configurações de Email
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER=your-email@gmail.com
+EMAIL_HOST_PASSWORD=your-app-password
+
+# Configurações do Redis
+REDIS_URL=redis://redis:6379/0
+
+# Configurações de Log
+LOG_LEVEL=INFO
+LOG_FILE=/app/logs/fireflies.log
+
+# Configurações de Segurança
+CSRF_TRUSTED_ORIGINS=http://localhost,http://127.0.0.1,http://192.168.1.100
+SECURE_SSL_REDIRECT=False
+SESSION_COOKIE_SECURE=False
+CSRF_COOKIE_SECURE=False
+
+# Configurações de Timezone
+TIME_ZONE=America/Sao_Paulo
+USE_TZ=True
+
+# Configurações de Idioma
+LANGUAGE_CODE=pt-br
+USE_I18N=True
+USE_L10N=True
+
+# Configurações de Arquivos Estáticos
+STATIC_URL=/static/
+STATIC_ROOT=/app/staticfiles
+MEDIA_URL=/media/
+MEDIA_ROOT=/app/media
+
+# Configurações de Cache
+CACHE_BACKEND=django_redis.cache.RedisCache
+CACHE_LOCATION=redis://redis:6379/1
+
+# Configurações de Sessão
+SESSION_ENGINE=django.contrib.sessions.backends.cache
+SESSION_CACHE_ALIAS=default
+
+# Configurações de Upload
+FILE_UPLOAD_MAX_MEMORY_SIZE=2621440
+DATA_UPLOAD_MAX_MEMORY_SIZE=2621440
+
+# Configurações de Logging
+LOGGING_CONFIG=
+DJANGO_LOG_LEVEL=INFO
+EOF
+        
+        log_success "Arquivo .env criado com SECRET_KEY segura"
+        return 0
+    else
+        log_info "Arquivo .env já existe, verificando SECRET_KEY..."
+        
+        # Verificar se SECRET_KEY é insegura
+        if grep -q "django-insecure-change-this-in-production" .env; then
+            log_warning "SECRET_KEY insegura detectada, corrigindo..."
+            
+            # Fazer backup do .env
+            cp .env ".env.backup.$(date +%Y%m%d_%H%M%S)"
+            
+            # Gerar nova SECRET_KEY segura
+            local new_secret_key
+            new_secret_key=$(openssl rand -base64 50 | tr -d "=+/" | cut -c1-50)
+            
+            # Substituir SECRET_KEY no .env
+            sed -i.bak "s/^SECRET_KEY=.*/SECRET_KEY=$new_secret_key/" .env
+            rm -f .env.bak
+            
+            log_success "SECRET_KEY corrigida para versão segura"
+        else
+            log_success "SECRET_KEY já está segura"
+        fi
+        
+        # Verificar se ENVIRONMENT existe
+        if ! grep -q "^ENVIRONMENT=" .env; then
+            log_info "Adicionando variável ENVIRONMENT..."
+            sed -i '1i ENVIRONMENT=production' .env
+            log_success "Variável ENVIRONMENT adicionada"
+        else
+            log_success "Variável ENVIRONMENT já existe"
+        fi
+        
+        return 0
+    fi
+}
+
 # Função principal de deploy
 main() {
     local start_time
@@ -37,6 +155,12 @@ main() {
     
     log_section "FireFlies Deploy System"
     log_info "Iniciando deploy automatizado..."
+    
+    # Garantir que .env existe e SECRET_KEY é segura
+    if ! ensure_env_and_secret_key; then
+        log_error "Falha ao configurar .env e SECRET_KEY"
+        exit 1
+    fi
     
     # Parse de argumentos
     parse_arguments "$@"

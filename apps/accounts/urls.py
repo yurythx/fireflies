@@ -10,13 +10,6 @@ from apps.accounts.views import (
     UserUpdateView,
     RemoveAvatarView
 )
-from apps.accounts.views.email_test import (
-    EmailDiagnosticView,
-    TestEmailSendView,
-    TestConnectionView,
-    QuickEmailSetupView,
-    PasswordResetTestView
-)
 
 app_name = 'accounts'
 
@@ -43,11 +36,4 @@ urlpatterns = [
     path('perfil/<slug:slug>/', UserProfileView.as_view(), name='profile_with_slug'),
     path('configuracoes/', UserUpdateView.as_view(), name='settings'),
     path('remover-avatar/', RemoveAvatarView.as_view(), name='remove_avatar'),
-
-    # Email Testing e Configuração
-    path('email/diagnostico/', EmailDiagnosticView.as_view(), name='email_diagnostic'),
-    path('email/configuracao-rapida/', QuickEmailSetupView.as_view(), name='quick_email_setup'),
-    path('email/testar-envio/', TestEmailSendView.as_view(), name='test_email_send'),
-    path('email/testar-conexao/', TestConnectionView.as_view(), name='test_connection'),
-    path('email/testar-redefinicao/', PasswordResetTestView.as_view(), name='test_password_reset'),
 ]
