@@ -3,7 +3,7 @@
 <html lang="pt-br" class="h-100">
 <head>
     {% include 'includes/_head.html' %}
-    <title>{% block config_title %}Configurações{% endblock %} - Havoc Admin</title>
+    <title>{% block config_title %}Configurações{% endblock %} - FireFlies Admin</title>
     {% block extra_css %}{% endblock %}
 </head>
 <body class="d-flex flex-column h-100">
@@ -17,7 +17,8 @@
             <div class="container">
                 <!-- Brand -->
                 <a class="navbar-brand" href="{% url 'pages:home' %}">
-                    <i class="fas fa-rocket me-2"></i>Havoc
+                    <img src="/media/favicon-32x32.png" alt="FireFlies Logo" width="32" height="32" class="me-2">
+                    FireFlies
                 </a>
 
                 <!-- Mobile Toggle -->
@@ -167,7 +168,7 @@
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                         <h1 class="h2">Painel de Configurações</h1>
                     </div>
-                    <p class="lead">Sistema de administração do Havoc</p>
+                    <p class="lead">Sistema de administração do FireFlies</p>
                     {% endblock %}
                 </main>
             </div>

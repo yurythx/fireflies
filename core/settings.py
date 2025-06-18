@@ -153,6 +153,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'apps.config.middleware.setup_middleware.SetupMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -196,7 +197,7 @@ TEMPLATES = [
 # Configurações de Autenticação
 AUTH_USER_MODEL = 'accounts.User'
 LOGIN_URL = '/accounts/login/'
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/pages/'
 LOGOUT_REDIRECT_URL = '/'
 
 # Backends de Autenticação
@@ -212,12 +213,12 @@ AUTHENTICATION_BACKENDS = [
 # Configurações dinâmicas de email baseadas em variáveis de ambiente
 EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
 EMAIL_HOST = os.environ.get('EMAIL_HOST', '')
-EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587') or '587')
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True').lower() == 'true'
 EMAIL_USE_SSL = os.environ.get('EMAIL_USE_SSL', 'False').lower() == 'true'
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
-EMAIL_TIMEOUT = int(os.environ.get('EMAIL_TIMEOUT', '30'))
+EMAIL_TIMEOUT = int(os.environ.get('EMAIL_TIMEOUT', '30') or '30')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@fireflies.com')
 CONTACT_EMAIL = os.environ.get('CONTACT_EMAIL', 'contato@fireflies.com')
 
@@ -228,174 +229,13 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # CONFIGURAÇÕES DE BANCO DE DADOS
 # =============================================================================
 
-def get_database_config() -> Dict[str, Any]:
-    """Configura banco de dados baseado em variáveis de ambiente"""
-
-    debug_db = os.environ.get('DEBUG_DATABASE', 'False').lower() == 'true'
-    if debug_db:
-        print(f"DEBUG: Todas as variáveis DATABASE:")
-        for key, value in os.environ.items():
-            if 'DATABASE' in key.upper():
-                print(f"   {key}: {value}")
-        print(f"HAS_DJ_DATABASE_URL: {HAS_DJ_DATABASE_URL}")
-
-    database_url = os.environ.get('DATABASE_URL', '').strip()
-
-    if debug_db:
-        print(f"DATABASE_URL: '{database_url}' (length: {len(database_url)})")
-
-    if database_url and database_url != '' and HAS_DJ_DATABASE_URL:
-        try:
-            if debug_db:
-                print(f"Tentando parsear DATABASE_URL...")
-            config = dj_database_url.parse(database_url)
-            if 'postgresql' in config.get('ENGINE', ''):
-                config.update({
-                    'CONN_MAX_AGE': int(os.environ.get('DB_CONN_MAX_AGE', '60')),
-                    'OPTIONS': {
-                        'connect_timeout': 10,
-                        'options': '-c default_transaction_isolation=read_committed'
-                    }
-                })
-            if debug_db:
-                print(f"Usando DATABASE_URL: {config.get('ENGINE', 'unknown')}")
-            return {'default': config}
-        except Exception as e:
-            if debug_db:
-                print(f"Erro ao parsear DATABASE_URL: {e}")
-            # Continua para configuração manual
-
-    engine = os.environ.get('DATABASE_ENGINE', 'sqlite').lower().strip()
-
-    if debug_db:
-        print(f"Usando configuração manual: {engine}")
-
-    if engine == 'postgresql':
-        try:
-            config = {
-                'default': {
-                    'ENGINE': 'django.db.backends.postgresql',
-                    'NAME': os.environ.get('DATABASE_NAME', 'fireflies'),
-                    'USER': os.environ.get('DATABASE_USER', 'fireflies_user'),
-                    'PASSWORD': os.environ.get('DATABASE_PASSWORD', ''),
-                    'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
-                    'PORT': os.environ.get('DATABASE_PORT', '5432'),
-                    'CONN_MAX_AGE': int(os.environ.get('DB_CONN_MAX_AGE', '60')),
-                    'OPTIONS': {
-                        'connect_timeout': 10,
-                        'options': '-c default_transaction_isolation=read_committed'
-                    },
-                    'TEST': {
-                        'NAME': f"test_{os.environ.get('DATABASE_NAME', 'fireflies')}",
-                    }
-                }
-            }
-            if debug_db:
-                print(f"Testando conexão com PostgreSQL...")
-            import psycopg2
-            test_config = config['default']
-            psycopg2.connect(
-                host=test_config['HOST'],
-                port=test_config['PORT'],
-                database=test_config['NAME'],
-                user=test_config['USER'],
-                password=test_config['PASSWORD'],
-                connect_timeout=5
-            )
-            if debug_db:
-                print(f"PostgreSQL configurado e conectado")
-            return config
-        except Exception as e:
-            if debug_db:
-                print(f"Falha na conexão com PostgreSQL: {e}")
-                print(f"Fazendo fallback para SQLite...")
-            # Fallback explícito para SQLite
-            db_name = os.environ.get('DATABASE_NAME', 'db.sqlite3')
-            db_path = BASE_DIR / db_name
-            config = {
-                'default': {
-                    'ENGINE': 'django.db.backends.sqlite3',
-                    'NAME': db_path,
-                    'OPTIONS': {
-                        'timeout': 20,
-                    },
-                    'TEST': {
-                        'NAME': ':memory:' if ENVIRONMENT == 'testing' else None,
-                    }
-                }
-            }
-            if debug_db:
-                print(f"SQLite configurado: {db_path}")
-            return config
-
-    elif engine == 'mysql':
-        try:
-            config = {
-                'default': {
-                    'ENGINE': 'django.db.backends.mysql',
-                    'NAME': os.environ.get('DATABASE_NAME', 'fireflies'),
-                    'USER': os.environ.get('DATABASE_USER', 'fireflies_user'),
-                    'PASSWORD': os.environ.get('DATABASE_PASSWORD', ''),
-                    'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
-                    'PORT': os.environ.get('DATABASE_PORT', '3306'),
-                    'CONN_MAX_AGE': int(os.environ.get('DB_CONN_MAX_AGE', '60')),
-                    'OPTIONS': {
-                        'charset': 'utf8mb4',
-                        'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-                    },
-                    'TEST': {
-                        'NAME': f"test_{os.environ.get('DATABASE_NAME', 'fireflies')}",
-                        'CHARSET': 'utf8mb4',
-                    }
-                }
-            }
-            if debug_db:
-                print(f"Testando conexão com MySQL...")
-            import mysql.connector
-            test_config = config['default']
-            mysql.connector.connect(
-                host=test_config['HOST'],
-                port=test_config['PORT'],
-                database=test_config['NAME'],
-                user=test_config['USER'],
-                password=test_config['PASSWORD'],
-                connection_timeout=5
-            )
-            if debug_db:
-                print(f"MySQL configurado e conectado")
-            return config
-        except Exception as e:
-            if debug_db:
-                print(f"Falha na conexão com MySQL: {e}")
-                print(f"Fazendo fallback para SQLite...")
-            # Fallback explícito para SQLite
-            engine = 'sqlite'
-
-    # Fallback para SQLite (sempre crie um novo dicionário!)
-    if engine == 'sqlite':
-        db_name = os.environ.get('DATABASE_NAME', 'db.sqlite3')
-        db_path = BASE_DIR / db_name
-        config = {
-            'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': db_path,
-                'OPTIONS': {
-                    'timeout': 20,
-                },
-                'TEST': {
-                    'NAME': ':memory:' if ENVIRONMENT == 'testing' else None,
-                }
-            }
-        }
-        if debug_db:
-            print(f"SQLite configurado: {db_path}")
-        return config
-
-# Configuração dinâmica de banco de dados
-DATABASES = get_database_config()
-
-
-
+# Configuração estática de banco de dados - SQLite
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 
 # Internationalization
@@ -545,27 +385,44 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # =============================================================================
-# CONFIGURAÇÕES DE CACHE E PERFORMANCE
+# CONFIGURAÇÕES DE CACHE
 # =============================================================================
 
-# Configuração dinâmica de cache
-CACHE_BACKEND = os.environ.get('CACHE_BACKEND', 'django.core.cache.backends.locmem.LocMemCache')
-CACHE_LOCATION = os.environ.get('CACHE_LOCATION', 'unique-snowflake')
+def get_cache_config() -> Dict[str, Any]:
+    """
+    Configuração de cache
+    """
+    # Configuração normal
+    redis_url = os.environ.get('REDIS_URL')
+    if redis_url:
+        try:
+            import django_redis
+            return {
+                'default': {
+                    'BACKEND': 'django_redis.cache.RedisCache',
+                    'LOCATION': redis_url,
+                    'OPTIONS': {
+                        'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+                    },
+                    'KEY_PREFIX': 'fireflies',
+                }
+            }
+        except ImportError:
+            pass
+    
+    # Fallback para cache local
+    return {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'unique-snowflake',
+        }
+    }
 
-if 'redis' in CACHE_BACKEND.lower():
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-            'LOCATION': os.environ.get('REDIS_URL', 'redis://127.0.0.1:6379/1'),
-        }
-    }
-else:
-    CACHES = {
-        'default': {
-            'BACKEND': CACHE_BACKEND,
-            'LOCATION': CACHE_LOCATION,
-        }
-    }
+CACHES = get_cache_config()
+
+# =============================================================================
+# CONFIGURAÇÕES DE CACHE E PERFORMANCE
+# =============================================================================
 
 # Configurações de Rate Limiting
 RATELIMIT_ENABLE = os.environ.get('RATELIMIT_ENABLE', 'True').lower() == 'true'

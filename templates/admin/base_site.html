@@ -1,0 +1,56 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | FireFlies Admin{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    #header {
+        background: #2d5a27;
+        color: #fff;
+    }
+    #branding h1 {
+        color: #fff;
+    }
+    .module h2, .module caption, .inline-group h2 {
+        background: #2d5a27;
+    }
+    div.breadcrumbs {
+        background: #3a6b33;
+    }
+    div.breadcrumbs a {
+        color: #fff;
+    }
+    div.breadcrumbs a:hover {
+        color: #e0e0e0;
+    }
+    .button, input[type=submit], input[type=button], .submit-row input, a.button {
+        background: #2d5a27;
+    }
+    .button:hover, input[type=submit]:hover, input[type=button]:hover {
+        background: #3a6b33;
+    }
+    .button.default, input[type=submit].default, .submit-row input.default {
+        background: #2d5a27;
+    }
+    .button.default:hover, input[type=submit].default:hover {
+        background: #3a6b33;
+    }
+    a:link, a:visited {
+        color: #2d5a27;
+    }
+    a:hover {
+        color: #3a6b33;
+    }
+</style>
+{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <img src="/media/favicon-32x32.png" alt="FireFlies Logo" width="24" height="24" style="margin-right: 8px; vertical-align: middle;">
+    FireFlies Administration
+</h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %} 

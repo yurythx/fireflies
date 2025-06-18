@@ -141,6 +141,13 @@ ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
 EOF
         log "✅ Arquivo .env criado"
     fi
+    
+    # Criar arquivo de primeira instalação se não existir
+    if [[ ! -f .first_install ]]; then
+        log "📝 Criando arquivo de primeira instalação..."
+        touch .first_install
+        log "✅ Arquivo .first_install criado"
+    fi
 }
 
 # Função para instalar dependências
@@ -184,13 +191,28 @@ run_django_commands() {
         python3 manage.py collectstatic --noinput
     fi
     
-    # Inicializar módulos
-    log "🔧 Inicializando módulos..."
-    python3 manage.py shell -c "
+    # Verificar se é primeira instalação
+    if [[ -f .first_install ]]; then
+        log "🎯 Primeira instalação detectada!"
+        log "🔧 Inicializando módulos básicos..."
+        python3 manage.py shell -c "
+from apps.config.models.app_module_config import AppModuleConfiguration
+AppModuleConfiguration.initialize_core_modules()
+print('Módulos básicos inicializados com sucesso!')
+"
+        
+        log "✅ Sistema pronto para configuração pós-deploy!"
+        log "🌐 Acesse http://localhost:8000/ para configurar o sistema"
+    else
+        log "🔄 Instalação normal detectada"
+        # Inicializar módulos normalmente
+        log "🔧 Inicializando módulos..."
+        python3 manage.py shell -c "
 from apps.config.models.app_module_config import AppModuleConfiguration
 AppModuleConfiguration.initialize_core_modules()
 print('Módulos inicializados com sucesso!')
 "
+    fi
     
     log "✅ Comandos Django executados com sucesso"
 }
@@ -260,13 +282,27 @@ health_check() {
     # Aguardar aplicação inicializar
     sleep 10
     
-    # Tentar acessar health check
-    if curl -f http://localhost:8000/health/ > /dev/null 2>&1; then
-        log "✅ Aplicação está saudável"
-        return 0
+    # Verificar se é primeira instalação
+    if [[ -f .first_install ]]; then
+        log "🎯 Primeira instalação detectada - verificando se wizard está acessível..."
+        
+        # Tentar acessar o wizard de setup
+        if curl -f http://localhost:8000/config/setup/ > /dev/null 2>&1; then
+            log "✅ Wizard de configuração está acessível"
+            return 0
+        else
+            error "❌ Wizard de configuração não está acessível"
+            return 1
+        fi
     else
-        error "❌ Falha na verificação de saúde"
-        return 1
+        # Verificação normal de saúde
+        if curl -f http://localhost:8000/health/ > /dev/null 2>&1; then
+            log "✅ Aplicação está saudável"
+            return 0
+        else
+            error "❌ Falha na verificação de saúde"
+            return 1
+        fi
     fi
 }
 

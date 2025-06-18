@@ -38,7 +38,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    command: python manage.py runserver 0.0.0.8001:8000
+    command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
       - static_volume_dev:/app/staticfiles
@@ -90,7 +90,7 @@ services:
   #     dockerfile: Dockerfile.dev
   #   command: python -m celery -A core flower
   #   ports:
-  #     - "5555:5555"
+  #      - "5555:5555"
   #   env_file:
   #     - .env.dev
   #   environment:
@@ -114,16 +114,3 @@ volumes:
 networks:
   fireflies_dev_network:
     driver: bridge
-
-
-
-
-
-
-
-
-
-
-
-
-

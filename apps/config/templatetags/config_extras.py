@@ -27,6 +27,15 @@ def get_item(dictionary, key):
     return dictionary.get(key)
 
 
+@register.filter
+def mul(value, arg):
+    """Multiplica o valor pelo argumento"""
+    try:
+        return float(value) * float(arg)
+    except (ValueError, TypeError):
+        return 0
+
+
 @register.simple_tag
 def config_status_badge(is_active, is_default=False):
     """Gera badge de status para configurações"""

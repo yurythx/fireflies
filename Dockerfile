@@ -39,7 +39,3 @@ RUN mkdir -p /app/logs /app/media /app/staticfiles
 
 # Expor porta
 EXPOSE 8000
-
-# Entrypoint e comando padrão
-ENTRYPOINT ["/entrypoint.sh"]
-CMD ["/start.sh"]

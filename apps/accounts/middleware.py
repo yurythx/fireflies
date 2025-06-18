@@ -302,6 +302,10 @@ class SmartRedirectMiddleware:
     def process_view(self, request, view_func, view_args, view_kwargs):
         """Processa views antes da execução"""
         
+        # Verificar se é primeira instalação e permitir acesso ao wizard
+        if self.is_first_installation() and self.is_setup_wizard(request.path):
+            return None
+        
         # Se é uma tentativa de acesso a área restrita
         if self.is_restricted_area(request.path):
             
@@ -313,6 +317,21 @@ class SmartRedirectMiddleware:
             # Deixa a view processar e tratar a permissão
         
         return None
+    
+    def is_first_installation(self):
+        """Verifica se é primeira instalação"""
+        from pathlib import Path
+        from django.conf import settings
+        first_install_file = Path(settings.BASE_DIR) / '.first_install'
+        return first_install_file.exists()
+    
+    def is_setup_wizard(self, path):
+        """Verifica se é o wizard de setup"""
+        setup_paths = [
+            '/config/setup/',
+            '/config/setup/api/',
+        ]
+        return any(path.startswith(setup_path) for setup_path in setup_paths)
     
     def is_restricted_area(self, path):
         """Verifica se o caminho é uma área restrita"""

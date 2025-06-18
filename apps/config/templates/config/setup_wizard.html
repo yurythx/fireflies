@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Configuração Inicial - FireFlies</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/media/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/media/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/media/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/media/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/media/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/media/android-chrome-512x512.png">
+    <meta name="msapplication-TileColor" content="#2d5a27">
+    <meta name="theme-color" content="#2d5a27">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0275d8;
+            --success-color: #5cb85c;
+            --warning-color: #f0ad4e;
+            --danger-color: #d9534f;
+            --dark-color: #292b2c;
+            --light-color: #f8f9fa;
+            --border-color: #dee2e6;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .wizard-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        .wizard-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            max-width: 900px;
+            width: 100%;
+            position: relative;
+        }
+
+        .wizard-header {
+            background: linear-gradient(135deg, var(--primary-color), #0056b3);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .wizard-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        }
+
+        .wizard-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .wizard-header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .wizard-body {
+            padding: 3rem;
+        }
+
+        /* Progress Steps */
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .progress-steps::before {
+            content: '';
+            position: absolute;
+            top: 25px;
+            left: 30px;
+            right: 30px;
+            height: 3px;
+            background: var(--border-color);
+            z-index: 1;
+        }
+
+        .progress-step {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            flex: 1;
+        }
+
+        .step-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-weight: bold;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .step-circle.active {
+            border-color: var(--primary-color);
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .step-circle.completed {
+            border-color: var(--success-color);
+            background: var(--success-color);
+            color: white;
+        }
+
+        .step-circle.completed::after {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+        }
+
+        .step-title {
+            font-weight: 600;
+            color: #6c757d;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .step-title.active {
+            color: var(--primary-color);
+        }
+
+        .step-title.completed {
+            color: var(--success-color);
+        }
+
+        /* Form Sections */
+        .form-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .section-header h3 {
+            color: var(--dark-color);
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-header p {
+            color: #6c757d;
+            font-size: 1.1rem;
+        }
+
+        /* Database Selector */
+        .database-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .database-option {
+            background: white;
+            border: 2px solid var(--border-color);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .database-option:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 123, 255, 0.15);
+        }
+
+        .database-option.selected {
+            border-color: var(--primary-color);
+            background: linear-gradient(135deg, rgba(2, 117, 216, 0.05), rgba(2, 117, 216, 0.1));
+        }
+
+        .database-option i {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .database-option.sqlite i { color: #28a745; }
+        .database-option.postgresql i { color: #336791; }
+        .database-option.mysql i { color: #f29111; }
+
+        .database-option h4 {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+        }
+
+        .database-option p {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        /* Form Fields */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .form-control {
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(2, 117, 216, 0.25);
+        }
+
+        .form-control.is-invalid {
+            border-color: var(--danger-color);
+        }
+
+        .invalid-feedback {
+            color: var(--danger-color);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), #0056b3);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #0056b3, #004085);
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(2, 117, 216, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #449d44);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #449d44, #357935);
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(92, 184, 92, 0.3);
+        }
+
+        /* Alerts */
+        .alert {
+            border-radius: 10px;
+            border: none;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, rgba(92, 184, 92, 0.1), rgba(92, 184, 92, 0.05));
+            color: #155724;
+            border-left: 4px solid var(--success-color);
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, rgba(217, 83, 79, 0.1), rgba(217, 83, 79, 0.05));
+            color: #721c24;
+            border-left: 4px solid var(--danger-color);
+        }
+
+        /* Connection Test */
+        .connection-test {
+            margin-top: 1rem;
+        }
+
+        .test-btn {
+            background: var(--warning-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .test-btn:hover {
+            background: #ec971f;
+        }
+
+        .connection-status {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+
+        .connection-status.success {
+            background: rgba(92, 184, 92, 0.1);
+            color: #155724;
+            border: 1px solid rgba(92, 184, 92, 0.2);
+        }
+
+        .connection-status.error {
+            background: rgba(217, 83, 79, 0.1);
+            color: #721c24;
+            border: 1px solid rgba(217, 83, 79, 0.2);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .wizard-body {
+                padding: 2rem 1.5rem;
+            }
+            
+            .database-selector {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .progress-steps {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .progress-steps::before {
+                display: none;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Hidden fields */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Database List */
+        .database-list {
+            margin: 1rem 0;
+        }
+
+        .database-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .database-item:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 2px 8px rgba(2, 117, 216, 0.1);
+        }
+
+        .database-info {
+            flex: 1;
+        }
+
+        .database-info strong {
+            color: var(--dark-color);
+            font-size: 1rem;
+        }
+
+        .database-info small {
+            font-size: 0.85rem;
+        }
+
+        .detected-databases {
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .detected-databases small {
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="wizard-container">
+        <div class="wizard-card">
+            <!-- Header -->
+            <div class="wizard-header">
+                <h1><i class="fas fa-rocket"></i> FireFlies</h1>
+                <p>Configuração Inicial do Sistema</p>
+            </div>
+
+            <!-- Body -->
+            <div class="wizard-body">
+                <!-- Progress Steps -->
+                <div class="progress-steps">
+                    <div class="progress-step">
+                        <div class="step-circle {% if current_step >= 1 %}active{% endif %} {% if current_step > 1 %}completed{% endif %}">
+                            {% if current_step > 1 %}{% else %}1{% endif %}
+                        </div>
+                        <div class="step-title {% if current_step >= 1 %}active{% endif %} {% if current_step > 1 %}completed{% endif %}">
+                            Banco de Dados
+                        </div>
+                    </div>
+                    <div class="progress-step">
+                        <div class="step-circle {% if current_step >= 2 %}active{% endif %} {% if current_step > 2 %}completed{% endif %}">
+                            {% if current_step > 2 %}{% else %}2{% endif %}
+                        </div>
+                        <div class="step-title {% if current_step >= 2 %}active{% endif %} {% if current_step > 2 %}completed{% endif %}">
+                            Administrador
+                        </div>
+                    </div>
+                    <div class="progress-step">
+                        <div class="step-circle {% if current_step >= 3 %}active{% endif %} {% if current_step > 3 %}completed{% endif %}">
+                            {% if current_step > 3 %}{% else %}3{% endif %}
+                        </div>
+                        <div class="step-title {% if current_step >= 3 %}active{% endif %} {% if current_step > 3 %}completed{% endif %}">
+                            Email
+                        </div>
+                    </div>
+                    <div class="progress-step">
+                        <div class="step-circle {% if current_step >= 4 %}active{% endif %}">
+                            4
+                        </div>
+                        <div class="step-title {% if current_step >= 4 %}active{% endif %}">
+                            Finalizar
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Messages -->
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <!-- Form -->
+                <form method="post" class="setup-form" id="setupForm">
+                    {% csrf_token %}
+                    
+                    <!-- Step 1: Database Configuration -->
+                    <div id="step-1" class="form-section {% if current_step == 1 %}active{% endif %}">
+                        <div class="section-header">
+                            <h3><i class="fas fa-database"></i> Configuração do Banco de Dados</h3>
+                            <p>Escolha e configure o banco de dados para o sistema</p>
+                        </div>
+
+                        <div class="database-selector">
+                            <div class="database-option sqlite" data-type="sqlite">
+                                <i class="fas fa-file-alt"></i>
+                                <h4>SQLite</h4>
+                                <p>Banco local simples e rápido</p>
+                                {% if available_databases.sqlite %}
+                                    <div class="detected-databases">
+                                        <small class="text-success">
+                                            <i class="fas fa-check-circle"></i> 
+                                            {{ available_databases.sqlite|length }} banco(s) detectado(s)
+                                        </small>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="database-option postgresql" data-type="postgresql">
+                                <i class="fas fa-database"></i>
+                                <h4>PostgreSQL</h4>
+                                <p>Banco robusto e confiável</p>
+                                {% if available_databases.postgresql %}
+                                    <div class="detected-databases">
+                                        <small class="text-success">
+                                            <i class="fas fa-check-circle"></i> 
+                                            {{ available_databases.postgresql|length }} instância(s) detectada(s)
+                                        </small>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="database-option mysql" data-type="mysql">
+                                <i class="fas fa-database"></i>
+                                <h4>MySQL</h4>
+                                <p>Banco popular e versátil</p>
+                                {% if available_databases.mysql %}
+                                    <div class="detected-databases">
+                                        <small class="text-success">
+                                            <i class="fas fa-check-circle"></i> 
+                                            {{ available_databases.mysql|length }} instância(s) detectada(s)
+                                        </small>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="db_type" id="db_type" value="sqlite">
+                        
+                        <!-- SQLite Fields -->
+                        <div id="sqlite-fields">
+                            {% if available_databases.sqlite %}
+                                <div class="alert alert-info">
+                                    <h5><i class="fas fa-info-circle"></i> Bancos SQLite Detectados:</h5>
+                                    <div class="database-list">
+                                        {% for db in available_databases.sqlite %}
+                                            <div class="database-item" data-path="{{ db.path }}">
+                                                <div class="database-info">
+                                                    <strong>{{ db.name }}</strong>
+                                                    <small class="text-muted d-block">{{ db.relative_path }}</small>
+                                                    <small class="text-muted">{{ db.tables_count }} tabelas • {{ db.size|filesizeformat }}</small>
+                                                </div>
+                                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectExistingDatabase('sqlite', '{{ db.path }}')">
+                                                    <i class="fas fa-check"></i> Usar
+                                                </button>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                    <hr>
+                                    <p class="mb-0">
+                                        <i class="fas fa-plus-circle"></i>
+                                        <strong>Ou criar novo:</strong> O banco será criado automaticamente no diretório do projeto.
+                                    </p>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-success">
+                                    <i class="fas fa-check-circle"></i>
+                                    <strong>SQLite selecionado:</strong> O banco será criado automaticamente no diretório do projeto.
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- PostgreSQL Fields -->
+                        <div id="postgresql-fields" class="hidden">
+                            {% if available_databases.postgresql %}
+                                <div class="alert alert-info mb-3">
+                                    <h5><i class="fas fa-info-circle"></i> Instâncias PostgreSQL Detectadas:</h5>
+                                    <div class="database-list">
+                                        {% for instance in available_databases.postgresql %}
+                                            <div class="database-item">
+                                                <div class="database-info">
+                                                    <strong>{{ instance.host }}:{{ instance.port }}</strong>
+                                                    <small class="text-muted d-block">{{ instance.databases|length }} banco(s) disponível(is)</small>
+                                                </div>
+                                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectPostgresInstance('{{ instance.host }}', '{{ instance.port }}')">
+                                                    <i class="fas fa-check"></i> Usar
+                                                </button>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="db_host">Host</label>
+                                        <input type="text" name="db_host" id="db_host" class="form-control" value="localhost">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="db_port">Porta</label>
+                                        <input type="text" name="db_port" id="db_port" class="form-control" value="5432">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="db_name">Nome do Banco</label>
+                                <input type="text" name="db_name" id="db_name" class="form-control" value="fireflies">
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="db_user">Usuário</label>
+                                        <input type="text" name="db_user" id="db_user" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="db_password">Senha</label>
+                                        <input type="password" name="db_password" id="db_password" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="connection-test">
+                                <button type="button" class="test-btn" onclick="testConnection('postgresql')">
+                                    <i class="fas fa-plug"></i> Testar Conexão
+                                </button>
+                                <div id="postgresql-status" class="connection-status hidden"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- MySQL Fields -->
+                        <div id="mysql-fields" class="hidden">
+                            {% if available_databases.mysql %}
+                                <div class="alert alert-info mb-3">
+                                    <h5><i class="fas fa-info-circle"></i> Instâncias MySQL Detectadas:</h5>
+                                    <div class="database-list">
+                                        {% for instance in available_databases.mysql %}
+                                            <div class="database-item">
+                                                <div class="database-info">
+                                                    <strong>{{ instance.host }}:{{ instance.port }}</strong>
+                                                    <small class="text-muted d-block">{{ instance.databases|length }} banco(s) disponível(is)</small>
+                                                </div>
+                                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectMysqlInstance('{{ instance.host }}', '{{ instance.port }}')">
+                                                    <i class="fas fa-check"></i> Usar
+                                                </button>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="mysql_host">Host</label>
+                                        <input type="text" name="mysql_host" id="mysql_host" class="form-control" value="localhost">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="mysql_port">Porta</label>
+                                        <input type="text" name="mysql_port" id="mysql_port" class="form-control" value="3306">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="mysql_name">Nome do Banco</label>
+                                <input type="text" name="mysql_name" id="mysql_name" class="form-control" value="fireflies">
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="mysql_user">Usuário</label>
+                                        <input type="text" name="mysql_user" id="mysql_user" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="mysql_password">Senha</label>
+                                        <input type="password" name="mysql_password" id="mysql_password" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="connection-test">
+                                <button type="button" class="test-btn" onclick="testConnection('mysql')">
+                                    <i class="fas fa-plug"></i> Testar Conexão
+                                </button>
+                                <div id="mysql-status" class="connection-status hidden"></div>
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="step" value="1">
+                        <div class="btn-group">
+                            <div></div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-arrow-right"></i> Próximo
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 2: Admin User -->
+                    <div id="step-2" class="form-section {% if current_step == 2 %}active{% endif %}">
+                        <div class="section-header">
+                            <h3><i class="fas fa-user-shield"></i> Usuário Administrador</h3>
+                            <p>Crie o usuário administrador do sistema</p>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label" for="username">Nome de Usuário</label>
+                                    <input type="text" name="username" id="username" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label" for="email">Email</label>
+                                    <input type="email" name="email" id="email" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label" for="password">Senha</label>
+                                    <input type="password" name="password" id="password" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label" for="password_confirm">Confirmar Senha</label>
+                                    <input type="password" name="password_confirm" id="password_confirm" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <input type="hidden" name="step" value="2">
+                        <div class="btn-group">
+                            <a href="?step=1" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Anterior
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-arrow-right"></i> Próximo
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 3: Email Configuration -->
+                    <div id="step-3" class="form-section {% if current_step == 3 %}active{% endif %}">
+                        <div class="section-header">
+                            <h3><i class="fas fa-envelope"></i> Configuração de Email</h3>
+                            <p>Configure o sistema de email (opcional)</p>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="email_backend" id="email_console" value="console" checked>
+                                <label class="form-check-label" for="email_console">
+                                    <i class="fas fa-terminal"></i> Console (para desenvolvimento)
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="email_backend" id="email_smtp" value="smtp">
+                                <label class="form-check-label" for="email_smtp">
+                                    <i class="fas fa-server"></i> SMTP (para produção)
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div id="smtp-fields" class="hidden">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="email_host">Servidor SMTP</label>
+                                        <input type="text" name="email_host" id="email_host" class="form-control" value="smtp.gmail.com">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="email_port">Porta</label>
+                                        <input type="text" name="email_port" id="email_port" class="form-control" value="587">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="email_use_tls" id="email_use_tls" checked>
+                                    <label class="form-check-label" for="email_use_tls">
+                                        Usar TLS
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="email_user">Usuário</label>
+                                        <input type="email" name="email_user" id="email_user" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="email_password">Senha</label>
+                                        <input type="password" name="email_password" id="email_password" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <input type="hidden" name="step" value="3">
+                        <div class="btn-group">
+                            <a href="?step=2" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Anterior
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-arrow-right"></i> Próximo
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 4: Finalize -->
+                    <div id="step-4" class="form-section {% if current_step == 4 %}active{% endif %}">
+                        <div class="section-header">
+                            <h3><i class="fas fa-check-circle"></i> Finalizar Configuração</h3>
+                            <p>Revise as configurações e finalize a instalação</p>
+                        </div>
+                        
+                        <div class="alert alert-success">
+                            <h4><i class="fas fa-list-check"></i> Configurações Salvas:</h4>
+                            <ul class="mb-0">
+                                <li><i class="fas fa-check text-success"></i> Banco de dados configurado</li>
+                                <li><i class="fas fa-check text-success"></i> Usuário administrador criado</li>
+                                <li><i class="fas fa-check text-success"></i> Sistema de email configurado</li>
+                            </ul>
+                        </div>
+                        
+                        <p class="text-center">
+                            <i class="fas fa-info-circle text-primary"></i>
+                            Clique em "Finalizar" para aplicar todas as configurações e iniciar o sistema.
+                        </p>
+                        
+                        <input type="hidden" name="step" value="4">
+                        <div class="btn-group">
+                            <a href="?step=3" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Anterior
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-rocket"></i> Finalizar Configuração
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Setup wizard loaded');
+            
+            // Database selection
+            const databaseOptions = document.querySelectorAll('.database-option');
+            const dbTypeInput = document.getElementById('db_type');
+            
+            databaseOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    databaseOptions.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    
+                    const dbType = this.dataset.type;
+                    dbTypeInput.value = dbType;
+                    showDatabaseFields(dbType);
+                });
+            });
+            
+            // Email backend selection
+            const emailBackends = document.querySelectorAll('input[name="email_backend"]');
+            const smtpFields = document.getElementById('smtp-fields');
+            
+            emailBackends.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.value === 'smtp') {
+                        smtpFields.classList.remove('hidden');
+                    } else {
+                        smtpFields.classList.add('hidden');
+                    }
+                });
+            });
+            
+            // Form validation
+            const form = document.getElementById('setupForm');
+            form.addEventListener('submit', function(e) {
+                console.log('Form submitted');
+                console.log('Form action:', form.action);
+                console.log('Form method:', form.method);
+                
+                // Garantir que o campo step correto seja enviado
+                const currentStep = {{ current_step }};
+                console.log('Current step:', currentStep);
+                
+                // Remover todos os campos step hidden
+                const stepInputs = form.querySelectorAll('input[name="step"]');
+                stepInputs.forEach(input => input.remove());
+                
+                // Adicionar o campo step correto
+                const stepInput = document.createElement('input');
+                stepInput.type = 'hidden';
+                stepInput.name = 'step';
+                stepInput.value = currentStep;
+                form.appendChild(stepInput);
+                
+                console.log('Step input added:', stepInput.value);
+                
+                if (!validateCurrentStep()) {
+                    console.log('Validation failed, preventing submit');
+                    e.preventDefault();
+                } else {
+                    console.log('Validation passed, allowing submit');
+                }
+            });
+            
+            // Select SQLite by default
+            document.querySelector('[data-type="sqlite"]').click();
+        });
+
+        function showDatabaseFields(dbType) {
+            document.getElementById('sqlite-fields').classList.add('hidden');
+            document.getElementById('postgresql-fields').classList.add('hidden');
+            document.getElementById('mysql-fields').classList.add('hidden');
+            
+            // Remover required de todos os campos de banco
+            const dbFields = document.querySelectorAll('#postgresql-fields input, #mysql-fields input');
+            dbFields.forEach(field => field.removeAttribute('required'));
+            
+            if (dbType === 'postgresql') {
+                document.getElementById('postgresql-fields').classList.remove('hidden');
+                // Adicionar required aos campos PostgreSQL visíveis
+                document.getElementById('db_name').setAttribute('required', 'required');
+                document.getElementById('db_user').setAttribute('required', 'required');
+                document.getElementById('db_password').setAttribute('required', 'required');
+            } else if (dbType === 'mysql') {
+                document.getElementById('mysql-fields').classList.remove('hidden');
+                // Adicionar required aos campos MySQL visíveis
+                document.getElementById('mysql_name').setAttribute('required', 'required');
+                document.getElementById('mysql_user').setAttribute('required', 'required');
+                document.getElementById('mysql_password').setAttribute('required', 'required');
+            } else {
+                document.getElementById('sqlite-fields').classList.remove('hidden');
+            }
+        }
+
+        function validateCurrentStep() {
+            const currentStep = {{ current_step }};
+            console.log('Validating step:', currentStep);
+            
+            // Gerenciar campos required baseado no passo atual
+            manageRequiredFields(currentStep);
+            
+            if (currentStep === 1) {
+                // Para o passo 1, apenas verificar se um tipo de banco foi selecionado
+                const dbType = document.getElementById('db_type').value;
+                console.log('Selected database type:', dbType);
+                return true; // Sempre permitir para o passo 1
+            }
+            
+            if (currentStep === 2) {
+                const password = document.getElementById('password').value;
+                const passwordConfirm = document.getElementById('password_confirm').value;
+                
+                if (password !== passwordConfirm) {
+                    alert('As senhas não coincidem!');
+                    return false;
+                }
+                
+                if (password.length < 8) {
+                    alert('A senha deve ter pelo menos 8 caracteres!');
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+
+        function manageRequiredFields(currentStep) {
+            // Remover required de todos os campos primeiro
+            const allFields = document.querySelectorAll('input[required]');
+            allFields.forEach(field => field.removeAttribute('required'));
+            
+            // Adicionar required apenas aos campos do passo atual
+            if (currentStep === 2) {
+                // Passo 2: Admin user
+                document.getElementById('username').setAttribute('required', 'required');
+                document.getElementById('email').setAttribute('required', 'required');
+                document.getElementById('password').setAttribute('required', 'required');
+                document.getElementById('password_confirm').setAttribute('required', 'required');
+            }
+        }
+
+        function testConnection(dbType) {
+            const statusDiv = document.getElementById(`${dbType}-status`);
+            const testBtn = statusDiv.previousElementSibling;
+            const originalText = testBtn.innerHTML;
+            
+            statusDiv.innerHTML = '<div class="loading"></div> Testando conexão...';
+            statusDiv.className = 'connection-status';
+            statusDiv.classList.remove('hidden');
+            
+            testBtn.disabled = true;
+            testBtn.innerHTML = '<div class="loading"></div> Testando...';
+            
+            const formData = new FormData();
+            formData.append('action', 'test_database');
+            formData.append('db_type', dbType);
+            
+            if (dbType === 'postgresql') {
+                formData.append('db_host', document.getElementById('db_host').value);
+                formData.append('db_port', document.getElementById('db_port').value);
+                formData.append('db_name', document.getElementById('db_name').value);
+                formData.append('db_user', document.getElementById('db_user').value);
+                formData.append('db_password', document.getElementById('db_password').value);
+            } else if (dbType === 'mysql') {
+                formData.append('db_host', document.getElementById('mysql_host').value);
+                formData.append('db_port', document.getElementById('mysql_port').value);
+                formData.append('db_name', document.getElementById('mysql_name').value);
+                formData.append('db_user', document.getElementById('mysql_user').value);
+                formData.append('db_password', document.getElementById('mysql_password').value);
+            }
+            
+            fetch('{% url "config:setup_api" %}', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    statusDiv.innerHTML = '<i class="fas fa-check-circle"></i> ' + data.message;
+                    statusDiv.className = 'connection-status success';
+                } else {
+                    statusDiv.innerHTML = '<i class="fas fa-times-circle"></i> ' + data.error;
+                    statusDiv.className = 'connection-status error';
+                }
+            })
+            .catch(error => {
+                statusDiv.innerHTML = '<i class="fas fa-times-circle"></i> Erro ao testar conexão: ' + error.message;
+                statusDiv.className = 'connection-status error';
+            })
+            .finally(() => {
+                testBtn.disabled = false;
+                testBtn.innerHTML = originalText;
+            });
+        }
+
+        function selectExistingDatabase(dbType, path) {
+            if (dbType === 'sqlite') {
+                // Para SQLite, vamos usar o caminho do arquivo existente
+                const dbTypeInput = document.getElementById('db_type');
+                dbTypeInput.value = 'sqlite';
+                
+                // Selecionar a opção SQLite visualmente
+                document.querySelectorAll('.database-option').forEach(opt => opt.classList.remove('selected'));
+                document.querySelector('[data-type="sqlite"]').classList.add('selected');
+                
+                // Mostrar campos SQLite
+                showDatabaseFields('sqlite');
+                
+                // Adicionar um campo hidden com o caminho do banco existente
+                let existingPathInput = document.getElementById('existing_sqlite_path');
+                if (!existingPathInput) {
+                    existingPathInput = document.createElement('input');
+                    existingPathInput.type = 'hidden';
+                    existingPathInput.id = 'existing_sqlite_path';
+                    existingPathInput.name = 'existing_sqlite_path';
+                    document.getElementById('setupForm').appendChild(existingPathInput);
+                }
+                existingPathInput.value = path;
+                
+                // Mostrar mensagem de confirmação
+                const sqliteFields = document.getElementById('sqlite-fields');
+                sqliteFields.innerHTML = `
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        <strong>Banco SQLite selecionado:</strong> ${path.split('/').pop()}
+                        <br><small class="text-muted">O banco existente será usado para a configuração.</small>
+                    </div>
+                `;
+            }
+        }
+
+        function selectPostgresInstance(host, port) {
+            // Preencher automaticamente os campos com a instância detectada
+            document.getElementById('db_host').value = host;
+            document.getElementById('db_port').value = port;
+            
+            // Mostrar mensagem de confirmação
+            const postgresqlFields = document.getElementById('postgresql-fields');
+            const alertDiv = postgresqlFields.querySelector('.alert-info');
+            if (alertDiv) {
+                alertDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        <strong>Instância PostgreSQL selecionada:</strong> ${host}:${port}
+                        <br><small class="text-muted">Preencha as credenciais para continuar.</small>
+                    </div>
+                `;
+            }
+        }
+
+        function selectMysqlInstance(host, port) {
+            // Preencher automaticamente os campos com a instância detectada
+            document.getElementById('mysql_host').value = host;
+            document.getElementById('mysql_port').value = port;
+            
+            // Mostrar mensagem de confirmação
+            const mysqlFields = document.getElementById('mysql-fields');
+            const alertDiv = mysqlFields.querySelector('.alert-info');
+            if (alertDiv) {
+                alertDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        <strong>Instância MySQL selecionada:</strong> ${host}:${port}
+                        <br><small class="text-muted">Preencha as credenciais para continuar.</small>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html> 

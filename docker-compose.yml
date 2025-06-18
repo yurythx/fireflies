@@ -1,4 +1,4 @@
-version: '3.8'
+﻿version: '3.8'
 
 services:
   # Banco de dados PostgreSQL
@@ -35,10 +35,9 @@ services:
     env_file:
       - .env
     environment:
-      - DB_NAME=${DB_NAME:-fireflies_prod}
+      DB_NAME: ${DB_NAME:-fireflies_prod}
     depends_on:
       - db
-      - redis
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
       interval: 30s
@@ -61,8 +60,6 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-    profiles:
-      - redis
     networks:
       - fireflies_network
 
@@ -86,8 +83,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-    profiles:
-      - nginx
     networks:
       - fireflies_network
 
