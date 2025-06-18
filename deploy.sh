@@ -439,6 +439,23 @@ deploy_docker() {
     log "🛑 Parando containers existentes..."
     docker-compose -f "$compose_file" down || true
     
+    # Verificar se a porta 5432 está livre para o PostgreSQL
+    POSTGRES_PORT=5432
+    if lsof -i :5432 >/dev/null 2>&1; then
+        # Procurar próxima porta livre a partir de 55432
+        POSTGRES_PORT=55432
+        while lsof -i :$POSTGRES_PORT >/dev/null 2>&1; do
+            POSTGRES_PORT=$((POSTGRES_PORT+1))
+        done
+        log "⚠️ Porta 5432 ocupada. Usando porta livre $POSTGRES_PORT para o PostgreSQL."
+        # Atualizar docker-compose.yml
+        sed -i.bak "s/\(["']\)5432:5432\1/\1$POSTGRES_PORT:5432\1/" "$compose_file"
+        # Atualizar .env
+        if grep -q "5432" .env; then
+            sed -i.bak "s/5432/$POSTGRES_PORT/g" .env
+        fi
+    fi
+    
     # Subir novos containers
     log "⬆️ Subindo novos containers..."
     if docker-compose -f "$compose_file" up -d --build; then
