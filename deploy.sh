@@ -4,6 +4,11 @@
 # Detecta automaticamente o ambiente e realiza deploy de forma inteligente
 # Compatível com Ubuntu, Debian e outras distribuições Linux
 
+# ATENÇÃO:
+# Nunca escreva logs, mensagens, timestamps, emojis ou sequências de cor ANSI no arquivo .env!
+# Apenas linhas no formato VARIAVEL=valor devem ser escritas no .env.
+# Isso garante compatibilidade com Docker Compose e segurança do deploy.
+
 set -e  # Para em caso de erro
 
 # Cores para output
