@@ -59,6 +59,9 @@ main() {
     log_info ""
     log_info "3. Criando arquivo .env..."
     cat > .env << 'EOF'
+# Configuração do Ambiente
+ENVIRONMENT=production
+
 # Configurações do Django
 DEBUG=False
 SECRET_KEY=django-insecure-change-this-in-production-$(openssl rand -hex 32)
