@@ -2,6 +2,7 @@
 
 # FireFlies - Sistema de Deploy Automatizado
 # Detecta automaticamente o ambiente e realiza deploy de forma inteligente
+# Compatível com Ubuntu, Debian e outras distribuições Linux
 
 set -e  # Para em caso de erro
 
@@ -27,6 +28,94 @@ error() {
 
 info() {
     echo -e "${BLUE}[$(date +'%Y-%m-%d %H:%M:%S')] INFO: $1${NC}"
+}
+
+# Função para detectar IP da máquina
+detect_machine_ip() {
+    log "🔍 Detectando IP da máquina..."
+    
+    local ip_addresses=()
+    
+    # Tentar diferentes métodos de detecção de IP
+    if command -v ip &> /dev/null; then
+        # Usar comando ip (mais moderno)
+        local ip_cmd_result=$(ip route get 1.1.1.1 2>/dev/null | grep -oP 'src \K\S+' | head -1)
+        if [[ -n "$ip_cmd_result" ]]; then
+            ip_addresses+=("$ip_cmd_result")
+            log "✅ IP detectado via 'ip route': $ip_cmd_result"
+        fi
+    fi
+    
+    if command -v hostname &> /dev/null; then
+        # Usar hostname -I
+        local hostname_result=$(hostname -I 2>/dev/null | awk '{print $1}')
+        if [[ -n "$hostname_result" ]]; then
+            ip_addresses+=("$hostname_result")
+            log "✅ IP detectado via 'hostname -I': $hostname_result"
+        fi
+    fi
+    
+    if command -v ifconfig &> /dev/null; then
+        # Usar ifconfig (fallback)
+        local ifconfig_result=$(ifconfig 2>/dev/null | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1' | head -1)
+        if [[ -n "$ifconfig_result" ]]; then
+            ip_addresses+=("$ifconfig_result")
+            log "✅ IP detectado via 'ifconfig': $ifconfig_result"
+        fi
+    fi
+    
+    # Tentar detectar IP via serviços externos (apenas se necessário)
+    if [[ ${#ip_addresses[@]} -eq 0 ]]; then
+        warn "⚠️ Não foi possível detectar IP local, tentando serviços externos..."
+        
+        # Tentar diferentes serviços
+        local external_services=(
+            "ifconfig.me"
+            "icanhazip.com"
+            "ipinfo.io/ip"
+            "ipecho.net/plain"
+        )
+        
+        for service in "${external_services[@]}"; do
+            if command -v curl &> /dev/null; then
+                local external_ip=$(curl -s --max-time 5 "$service" 2>/dev/null | tr -d '\n\r')
+                if [[ -n "$external_ip" ]] && [[ "$external_ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+                    ip_addresses+=("$external_ip")
+                    log "✅ IP externo detectado via $service: $external_ip"
+                    break
+                fi
+            fi
+        done
+    fi
+    
+    # Se ainda não encontrou, usar localhost
+    if [[ ${#ip_addresses[@]} -eq 0 ]]; then
+        warn "⚠️ Não foi possível detectar IP, usando localhost"
+        ip_addresses+=("127.0.0.1")
+    fi
+    
+    # Retornar o primeiro IP encontrado
+    echo "${ip_addresses[0]}"
+}
+
+# Função para detectar hostname da máquina
+detect_machine_hostname() {
+    log "🏷️ Detectando hostname da máquina..."
+    
+    local hostname=""
+    
+    # Tentar diferentes métodos
+    if command -v hostname &> /dev/null; then
+        hostname=$(hostname 2>/dev/null)
+    fi
+    
+    # Se não encontrou, usar um padrão
+    if [[ -z "$hostname" ]]; then
+        hostname="fireflies-server"
+        warn "⚠️ Hostname não detectado, usando padrão: $hostname"
+    fi
+    
+    echo "$hostname"
 }
 
 # Função para detectar ambiente
@@ -62,12 +151,28 @@ detect_environment() {
 check_prerequisites() {
     log "🔍 Verificando pré-requisitos..."
     
-    # Verificar Python
+    # Verificar Python (suporte para python3 e python)
+    PYTHON_CMD=""
     if command -v python3 &> /dev/null; then
+        PYTHON_CMD="python3"
         PYTHON_VERSION=$(python3 --version 2>&1 | cut -d' ' -f2)
-        log "✅ Python $PYTHON_VERSION encontrado"
+        log "✅ Python $PYTHON_VERSION encontrado (python3)"
+    elif command -v python &> /dev/null; then
+        PYTHON_CMD="python"
+        PYTHON_VERSION=$(python --version 2>&1 | cut -d' ' -f2)
+        log "✅ Python $PYTHON_VERSION encontrado (python)"
     else
-        error "❌ Python3 não encontrado"
+        error "❌ Python não encontrado. Instale Python 3.8+"
+        error "   Ubuntu/Debian: sudo apt install python3 python3-pip python3-venv"
+        error "   CentOS/RHEL: sudo yum install python3 python3-pip"
+        return 1
+    fi
+    
+    # Verificar pip
+    if ! command -v pip3 &> /dev/null && ! command -v pip &> /dev/null; then
+        error "❌ pip não encontrado. Instale pip:"
+        error "   Ubuntu/Debian: sudo apt install python3-pip"
+        error "   CentOS/RHEL: sudo yum install python3-pip"
         return 1
     fi
     
@@ -75,8 +180,18 @@ check_prerequisites() {
     if command -v docker &> /dev/null; then
         DOCKER_VERSION=$(docker --version | cut -d' ' -f3 | cut -d',' -f1)
         log "✅ Docker $DOCKER_VERSION encontrado"
+        
+        # Verificar se Docker está rodando
+        if ! docker info &> /dev/null; then
+            error "❌ Docker não está rodando. Inicie o Docker:"
+            error "   sudo systemctl start docker"
+            error "   sudo usermod -aG docker $USER"
+            return 1
+        fi
     else
-        error "❌ Docker não encontrado"
+        error "❌ Docker não encontrado. Instale Docker:"
+        error "   Ubuntu/Debian: sudo apt install docker.io docker-compose"
+        error "   Ou siga: https://docs.docker.com/engine/install/"
         return 1
     fi
     
@@ -85,8 +200,22 @@ check_prerequisites() {
         COMPOSE_VERSION=$(docker-compose --version | cut -d' ' -f3 | cut -d',' -f1)
         log "✅ Docker Compose $COMPOSE_VERSION encontrado"
     else
-        error "❌ Docker Compose não encontrado"
+        error "❌ Docker Compose não encontrado. Instale:"
+        error "   Ubuntu/Debian: sudo apt install docker-compose"
+        error "   Ou: sudo curl -L 'https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)' -o /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose"
         return 1
+    fi
+    
+    # Verificar lsof (para detecção de portas)
+    if ! command -v lsof &> /dev/null; then
+        warn "⚠️ lsof não encontrado. Instalando..."
+        if command -v apt &> /dev/null; then
+            sudo apt update && sudo apt install -y lsof
+        elif command -v yum &> /dev/null; then
+            sudo yum install -y lsof
+        else
+            warn "⚠️ Não foi possível instalar lsof automaticamente"
+        fi
     fi
     
     # Verificar Git (opcional)
@@ -97,8 +226,43 @@ check_prerequisites() {
         warn "⚠️ Git não encontrado (opcional)"
     fi
     
+    # Exportar comando Python para uso posterior
+    export PYTHON_CMD
+    
     log "✅ Todos os pré-requisitos atendidos"
     return 0
+}
+
+# Função para criar arquivo .env de forma robusta
+create_env_file() {
+    local file_path=$1
+    local content=$2
+    local description=$3
+    
+    log "📝 Criando $description..."
+    
+    # Remover arquivo existente se estiver corrompido
+    if [[ -f "$file_path" ]]; then
+        if ! head -c 1 "$file_path" > /dev/null 2>&1; then
+            warn "⚠️ Arquivo $file_path corrompido, removendo..."
+            rm -f "$file_path"
+        fi
+    fi
+    
+    # Criar arquivo com encoding UTF-8
+    if echo -e "$content" > "$file_path"; then
+        # Verificar se foi criado corretamente
+        if [[ -f "$file_path" ]] && [[ -s "$file_path" ]]; then
+            log "✅ $description criado com sucesso"
+            return 0
+        else
+            error "❌ Erro na criação do $description"
+            return 1
+        fi
+    else
+        error "❌ Erro ao criar $description"
+        return 1
+    fi
 }
 
 # Função para configurar ambiente
@@ -106,40 +270,91 @@ setup_environment() {
     local env=$1
     log "🚀 Configurando ambiente: $env"
     
+    # Detectar informações da máquina
+    local machine_ip=$(detect_machine_ip)
+    local machine_hostname=$(detect_machine_hostname)
+    
+    log "🌐 IP da máquina detectado: $machine_ip"
+    log "🏷️ Hostname detectado: $machine_hostname"
+    
     # Criar arquivo .env se não existir
     if [[ ! -f .env ]]; then
-        log "📝 Criando arquivo .env..."
-        cat > .env << EOF
-# FireFlies Environment Configuration
+        local debug_value=$([[ "$env" == "development" ]] && echo "True" || echo "False")
+        local secret_key=$($PYTHON_CMD -c 'import secrets; print(secrets.token_urlsafe(50))')
+        
+        local env_content="# FireFlies Environment Configuration
 ENVIRONMENT=$env
-DEBUG=$([[ "$env" == "development" ]] && echo "true" || echo "false")
-DJANGO_SETTINGS_MODULE=core.settings$([[ "$env" != "development" ]] && echo "_prod" || echo "_dev")
+DEBUG=$debug_value
+SECRET_KEY=$secret_key
+
+# Machine Information
+MACHINE_IP=$machine_ip
+MACHINE_HOSTNAME=$machine_hostname
 
 # Database Configuration
-DATABASE_ENGINE=sqlite
-DATABASE_NAME=db.sqlite3
-DEBUG_DATABASE=True
-
-# Security
-DJANGO_SECRET_KEY=your-secret-key-here-change-in-production
+DATABASE_URL=sqlite:///db.sqlite3
 
 # Email Configuration
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USE_TLS=True
-EMAIL_HOST_USER=your-email@gmail.com
-EMAIL_HOST_PASSWORD=your-app-password
+EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
+DEFAULT_FROM_EMAIL=noreply@fireflies.com
+
+# Security
+ALLOWED_HOSTS=localhost,127.0.0.1,170.245.70.68,$machine_ip,$machine_hostname
+CSRF_TRUSTED_ORIGINS=http://localhost:8000,http://127.0.0.1:8000,http://170.245.70.68:8000,http://$machine_ip:8000,http://$machine_hostname:8000
 
 # Static Files
 STATIC_URL=/static/
 MEDIA_URL=/media/
-STATIC_ROOT=staticfiles/
-MEDIA_ROOT=media/
 
-# Allowed Hosts
-ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
-EOF
-        log "✅ Arquivo .env criado"
+# Logging
+LOG_LEVEL=INFO
+
+# Docker Configuration
+DOCKER_COMPOSE_PROJECT_NAME=fireflies
+DOCKER_HOST_IP=$machine_ip
+
+# Development Server
+DJANGO_HOST=0.0.0.0
+DJANGO_PORT=8000"
+        
+        if ! create_env_file ".env" "$env_content" "arquivo .env"; then
+            error "❌ Falha ao criar arquivo .env"
+            return 1
+        fi
+    else
+        # Atualizar ALLOWED_HOSTS e CSRF_TRUSTED_ORIGINS se o arquivo já existir
+        log "📝 Atualizando configurações de rede no .env existente..."
+        
+        # Atualizar ALLOWED_HOSTS
+        if grep -q "ALLOWED_HOSTS=" .env; then
+            # Verificar se o IP já está na lista
+            if ! grep -q "$machine_ip" .env; then
+                sed -i.bak "s/ALLOWED_HOSTS=.*/ALLOWED_HOSTS=localhost,127.0.0.1,170.245.70.68,$machine_ip,$machine_hostname/" .env
+                log "✅ ALLOWED_HOSTS atualizado com $machine_ip"
+            fi
+        else
+            echo "ALLOWED_HOSTS=localhost,127.0.0.1,170.245.70.68,$machine_ip,$machine_hostname" >> .env
+            log "✅ ALLOWED_HOSTS adicionado"
+        fi
+        
+        # Atualizar CSRF_TRUSTED_ORIGINS
+        if grep -q "CSRF_TRUSTED_ORIGINS=" .env; then
+            # Verificar se o IP já está na lista
+            if ! grep -q "$machine_ip" .env; then
+                sed -i.bak "s|CSRF_TRUSTED_ORIGINS=.*|CSRF_TRUSTED_ORIGINS=http://localhost:8000,http://127.0.0.1:8000,http://170.245.70.68:8000,http://$machine_ip:8000,http://$machine_hostname:8000|" .env
+                log "✅ CSRF_TRUSTED_ORIGINS atualizado com $machine_ip"
+            fi
+        else
+            echo "CSRF_TRUSTED_ORIGINS=http://localhost:8000,http://127.0.0.1:8000,http://170.245.70.68:8000,http://$machine_ip:8000,http://$machine_hostname:8000" >> .env
+            log "✅ CSRF_TRUSTED_ORIGINS adicionado"
+        fi
+        
+        # Adicionar informações da máquina se não existirem
+        if ! grep -q "MACHINE_IP=" .env; then
+            echo "MACHINE_IP=$machine_ip" >> .env
+            echo "MACHINE_HOSTNAME=$machine_hostname" >> .env
+            log "✅ Informações da máquina adicionadas"
+        fi
     fi
     
     # Criar arquivo de primeira instalação se não existir
@@ -148,6 +363,18 @@ EOF
         touch .first_install
         log "✅ Arquivo .first_install criado"
     fi
+    
+    # Criar diretórios necessários
+    mkdir -p logs media staticfiles
+    log "✅ Diretórios criados"
+    
+    # Mostrar informações de acesso
+    log "🌐 Informações de acesso:"
+    log "   Local: http://localhost:8000"
+    log "   IP Local: http://$machine_ip:8000"
+    log "   Hostname: http://$machine_hostname:8000"
+    
+    return 0
 }
 
 # Função para instalar dependências
@@ -167,7 +394,8 @@ install_dependencies() {
         return 1
     fi
     
-    if python3 -m pip install -r "$requirements_file"; then
+    # Usar o comando Python correto
+    if $PYTHON_CMD -m pip install -r "$requirements_file"; then
         log "✅ Dependências instaladas"
         return 0
     else
@@ -183,19 +411,19 @@ run_django_commands() {
     
     # Migrations
     log "🔄 Executando migrations..."
-    python3 manage.py migrate
+    $PYTHON_CMD manage.py migrate
     
     # Collect static (apenas em staging/production)
     if [[ "$env" != "development" ]]; then
         log "📁 Coletando arquivos estáticos..."
-        python3 manage.py collectstatic --noinput
+        $PYTHON_CMD manage.py collectstatic --noinput
     fi
     
     # Verificar se é primeira instalação
     if [[ -f .first_install ]]; then
         log "🎯 Primeira instalação detectada!"
         log "🔧 Inicializando módulos básicos..."
-        python3 manage.py shell -c "
+        $PYTHON_CMD manage.py shell -c "
 from apps.config.models.app_module_config import AppModuleConfiguration
 AppModuleConfiguration.initialize_core_modules()
 print('Módulos básicos inicializados com sucesso!')
@@ -207,7 +435,7 @@ print('Módulos básicos inicializados com sucesso!')
         log "🔄 Instalação normal detectada"
         # Inicializar módulos normalmente
         log "🔧 Inicializando módulos..."
-        python3 manage.py shell -c "
+        $PYTHON_CMD manage.py shell -c "
 from apps.config.models.app_module_config import AppModuleConfiguration
 AppModuleConfiguration.initialize_core_modules()
 print('Módulos inicializados com sucesso!')
@@ -282,27 +510,46 @@ health_check() {
     # Aguardar aplicação inicializar
     sleep 10
     
+    # Obter IP da máquina para teste
+    local machine_ip=$(detect_machine_ip)
+    
     # Verificar se é primeira instalação
     if [[ -f .first_install ]]; then
         log "🎯 Primeira instalação detectada - verificando se wizard está acessível..."
         
-        # Tentar acessar o wizard de setup
-        if curl -f http://localhost:8000/config/setup/ > /dev/null 2>&1; then
-            log "✅ Wizard de configuração está acessível"
-            return 0
-        else
-            error "❌ Wizard de configuração não está acessível"
-            return 1
-        fi
+        # Tentar acessar o wizard de setup em diferentes endereços
+        local endpoints=(
+            "http://localhost:8000/config/setup/"
+            "http://127.0.0.1:8000/config/setup/"
+            "http://$machine_ip:8000/config/setup/"
+        )
+        
+        for endpoint in "${endpoints[@]}"; do
+            if curl -f "$endpoint" > /dev/null 2>&1; then
+                log "✅ Wizard de configuração está acessível em: $endpoint"
+                return 0
+            fi
+        done
+        
+        error "❌ Wizard de configuração não está acessível"
+        return 1
     else
         # Verificação normal de saúde
-        if curl -f http://localhost:8000/health/ > /dev/null 2>&1; then
-            log "✅ Aplicação está saudável"
-            return 0
-        else
-            error "❌ Falha na verificação de saúde"
-            return 1
-        fi
+        local endpoints=(
+            "http://localhost:8000/health/"
+            "http://127.0.0.1:8000/health/"
+            "http://$machine_ip:8000/health/"
+        )
+        
+        for endpoint in "${endpoints[@]}"; do
+            if curl -f "$endpoint" > /dev/null 2>&1; then
+                log "✅ Aplicação está saudável em: $endpoint"
+                return 0
+            fi
+        done
+        
+        error "❌ Falha na verificação de saúde"
+        return 1
     fi
 }
 
@@ -322,7 +569,7 @@ cleanup() {
     log "✅ Limpeza concluída"
 }
 
-# Função para encontrar uma porta livre
+# Função para encontrar uma porta livre (compatível com Ubuntu)
 find_free_port() {
     local port=$1
     while lsof -i :$port >/dev/null 2>&1; do
@@ -331,7 +578,7 @@ find_free_port() {
     echo $port
 }
 
-# Função para atualizar porta no docker-compose.dev.yml
+# Função para atualizar porta no docker-compose.dev.yml (compatível com Ubuntu)
 automatizar_porta_compose() {
     local compose_file="docker-compose.dev.yml"
     local default_port=8001
@@ -343,7 +590,7 @@ automatizar_porta_compose() {
     # Detectar porta livre
     local free_port=$(find_free_port $default_port)
     log "🔌 Usando porta livre $free_port para o serviço web (host)"
-    # Atualizar mapeamento de porta no Compose
+    # Atualizar mapeamento de porta no Compose (compatível com Ubuntu)
     sed -i.bak -E "s/\s*- \"[0-9]+:$container_port\"/      - \"$free_port:$container_port\"/g" "$compose_file"
     # Atualizar comando do Django se necessário
     sed -i.bak -E "s/(runserver 0\.0\.0\.)[0-9]+:$container_port/\1$free_port:$container_port/g" "$compose_file"
@@ -358,7 +605,7 @@ automatizar_porta_compose() {
     log "✅ docker-compose.dev.yml e .env.dev atualizados para porta $free_port"
 }
 
-# Função para atualizar porta no docker-compose.yml (produção)
+# Função para atualizar porta no docker-compose.yml (produção) - compatível com Ubuntu
 automatizar_porta_compose_prod() {
     local compose_file="docker-compose.yml"
     local default_port=8000
@@ -370,7 +617,7 @@ automatizar_porta_compose_prod() {
     # Detectar porta livre
     local free_port=$(find_free_port $default_port)
     log "🔌 Usando porta livre $free_port para o serviço web (host) [produção]"
-    # Atualizar mapeamento de porta no Compose
+    # Atualizar mapeamento de porta no Compose (compatível com Ubuntu)
     sed -i.bak -E "s/\s*- \"[0-9]+:$container_port\"/      - \"$free_port:$container_port\"/g" "$compose_file"
     # Atualizar comando do Django se necessário
     sed -i.bak -E "s/(runserver 0\.0\.0\.0:)[0-9]+/\1$container_port/g" "$compose_file"
@@ -385,7 +632,7 @@ automatizar_porta_compose_prod() {
     log "✅ docker-compose.yml e .env atualizados para porta $free_port"
 }
 
-# Função para atualizar portas de Nginx e Flower no Compose e .env
+# Função para atualizar portas de Nginx e Flower no Compose e .env (compatível com Ubuntu)
 automatizar_portas_extras() {
     local compose_file="$1"
     local env_file="$2"
@@ -499,8 +746,15 @@ deploy() {
     # Cleanup
     cleanup
     
+    # Obter IP da máquina para exibir informações finais
+    local machine_ip=$(detect_machine_ip)
+    local machine_hostname=$(detect_machine_hostname)
+    
     log "🎉 Deploy concluído com sucesso!"
-    log "🌐 Aplicação disponível em: http://localhost:8000"
+    log "🌐 Aplicação disponível em:"
+    log "   Local: http://localhost:8000"
+    log "   IP Local: http://$machine_ip:8000"
+    log "   Hostname: http://$machine_hostname:8000"
     
     # Determinar arquivo compose para logs
     if [[ "$env" == "development" ]]; then
@@ -549,6 +803,19 @@ main() {
                 echo "  $0                    # Deploy automático"
                 echo "  $0 --env production   # Deploy em produção"
                 echo "  $0 --check-only       # Verificar pré-requisitos"
+                echo ""
+                echo "Pré-requisitos Ubuntu/Debian:"
+                echo "  sudo apt update"
+                echo "  sudo apt install python3 python3-pip python3-venv docker.io docker-compose lsof"
+                echo "  sudo usermod -aG docker \$USER"
+                echo "  sudo systemctl start docker"
+                echo ""
+                echo "Funcionalidades:"
+                echo "  🔍 Detecção automática de IP da máquina"
+                echo "  🌐 Configuração automática de ALLOWED_HOSTS"
+                echo "  🔒 Configuração automática de CSRF_TRUSTED_ORIGINS"
+                echo "  🚀 Deploy automatizado com Docker"
+                echo "  📊 Health checks automáticos"
                 exit 0
                 ;;
             *)

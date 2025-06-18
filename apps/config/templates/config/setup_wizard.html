@@ -478,10 +478,41 @@
             font-size: 0.85rem;
         }
 
-        .detected-databases {
+        .database-details {
             margin-top: 0.5rem;
             padding-top: 0.5rem;
             border-top: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .database-sub-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            background: rgba(255,255,255,0.8);
+            transition: all 0.3s ease;
+            margin-left: 1rem;
+        }
+
+        .database-sub-item:hover {
+            border-color: var(--success-color);
+            box-shadow: 0 2px 6px rgba(40, 167, 69, 0.1);
+        }
+
+        .database-sub-item .database-info strong {
+            font-size: 0.9rem;
+        }
+
+        .database-sub-item .database-info small {
+            font-size: 0.8rem;
+        }
+
+        .badge {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.4rem;
         }
 
         .detected-databases small {
@@ -650,6 +681,27 @@
                                                     <i class="fas fa-check"></i> Usar
                                                 </button>
                                             </div>
+                                            
+                                            <!-- Lista de bancos disponíveis -->
+                                            {% if instance.databases %}
+                                                <div class="database-details mt-2">
+                                                    <small class="text-muted">Bancos disponíveis:</small>
+                                                    {% for db in instance.databases %}
+                                                        <div class="database-sub-item" data-host="{{ instance.host }}" data-port="{{ instance.port }}" data-db="{{ db.name }}">
+                                                            <div class="database-info">
+                                                                <strong>{{ db.name }}</strong>
+                                                                {% if db.is_django %}
+                                                                    <span class="badge bg-success ms-1">Django</span>
+                                                                {% endif %}
+                                                                <small class="text-muted d-block">{{ db.tables_count }} tabelas • {{ db.size }}</small>
+                                                            </div>
+                                                            <button type="button" class="btn btn-sm btn-outline-success" onclick="selectPostgresDatabase('{{ instance.host }}', '{{ instance.port }}', '{{ db.name }}')">
+                                                                <i class="fas fa-database"></i> Usar
+                                                            </button>
+                                                        </div>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
                                         {% endfor %}
                                     </div>
                                 </div>
@@ -711,6 +763,27 @@
                                                     <i class="fas fa-check"></i> Usar
                                                 </button>
                                             </div>
+                                            
+                                            <!-- Lista de bancos disponíveis -->
+                                            {% if instance.databases %}
+                                                <div class="database-details mt-2">
+                                                    <small class="text-muted">Bancos disponíveis:</small>
+                                                    {% for db in instance.databases %}
+                                                        <div class="database-sub-item" data-host="{{ instance.host }}" data-port="{{ instance.port }}" data-db="{{ db.name }}">
+                                                            <div class="database-info">
+                                                                <strong>{{ db.name }}</strong>
+                                                                {% if db.is_django %}
+                                                                    <span class="badge bg-success ms-1">Django</span>
+                                                                {% endif %}
+                                                                <small class="text-muted d-block">{{ db.tables_count }} tabelas • {{ db.size }}</small>
+                                                            </div>
+                                                            <button type="button" class="btn btn-sm btn-outline-success" onclick="selectMysqlDatabase('{{ instance.host }}', '{{ instance.port }}', '{{ db.name }}')">
+                                                                <i class="fas fa-database"></i> Usar
+                                                            </button>
+                                                        </div>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
                                         {% endfor %}
                                     </div>
                                 </div>
@@ -1191,6 +1264,46 @@
                     <div class="alert alert-success">
                         <i class="fas fa-check-circle"></i>
                         <strong>Instância MySQL selecionada:</strong> ${host}:${port}
+                        <br><small class="text-muted">Preencha as credenciais para continuar.</small>
+                    </div>
+                `;
+            }
+        }
+
+        function selectPostgresDatabase(host, port, dbName) {
+            // Preencher automaticamente os campos com o banco detectado
+            document.getElementById('db_host').value = host;
+            document.getElementById('db_port').value = port;
+            document.getElementById('db_name').value = dbName;
+            
+            // Mostrar mensagem de confirmação
+            const postgresqlFields = document.getElementById('postgresql-fields');
+            const alertDiv = postgresqlFields.querySelector('.alert-info');
+            if (alertDiv) {
+                alertDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        <strong>Banco PostgreSQL selecionado:</strong> ${host}:${port}/${dbName}
+                        <br><small class="text-muted">Preencha as credenciais para continuar.</small>
+                    </div>
+                `;
+            }
+        }
+
+        function selectMysqlDatabase(host, port, dbName) {
+            // Preencher automaticamente os campos com o banco detectado
+            document.getElementById('mysql_host').value = host;
+            document.getElementById('mysql_port').value = port;
+            document.getElementById('mysql_name').value = dbName;
+            
+            // Mostrar mensagem de confirmação
+            const mysqlFields = document.getElementById('mysql-fields');
+            const alertDiv = mysqlFields.querySelector('.alert-info');
+            if (alertDiv) {
+                alertDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        <strong>Banco MySQL selecionado:</strong> ${host}:${port}/${dbName}
                         <br><small class="text-muted">Preencha as credenciais para continuar.</small>
                     </div>
                 `;

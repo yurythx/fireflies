@@ -140,12 +140,69 @@ class SetupWizardView(View):
                     cursor = conn.cursor()
                     cursor.execute("SELECT datname FROM pg_database WHERE datistemplate = false;")
                     databases = cursor.fetchall()
+                    
+                    # Obter informações detalhadas de cada banco
+                    detailed_databases = []
+                    for db in databases:
+                        db_name = db[0]
+                        try:
+                            # Conectar ao banco específico para obter informações
+                            db_conn = psycopg2.connect(
+                                host=host,
+                                port=port,
+                                user='postgres',
+                                password='',
+                                database=db_name,
+                                connect_timeout=3
+                            )
+                            db_cursor = db_conn.cursor()
+                            
+                            # Contar tabelas
+                            db_cursor.execute("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';")
+                            tables_count_result = db_cursor.fetchone()
+                            tables_count = tables_count_result[0] if tables_count_result else 0
+                            
+                            # Obter tamanho do banco
+                            db_cursor.execute("SELECT pg_size_pretty(pg_database_size(%s));", (db_name,))
+                            size_result = db_cursor.fetchone()
+                            size = size_result[0] if size_result else 'N/A'
+                            
+                            # Verificar se é um banco Django (tem tabelas auth_user, django_migrations, etc.)
+                            db_cursor.execute("""
+                                SELECT COUNT(*) FROM information_schema.tables 
+                                WHERE table_schema = 'public' 
+                                AND table_name IN ('auth_user', 'django_migrations', 'django_content_type')
+                            """)
+                            django_tables_result = db_cursor.fetchone()
+                            django_tables = django_tables_result[0] if django_tables_result else 0
+                            is_django = django_tables >= 2
+                            
+                            db_conn.close()
+                            
+                            detailed_databases.append({
+                                'name': db_name,
+                                'tables_count': tables_count,
+                                'size': size,
+                                'is_django': is_django,
+                                'is_valid': True,
+                            })
+                            
+                        except Exception:
+                            # Se não conseguir conectar ao banco específico, adicionar sem detalhes
+                            detailed_databases.append({
+                                'name': db_name,
+                                'tables_count': 0,
+                                'size': 'N/A',
+                                'is_django': False,
+                                'is_valid': False,
+                            })
+                    
                     conn.close()
                     
                     postgresql_instances.append({
                         'host': host,
                         'port': port,
-                        'databases': [db[0] for db in databases],
+                        'databases': detailed_databases,
                         'is_accessible': True,
                     })
                     break  # Se encontrou uma instância, não precisa testar outras portas
@@ -161,14 +218,70 @@ class SetupWizardView(View):
                             connect_timeout=3
                         )
                         cursor = conn.cursor()
-                        cursor.execute("SELECT datname FROM pg_database WHERE datname = datname;")
+                        cursor.execute("SELECT datname FROM pg_database WHERE datistemplate = false;")
                         databases = cursor.fetchall()
+                        
+                        # Obter informações detalhadas de cada banco
+                        detailed_databases = []
+                        for db in databases:
+                            db_name = db[0]
+                            try:
+                                # Conectar ao banco específico para obter informações
+                                db_conn = psycopg2.connect(
+                                    host=host,
+                                    port=port,
+                                    user='root',
+                                    password='',
+                                    database=db_name,
+                                    connect_timeout=3
+                                )
+                                db_cursor = db_conn.cursor()
+                                
+                                # Contar tabelas
+                                db_cursor.execute("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';")
+                                tables_count_result = db_cursor.fetchone()
+                                tables_count = tables_count_result[0] if tables_count_result else 0
+                                
+                                # Obter tamanho do banco
+                                db_cursor.execute("SELECT pg_size_pretty(pg_database_size(%s));", (db_name,))
+                                size_result = db_cursor.fetchone()
+                                size = size_result[0] if size_result else 'N/A'
+                                
+                                # Verificar se é um banco Django
+                                db_cursor.execute("""
+                                    SELECT COUNT(*) FROM information_schema.tables 
+                                    WHERE table_schema = 'public' 
+                                    AND table_name IN ('auth_user', 'django_migrations', 'django_content_type')
+                                """)
+                                django_tables_result = db_cursor.fetchone()
+                                django_tables = django_tables_result[0] if django_tables_result else 0
+                                is_django = django_tables >= 2
+                                
+                                db_conn.close()
+                                
+                                detailed_databases.append({
+                                    'name': db_name,
+                                    'tables_count': tables_count,
+                                    'size': size,
+                                    'is_django': is_django,
+                                    'is_valid': True,
+                                })
+                                
+                            except Exception:
+                                detailed_databases.append({
+                                    'name': db_name,
+                                    'tables_count': 0,
+                                    'size': 'N/A',
+                                    'is_django': False,
+                                    'is_valid': False,
+                                })
+                        
                         conn.close()
                         
                         postgresql_instances.append({
                             'host': host,
                             'port': port,
-                            'databases': [db[0] for db in databases],
+                            'databases': detailed_databases,
                             'is_accessible': True,
                         })
                         break
@@ -204,12 +317,76 @@ class SetupWizardView(View):
                     cursor = conn.cursor()
                     cursor.execute("SHOW DATABASES;")
                     databases = cursor.fetchall()
+                    
+                    # Obter informações detalhadas de cada banco
+                    detailed_databases = []
+                    for db in databases:
+                        db_name = db[0]
+                        # Pular bancos do sistema
+                        if db_name in ['information_schema', 'performance_schema', 'mysql', 'sys']:
+                            continue
+                            
+                        try:
+                            # Conectar ao banco específico para obter informações
+                            db_conn = mysql.connector.connect(
+                                host=host,
+                                port=port,
+                                user='root',
+                                password='',
+                                database=db_name,
+                                connection_timeout=3
+                            )
+                            db_cursor = db_conn.cursor()
+                            
+                            # Contar tabelas
+                            db_cursor.execute("SHOW TABLES;")
+                            tables = db_cursor.fetchall()
+                            tables_count = len(tables)
+                            
+                            # Obter tamanho do banco
+                            db_cursor.execute("""
+                                SELECT 
+                                    ROUND(SUM(data_length + index_length) / 1024 / 1024, 1) AS 'DB Size in MB'
+                                FROM information_schema.tables 
+                                WHERE table_schema = %s
+                            """, (db_name,))
+                            size_result = db_cursor.fetchone()
+                            size = f"{size_result[0]} MB" if size_result and size_result[0] is not None else "N/A"
+                            
+                            # Verificar se é um banco Django (tem tabelas auth_user, django_migrations, etc.)
+                            django_tables = ['auth_user', 'django_migrations', 'django_content_type']
+                            db_cursor.execute("SHOW TABLES;")
+                            all_tables_result = db_cursor.fetchall()
+                            all_tables = [table[0] for table in all_tables_result if table and len(table) > 0]
+                            django_table_count = sum(1 for table in django_tables if table in all_tables)
+                            is_django = django_table_count >= 2
+                            
+                            db_conn.close()
+                            
+                            detailed_databases.append({
+                                'name': db_name,
+                                'tables_count': tables_count,
+                                'size': size,
+                                'is_django': is_django,
+                                'is_valid': True,
+                            })
+                            
+                        except Exception:
+                            # Se não conseguir conectar ao banco específico, adicionar sem detalhes
+                            detailed_databases.append({
+                                'name': db_name,
+                                'tables_count': 0,
+                                'size': 'N/A',
+                                'is_django': False,
+                                'is_valid': False,
+                            })
+                    
                     conn.close()
                     
                     mysql_instances.append({
                         'host': host,
                         'port': port,
-                        'databases': [db[0] for db in databases if db[0] not in ['information_schema', 'performance_schema', 'mysql', 'sys']],
+                        'databases': detailed_databases,
                         'is_accessible': True,
                     })
                     break  # Se encontrou uma instância, não precisa testar outras portas
