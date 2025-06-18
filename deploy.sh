@@ -635,7 +635,12 @@ deploy() {
         error "❌ Pré-requisitos não atendidos"
         return 1
     fi
-    
+
+    # Limpar o .env antes de prosseguir, se o script existir
+    if [[ -f ./clean_env.sh ]]; then
+        ./clean_env.sh
+    fi
+
     # Setup do ambiente
     if ! setup_environment "$env"; then
         error "❌ Falha no setup do ambiente"
