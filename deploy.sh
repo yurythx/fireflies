@@ -151,31 +151,6 @@ detect_environment() {
 check_prerequisites() {
     log "🔍 Verificando pré-requisitos..."
     
-    # Verificar Python (suporte para python3 e python)
-    PYTHON_CMD=""
-    if command -v python3 &> /dev/null; then
-        PYTHON_CMD="python3"
-        PYTHON_VERSION=$(python3 --version 2>&1 | cut -d' ' -f2)
-        log "✅ Python $PYTHON_VERSION encontrado (python3)"
-    elif command -v python &> /dev/null; then
-        PYTHON_CMD="python"
-        PYTHON_VERSION=$(python --version 2>&1 | cut -d' ' -f2)
-        log "✅ Python $PYTHON_VERSION encontrado (python)"
-    else
-        error "❌ Python não encontrado. Instale Python 3.8+"
-        error "   Ubuntu/Debian: sudo apt install python3 python3-pip python3-venv"
-        error "   CentOS/RHEL: sudo yum install python3 python3-pip"
-        return 1
-    fi
-    
-    # Verificar pip
-    if ! command -v pip3 &> /dev/null && ! command -v pip &> /dev/null; then
-        error "❌ pip não encontrado. Instale pip:"
-        error "   Ubuntu/Debian: sudo apt install python3-pip"
-        error "   CentOS/RHEL: sudo yum install python3-pip"
-        return 1
-    fi
-    
     # Verificar Docker
     if command -v docker &> /dev/null; then
         DOCKER_VERSION=$(docker --version | cut -d' ' -f3 | cut -d',' -f1)
@@ -225,9 +200,6 @@ check_prerequisites() {
     else
         warn "⚠️ Git não encontrado (opcional)"
     fi
-    
-    # Exportar comando Python para uso posterior
-    export PYTHON_CMD
     
     log "✅ Todos os pré-requisitos atendidos"
     return 0
@@ -375,33 +347,6 @@ DJANGO_PORT=8000"
     log "   Hostname: http://$machine_hostname:8000"
     
     return 0
-}
-
-# Função para instalar dependências
-install_dependencies() {
-    local env=$1
-    log "📦 Instalando dependências..."
-    
-    # Determinar arquivo de requirements
-    if [[ "$env" == "production" ]]; then
-        requirements_file="requirements-prod.txt"
-    else
-        requirements_file="requirements.txt"
-    fi
-    
-    if [[ ! -f "$requirements_file" ]]; then
-        error "❌ Arquivo $requirements_file não encontrado"
-        return 1
-    fi
-    
-    # Usar o comando Python correto
-    if $PYTHON_CMD -m pip install -r "$requirements_file"; then
-        log "✅ Dependências instaladas"
-        return 0
-    else
-        error "❌ Falha ao instalar dependências"
-        return 1
-    fi
 }
 
 # Função para executar comandos Django
@@ -695,12 +640,11 @@ deploy() {
         return 1
     fi
     
-    # Instalar dependências
-    if ! install_dependencies "$env"; then
-        error "❌ Falha na instalação de dependências"
-        return 1
-    fi
-    
+    # Remover bloco de instalação de dependências Python no host
+    # Substituir por mensagem informativa
+    log "🐳 Ambiente Docker detectado: dependências Python serão instaladas dentro do container."
+    log "📦 Pulando instalação de dependências Python no host."
+
     # Comandos Django
     if ! run_django_commands "$env"; then
         error "❌ Falha nos comandos Django"
