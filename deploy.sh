@@ -222,17 +222,14 @@ create_env_file() {
     fi
     
     # Criar arquivo com encoding UTF-8
-    if echo -e "$content" > "$file_path"; then
-        # Verificar se foi criado corretamente
-        if [[ -f "$file_path" ]] && [[ -s "$file_path" ]]; then
-            log "✅ $description criado com sucesso"
-            return 0
-        else
-            error "❌ Erro na criação do $description"
-            return 1
-        fi
+    # Escrever apenas o conteúdo puro, sem log, sem cor
+    printf "%s\n" "$content" > "$file_path"
+    # Verificar se foi criado corretamente
+    if [[ -f "$file_path" ]] && [[ -s "$file_path" ]]; then
+        log "✅ $description criado com sucesso"
+        return 0
     else
-        error "❌ Erro ao criar $description"
+        error "❌ Erro na criação do $description"
         return 1
     fi
 }
