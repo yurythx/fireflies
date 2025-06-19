@@ -20,7 +20,7 @@ services:
     networks:
       - fireflies_network
 
-  # Aplicação Django
+  # Aplicacao Django
   web:
     build: .
     restart: unless-stopped
