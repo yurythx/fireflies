@@ -62,25 +62,16 @@ services:
     networks:
       - fireflies_network
 
-  # Nginx (proxy reverso) - Opcional
-  nginx:
-    build:
-      context: ./docker/nginx
-      dockerfile: Dockerfile.nginx
+  # Apache (proxy reverso) - substitui nginx
+  apache:
+    image: httpd:2.4
     restart: unless-stopped
     ports:
       - "8080:80"
     volumes:
-      - static_volume:/app/staticfiles:ro
-      - media_volume:/app/media:ro
+      - ./docker/apache/httpd.conf:/usr/local/apache2/conf/httpd.conf:ro
     depends_on:
       - web
-    healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
     networks:
       - fireflies_network
 
