@@ -109,22 +109,12 @@ DEBUG = get_debug_setting()
 def get_allowed_hosts() -> List[str]:
     """Configura ALLOWED_HOSTS baseado no ambiente"""
     hosts_env = os.environ.get('ALLOWED_HOSTS', '')
-
-    if ENVIRONMENT == 'production':
-        if not hosts_env or hosts_env == '*':
-            raise ValueError(
-                "ALLOWED_HOSTS deve ser configurado especificamente em produção! "
-                "Não use '*' em produção."
-            )
-        return [host.strip() for host in hosts_env.split(',') if host.strip()]
-
-    # Desenvolvimento: hosts padrão + configurados
-    default_hosts = ['localhost', '127.0.0.1', 'testserver']
+    # Permitir * em qualquer ambiente, inclusive produção
+    if hosts_env == '*':
+        return ['*']
     if hosts_env:
-        configured_hosts = [host.strip() for host in hosts_env.split(',') if host.strip()]
-        return list(set(default_hosts + configured_hosts))
-
-    return default_hosts
+        return [host.strip() for host in hosts_env.split(',') if host.strip()]
+    return ['localhost', '127.0.0.1', 'testserver']
 
 ALLOWED_HOSTS = get_allowed_hosts()
 

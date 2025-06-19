@@ -19,17 +19,17 @@ def create_env_file():
 # FIREFLIES CMS - CONFIGURAÇÃO DE AMBIENTE
 # =============================================================================
 
-# Ambiente
-ENVIRONMENT=production
-DEBUG=False
+# Ambiente (development para permitir ALLOWED_HOSTS=*)
+ENVIRONMENT=development
+DEBUG=True
 
 # Configurações de Segurança
 DJANGO_SECRET_KEY={secret_key}
 SECRET_KEY={secret_key}
 
-# Configurações de Host
-ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
-CSRF_TRUSTED_ORIGINS=http://localhost:8000,http://127.0.0.1:8000
+# Configurações de Host (liberado para todos os hosts)
+ALLOWED_HOSTS=*
+CSRF_TRUSTED_ORIGINS=http://localhost:8000,http://127.0.0.1:8000,http://0.0.0.0:8000
 
 # Configurações de Banco de Dados PostgreSQL
 DB_ENGINE=django.db.backends.postgresql
@@ -74,7 +74,7 @@ LOG_FILE=/app/logs/django.log
 CACHE_TIMEOUT=300
 STATICFILES_STORAGE=django.contrib.staticfiles.storage.StaticFilesStorage
 
-# Configurações de SSL (para produção)
+# Configurações de SSL (desabilitadas para desenvolvimento)
 SECURE_SSL_REDIRECT=False
 SECURE_HSTS_SECONDS=0
 SECURE_HSTS_INCLUDE_SUBDOMAINS=False
