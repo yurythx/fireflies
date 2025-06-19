@@ -31,6 +31,20 @@ MONITOR_MODE=false
 ensure_env_and_secret_key() {
     log_info "Verificando configuração do .env e SECRET_KEY..."
     
+    # Detectar IP do servidor
+    local server_ip
+    server_ip=$(hostname -I | awk '{print $1}' | head -1)
+    if [[ -z "$server_ip" ]]; then
+        server_ip="192.168.1.100"  # Fallback
+    fi
+    
+    # Detectar hostname
+    local server_hostname
+    server_hostname=$(hostname)
+    
+    log_info "IP do servidor detectado: $server_ip"
+    log_info "Hostname detectado: $server_hostname"
+    
     if [[ ! -f .env ]]; then
         log_info "Criando arquivo .env padrão..."
         
@@ -38,7 +52,7 @@ ensure_env_and_secret_key() {
         local secret_key
         secret_key=$(openssl rand -base64 50 | tr -d "=+/" | cut -c1-50)
         
-        # Criar .env básico
+        # Criar .env básico com configurações otimizadas
         cat > .env << EOF
 # Configuração do Ambiente
 ENVIRONMENT=production
@@ -46,7 +60,7 @@ ENVIRONMENT=production
 # Configurações do Django
 DEBUG=False
 SECRET_KEY=$secret_key
-ALLOWED_HOSTS=localhost,127.0.0.1,192.168.1.100
+ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0,$server_ip,$server_hostname
 
 # Configurações do Banco de Dados
 DB_NAME=fireflies_prod
@@ -70,10 +84,13 @@ LOG_LEVEL=INFO
 LOG_FILE=/app/logs/fireflies.log
 
 # Configurações de Segurança
-CSRF_TRUSTED_ORIGINS=http://localhost,http://127.0.0.1,http://192.168.1.100
+CSRF_TRUSTED_ORIGINS=http://localhost:8000,http://127.0.0.1:8000,http://0.0.0.0:8000,http://$server_ip:8000,http://$server_hostname:8000
 SECURE_SSL_REDIRECT=False
 SESSION_COOKIE_SECURE=False
 CSRF_COOKIE_SECURE=False
+SECURE_BROWSER_XSS_FILTER=True
+SECURE_CONTENT_TYPE_NOSNIFF=True
+X_FRAME_OPTIONS=DENY
 
 # Configurações de Timezone
 TIME_ZONE=America/Sao_Paulo
@@ -105,12 +122,16 @@ DATA_UPLOAD_MAX_MEMORY_SIZE=2621440
 # Configurações de Logging
 LOGGING_CONFIG=
 DJANGO_LOG_LEVEL=INFO
+
+# Configurações de CORS (para desenvolvimento)
+CORS_ALLOWED_ORIGINS=http://localhost:8000,http://127.0.0.1:8000,http://$server_ip:8000
+CORS_ALLOW_CREDENTIALS=True
 EOF
         
-        log_success "Arquivo .env criado com SECRET_KEY segura"
+        log_success "Arquivo .env criado com SECRET_KEY segura e configurações de rede otimizadas"
         return 0
     else
-        log_info "Arquivo .env já existe, verificando SECRET_KEY..."
+        log_info "Arquivo .env já existe, verificando SECRET_KEY e configurações de rede..."
         
         # Verificar se SECRET_KEY é insegura
         if grep -q "django-insecure-change-this-in-production" .env; then
@@ -139,6 +160,48 @@ EOF
             log_success "Variável ENVIRONMENT adicionada"
         else
             log_success "Variável ENVIRONMENT já existe"
+        fi
+        
+        # Atualizar ALLOWED_HOSTS se necessário
+        if ! grep -q "$server_ip" .env || ! grep -q "$server_hostname" .env; then
+            log_info "Atualizando ALLOWED_HOSTS com IP e hostname do servidor..."
+            
+            # Fazer backup
+            cp .env ".env.backup.allowed_hosts.$(date +%Y%m%d_%H%M%S)"
+            
+            # Atualizar ALLOWED_HOSTS
+            local current_allowed_hosts
+            current_allowed_hosts=$(grep "^ALLOWED_HOSTS=" .env | cut -d'=' -f2)
+            local new_allowed_hosts="localhost,127.0.0.1,0.0.0.0,$server_ip,$server_hostname"
+            
+            sed -i.bak "s/^ALLOWED_HOSTS=.*/ALLOWED_HOSTS=$new_allowed_hosts/" .env
+            rm -f .env.bak
+            
+            log_success "ALLOWED_HOSTS atualizado: $new_allowed_hosts"
+        else
+            log_success "ALLOWED_HOSTS já está configurado corretamente"
+        fi
+        
+        # Atualizar CSRF_TRUSTED_ORIGINS se necessário
+        if ! grep -q "$server_ip:8000" .env || ! grep -q "$server_hostname:8000" .env; then
+            log_info "Atualizando CSRF_TRUSTED_ORIGINS com IP e hostname do servidor..."
+            
+            # Fazer backup
+            cp .env ".env.backup.csrf.$(date +%Y%m%d_%H%M%S)"
+            
+            # Atualizar CSRF_TRUSTED_ORIGINS
+            local new_csrf_origins="http://localhost:8000,http://127.0.0.1:8000,http://0.0.0.0:8000,http://$server_ip:8000,http://$server_hostname:8000"
+            
+            if grep -q "^CSRF_TRUSTED_ORIGINS=" .env; then
+                sed -i.bak "s/^CSRF_TRUSTED_ORIGINS=.*/CSRF_TRUSTED_ORIGINS=$new_csrf_origins/" .env
+            else
+                echo "CSRF_TRUSTED_ORIGINS=$new_csrf_origins" >> .env
+            fi
+            rm -f .env.bak
+            
+            log_success "CSRF_TRUSTED_ORIGINS atualizado: $new_csrf_origins"
+        else
+            log_success "CSRF_TRUSTED_ORIGINS já está configurado corretamente"
         fi
         
         return 0
