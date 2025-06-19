@@ -3,5 +3,11 @@ FROM nginx:alpine
 # Remove todos os arquivos de configuração padrão
 RUN rm -f /etc/nginx/conf.d/*
 
+# Debug: listar arquivos após remoção
+RUN ls -l /etc/nginx/conf.d/
+
 # Copia o seu arquivo de configuração
-COPY default.conf /etc/nginx/conf.d/default.conf 
+COPY default.conf /etc/nginx/conf.d/fireflies.conf
+
+# Debug: listar arquivos após cópia
+RUN ls -l /etc/nginx/conf.d/ 
