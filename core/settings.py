@@ -229,13 +229,59 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # CONFIGURAÇÕES DE BANCO DE DADOS
 # =============================================================================
 
-# Configuração estática de banco de dados - SQLite
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+def get_database_config() -> Dict[str, Any]:
+    """Configura banco de dados baseado em variáveis de ambiente"""
+    
+    # Tentar usar DATABASE_URL primeiro (formato Heroku/12factor)
+    database_url = os.environ.get('DATABASE_URL')
+    if database_url and HAS_DJ_DATABASE_URL:
+        config = dj_database_url.parse(database_url)
+        # Garantir que retorna a estrutura correta
+        if 'default' not in config:
+            return {'default': config}
+        return config
+    
+    # Configuração manual via variáveis de ambiente
+    db_engine = os.environ.get('DB_ENGINE', 'django.db.backends.sqlite3')
+    
+    if db_engine == 'django.db.backends.postgresql':
+        return {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': os.environ.get('DB_NAME', 'fireflies_prod'),
+                'USER': os.environ.get('DB_USER', 'fireflies_user'),
+                'PASSWORD': os.environ.get('DB_PASSWORD', 'fireflies_password'),
+                'HOST': os.environ.get('DB_HOST', 'localhost'),
+                'PORT': os.environ.get('DB_PORT', '5432'),
+                'OPTIONS': {
+                    'charset': 'utf8',
+                },
+            }
+        }
+    elif db_engine == 'django.db.backends.mysql':
+        return {
+            'default': {
+                'ENGINE': 'django.db.backends.mysql',
+                'NAME': os.environ.get('DB_NAME', 'fireflies_prod'),
+                'USER': os.environ.get('DB_USER', 'fireflies_user'),
+                'PASSWORD': os.environ.get('DB_PASSWORD', 'fireflies_password'),
+                'HOST': os.environ.get('DB_HOST', 'localhost'),
+                'PORT': os.environ.get('DB_PORT', '3306'),
+                'OPTIONS': {
+                    'charset': 'utf8mb4',
+                },
+            }
+        }
+    else:
+        # Fallback para SQLite (desenvolvimento)
+        return {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+            }
+        }
+
+DATABASES = get_database_config()
 
 
 # Internationalization

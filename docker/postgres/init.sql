@@ -1,4 +1,12 @@
--- Script de inicialização do PostgreSQL para o projeto Havoc
+-- Script de inicialização do PostgreSQL para o projeto FireFlies
+
+-- Criar usuário e banco de dados
+CREATE USER fireflies_user WITH PASSWORD 'fireflies_password';
+CREATE DATABASE fireflies_prod OWNER fireflies_user;
+GRANT ALL PRIVILEGES ON DATABASE fireflies_prod TO fireflies_user;
+
+-- Conectar ao banco fireflies_prod
+\c fireflies_prod;
 
 -- Criar extensões necessárias
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
