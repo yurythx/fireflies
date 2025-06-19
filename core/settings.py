@@ -348,13 +348,14 @@ def get_security_settings() -> Dict[str, Any]:
     # Configurações específicas por ambiente
     if ENVIRONMENT == 'production':
         settings.update({
-            'SECURE_SSL_REDIRECT': True,
-            'SECURE_HSTS_SECONDS': 31536000,  # 1 ano
-            'SECURE_HSTS_INCLUDE_SUBDOMAINS': True,
-            'SECURE_HSTS_PRELOAD': True,
+            # Permitir override via variáveis de ambiente mesmo em produção
+            'SECURE_SSL_REDIRECT': os.environ.get('SECURE_SSL_REDIRECT', 'False').lower() == 'true',
+            'SECURE_HSTS_SECONDS': int(os.environ.get('SECURE_HSTS_SECONDS', '0')),
+            'SECURE_HSTS_INCLUDE_SUBDOMAINS': os.environ.get('SECURE_HSTS_INCLUDE_SUBDOMAINS', 'False').lower() == 'true',
+            'SECURE_HSTS_PRELOAD': os.environ.get('SECURE_HSTS_PRELOAD', 'False').lower() == 'true',
             'SECURE_PROXY_SSL_HEADER': ('HTTP_X_FORWARDED_PROTO', 'https'),
-            'SESSION_COOKIE_SECURE': True,
-            'CSRF_COOKIE_SECURE': True,
+            'SESSION_COOKIE_SECURE': os.environ.get('SESSION_COOKIE_SECURE', 'False').lower() == 'true',
+            'CSRF_COOKIE_SECURE': os.environ.get('CSRF_COOKIE_SECURE', 'False').lower() == 'true',
         })
     else:
         # Desenvolvimento: permitir override via variáveis

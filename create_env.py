@@ -19,9 +19,9 @@ def create_env_file():
 # FIREFLIES CMS - CONFIGURAÇÃO DE AMBIENTE
 # =============================================================================
 
-# Ambiente (development para permitir ALLOWED_HOSTS=*)
-ENVIRONMENT=development
-DEBUG=True
+# Ambiente (production com SSL desabilitado)
+ENVIRONMENT=production
+DEBUG=False
 
 # Configurações de Segurança
 DJANGO_SECRET_KEY={secret_key}
@@ -74,13 +74,14 @@ LOG_FILE=/app/logs/django.log
 CACHE_TIMEOUT=300
 STATICFILES_STORAGE=django.contrib.staticfiles.storage.StaticFilesStorage
 
-# Configurações de SSL (desabilitadas para desenvolvimento)
+# Configurações de SSL (TODAS DESABILITADAS para permitir HTTP)
 SECURE_SSL_REDIRECT=False
 SECURE_HSTS_SECONDS=0
 SECURE_HSTS_INCLUDE_SUBDOMAINS=False
 SECURE_HSTS_PRELOAD=False
 SESSION_COOKIE_SECURE=False
 CSRF_COOKIE_SECURE=False
+SECURE_PROXY_SSL_HEADER=
 """
     
     # Salvar no arquivo .env
