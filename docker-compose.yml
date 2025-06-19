@@ -1,4 +1,4 @@
-ï»¿services:
+services:
   # Banco de dados PostgreSQL
   db:
     image: postgres:15
@@ -20,7 +20,7 @@
     networks:
       - fireflies_network
 
-  # AplicaÃ§Ã£o Django
+  # Aplicação Django
   web:
     build: .
     restart: unless-stopped
