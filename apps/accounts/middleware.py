@@ -330,6 +330,8 @@ class SmartRedirectMiddleware:
         setup_paths = [
             '/config/setup/',
             '/config/setup/api/',
+            '/config/wizard-teste/',
+            '/config/wizard-teste/api/',
         ]
         return any(path.startswith(setup_path) for setup_path in setup_paths)
     

@@ -30,6 +30,11 @@ from django.utils import timezone
 from django.core.cache import cache
 import psycopg2
 import logging
+from .setup_wizard.step_database import process_step as process_step_database
+from .setup_wizard.step_admin import process_step_admin
+from .setup_wizard.step_email import process_step_email
+from .setup_wizard.step_security import process_step_security
+from .setup_wizard.step_finalize import process_step_finalize
 
 # Importação condicional do MySQL
 try:
@@ -43,26 +48,19 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
-class ImprovedSetupWizardView(View):
+class ImprovedSetupWizardViewZZZZZZ(View):
     """
     Wizard de configuração melhorado com UX otimizada
     """
     template_name = 'config/setup_wizard_improved.html'
     
     def get(self, request):
-        """Exibe o wizard de configuração"""
-        # Verificar se já está configurado
-        if not self.is_first_installation():
-            messages.warning(request, "O sistema já está configurado!")
-            return redirect('admin:index')
-        
-        # Obter progresso salvo
+        print("DEBUG: ENTROU NA VIEW DO WIZARD!")
         progress = self.get_saved_progress()
-        
         context = {
             'step': request.GET.get('step', '1'),
             'current_step': int(request.GET.get('step', '1')),
-            'total_steps': 5,  # Adicionado passo de validação
+            'total_steps': 5,
             'progress': progress,
             'available_databases': self.detect_available_databases(),
             'system_info': self.get_system_info(),
@@ -73,21 +71,18 @@ class ImprovedSetupWizardView(View):
     def post(self, request):
         """Processa a configuração"""
         step = request.POST.get('step', '1')
-        
         try:
             if step == '1':
-                return self.step_1_database_config(request)
+                return process_step_database(request, self)
             elif step == '2':
-                return self.step_2_admin_user(request)
+                return process_step_admin(request, self)
             elif step == '3':
-                return self.step_3_email_config(request)
+                return process_step_email(request, self)
             elif step == '4':
-                return self.step_4_security_config(request)
+                return process_step_security(request, self)
             elif step == '5':
-                return self.step_5_finalize(request)
-            
+                return process_step_finalize(request, self)
             return redirect('setup_wizard')
-            
         except Exception as e:
             logger.error(f"Erro no wizard: {e}", exc_info=True)
             messages.error(request, f"Erro durante a configuração: {str(e)}")
@@ -127,11 +122,12 @@ class ImprovedSetupWizardView(View):
     def get_network_interfaces(self) -> List[Dict[str, str]]:
         """Obtém interfaces de rede"""
         import psutil
+        import socket
         
         interfaces = []
         for interface, addresses in psutil.net_if_addrs().items():
             for addr in addresses:
-                if addr.family == psutil.AF_INET:  # IPv4
+                if addr.family == socket.AF_INET:  # IPv4
                     interfaces.append({
                         'name': interface,
                         'ip': addr.address,
@@ -398,114 +394,6 @@ class ImprovedSetupWizardView(View):
         
         return mysql_instances
     
-    def step_1_database_config(self, request):
-        """Passo 1: Configuração do banco de dados"""
-        database_type = request.POST.get('database_type')
-        database_config = request.POST.get('database_config', '{}')
-        
-        try:
-            config = json.loads(database_config)
-            config['type'] = database_type
-            
-            # Testar conexão
-            if not self.test_database_connection(config):
-                messages.error(request, "Falha na conexão com o banco de dados")
-                return redirect('setup_wizard')
-            
-            # Salvar progresso
-            self.save_progress('database', config)
-            
-            messages.success(request, "Configuração do banco de dados salva!")
-            return redirect('setup_wizard?step=2')
-            
-        except json.JSONDecodeError:
-            messages.error(request, "Configuração do banco de dados inválida")
-            return redirect('setup_wizard')
-    
-    def step_2_admin_user(self, request):
-        """Passo 2: Configuração do usuário administrador"""
-        admin_config = {
-            'username': request.POST.get('username'),
-            'email': request.POST.get('email'),
-            'password': request.POST.get('password'),
-            'first_name': request.POST.get('first_name', ''),
-            'last_name': request.POST.get('last_name', ''),
-        }
-        
-        # Validar dados
-        if not all([admin_config['username'], admin_config['email'], admin_config['password']]):
-            messages.error(request, "Todos os campos obrigatórios devem ser preenchidos")
-            return redirect('setup_wizard?step=2')
-        
-        if len(admin_config['password']) < 8:
-            messages.error(request, "A senha deve ter pelo menos 8 caracteres")
-            return redirect('setup_wizard?step=2')
-        
-        # Salvar progresso
-        self.save_progress('admin', admin_config)
-        
-        messages.success(request, "Configuração do administrador salva!")
-        return redirect('setup_wizard?step=3')
-    
-    def step_3_email_config(self, request):
-        """Passo 3: Configuração de email"""
-        email_config = {
-            'backend': request.POST.get('email_backend'),
-            'host': request.POST.get('email_host', ''),
-            'port': request.POST.get('email_port', ''),
-            'user': request.POST.get('email_user', ''),
-            'password': request.POST.get('email_password', ''),
-            'use_tls': request.POST.get('use_tls') == 'on',
-            'use_ssl': request.POST.get('use_ssl') == 'on',
-            'default_from': request.POST.get('default_from', ''),
-        }
-        
-        # Salvar progresso
-        self.save_progress('email', email_config)
-        
-        messages.success(request, "Configuração de email salva!")
-        return redirect('setup_wizard?step=4')
-    
-    def step_4_security_config(self, request):
-        """Passo 4: Configurações de segurança"""
-        security_config = {
-            'allowed_hosts': request.POST.get('allowed_hosts', ''),
-            'csrf_trusted_origins': request.POST.get('csrf_trusted_origins', ''),
-            'security_level': request.POST.get('security_level', 'standard'),
-            'enable_https': request.POST.get('enable_https') == 'on',
-            'session_timeout': request.POST.get('session_timeout', '3600'),
-        }
-        
-        # Salvar progresso
-        self.save_progress('security', security_config)
-        
-        messages.success(request, "Configurações de segurança salvas!")
-        return redirect('setup_wizard?step=5')
-    
-    def step_5_finalize(self, request):
-        """Passo 5: Finalizar configuração"""
-        try:
-            # Aplicar todas as configurações
-            if not self.apply_all_configurations():
-                messages.error(request, "Erro ao aplicar configurações")
-                return redirect('setup_wizard?step=5')
-            
-            # Limpar cache de progresso
-            cache.delete('setup_wizard_progress')
-            
-            # Remover arquivo de primeira instalação
-            first_install_file = Path(settings.BASE_DIR) / '.first_install'
-            if first_install_file.exists():
-                first_install_file.unlink()
-            
-            messages.success(request, "Configuração concluída com sucesso!")
-            return redirect('admin:index')
-            
-        except Exception as e:
-            logger.error(f"Erro na finalização: {e}", exc_info=True)
-            messages.error(request, f"Erro na finalização: {str(e)}")
-            return redirect('setup_wizard?step=5')
-    
     def test_database_connection(self, config):
         """Testa conexão com banco de dados"""
         try:
@@ -638,7 +526,7 @@ class SetupAPIView(View):
             config_data = request.POST.get('config', '{}')
             config = json.loads(config_data)
             
-            wizard = ImprovedSetupWizardView()
+            wizard = ImprovedSetupWizardViewZZZZZZ()
             success = wizard.test_database_connection(config)
             
             return JsonResponse({
@@ -659,7 +547,7 @@ class SetupAPIView(View):
             config_data = request.POST.get('config', '{}')
             config = json.loads(config_data)
             
-            wizard = ImprovedSetupWizardView()
+            wizard = ImprovedSetupWizardViewZZZZZZ()
             wizard.save_progress(step, config)
             
             return JsonResponse({
@@ -676,7 +564,7 @@ class SetupAPIView(View):
     def finalize_setup(self, request):
         """Finaliza configuração via API"""
         try:
-            wizard = ImprovedSetupWizardView()
+            wizard = ImprovedSetupWizardViewZZZZZZ()
             success = wizard.apply_all_configurations()
             
             if success:
@@ -703,9 +591,9 @@ class SetupAPIView(View):
 @never_cache
 def setup_redirect(request):
     """Redireciona para o wizard se necessário"""
-    wizard = ImprovedSetupWizardView()
+    wizard = ImprovedSetupWizardViewZZZZZZ()
     
     if wizard.is_first_installation():
-        return redirect('setup_wizard')
+        return redirect('setup_wizard_teste')
     else:
         return redirect('admin:index') 

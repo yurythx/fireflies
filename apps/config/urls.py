@@ -7,6 +7,9 @@ from apps.config.views import (
     UserUpdateView,
     UserDeleteView,
     SystemConfigView,
+    SetupWizardView,
+    SetupAPIView,
+    setup_redirect,
 )
 from apps.config.views.advanced_config_views import (
     EnvironmentVariablesView,
@@ -38,11 +41,6 @@ from apps.config.views.database_views import (
     database_apply_production,
     database_quick_setup,
 )
-from apps.config.views.setup_views import (
-    SetupWizardView,
-    SetupAPIView,
-    setup_redirect,
-)
 
 
 
@@ -50,7 +48,7 @@ app_name = 'config'
 
 urlpatterns = [
     # Setup Wizard (primeira instalação)
-    path('setup/', SetupWizardView.as_view(), name='setup_wizard'),
+    path('wizard-teste/', SetupWizardView.as_view(), name='setup_wizard_teste'),
     path('setup/api/', SetupAPIView.as_view(), name='setup_api'),
     path('setup/redirect/', setup_redirect, name='setup_redirect'),
     

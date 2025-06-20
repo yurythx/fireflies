@@ -445,3 +445,48 @@ event_dispatcher.notify('article_created', article_instance)
 ```
 
 ---
+
+# FireFlies CMS
+
+Sistema de gerenciamento de conteúdo modular, seguro e moderno, com wizard de configuração inicial.
+
+## 🚀 Instalação e Setup
+
+### 1. Instale as dependências
+```bash
+pip install -r requirements.txt
+```
+
+### 2. Execute as migrações
+```bash
+python manage.py migrate
+```
+
+### 3. Inicie o servidor
+```bash
+python manage.py runserver
+```
+
+### 4. Wizard de Configuração
+Ao acessar o sistema pela primeira vez, você será redirecionado para o wizard de configuração inicial, onde poderá:
+- Configurar o banco de dados
+- Criar o usuário administrador
+- Configurar email
+- Definir opções de segurança
+
+## 🧙‍♂️ Wizard de Configuração
+O wizard pode ser acessado manualmente em `/config/setup/` se o arquivo `.first_install` existir na raiz do projeto.
+
+## 🧪 Testes
+```bash
+python manage.py test
+```
+
+## 🛡️ Segurança
+- Proteção CSRF
+- Validação de dados
+- Configuração de email segura
+
+## 📚 Documentação
+- O código segue padrões SOLID e arquitetura modular.
+- Veja a pasta `docs/` para guias de arquitetura e padrões.

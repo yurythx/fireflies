@@ -1,0 +1,353 @@
+{% extends 'config/base_config.html' %}
+{% load static %}
+
+{% block content %}
+<div class="wizard-container" style="max-width: 700px; margin: 0 auto; padding: 2rem 0;">
+    <h2 class="mb-4">🧙‍♂️ Setup Wizard - FireFlies</h2>
+    <div class="progress mb-4" style="height: 24px;">
+        {# Barra de progresso estática, largura baseada no passo atual #}
+        <div class="progress-bar bg-success" role="progressbar" style="width: {{ current_step|add:'0'|floatformat:0|default_if_none:'1' }}0%; min-width: 60px;" aria-valuenow="{{ current_step }}" aria-valuemin="1" aria-valuemax="{{ total_steps }}">
+            Passo {{ current_step }} de {{ total_steps }}
+        </div>
+    </div>
+    {% if messages %}
+        <div class="mb-3">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <div class="card mb-4">
+        <div class="card-body">
+            {% if step == '1' %}
+                <h4>Configuração do Banco de Dados</h4>
+                <p>Escolha o tipo de banco e configure os dados de acesso. Você pode usar um banco existente ou criar um novo.</p>
+                <form method="post" id="db-wizard-form">{% csrf_token %}
+                    <input type="hidden" name="step" value="1">
+                    <div class="mb-3">
+                        <label for="database_type">Tipo de Banco</label>
+                        <select name="database_type" id="database_type" class="form-control" onchange="showDbFields()">
+                            <option value="sqlite">SQLite</option>
+                            <option value="postgresql">PostgreSQL</option>
+                            <option value="mysql">MySQL</option>
+                        </select>
+                    </div>
+                    <div id="db-fields-sqlite" class="db-fields">
+                        <div class="mb-3">
+                            <label for="sqlite_existing">Usar banco existente</label>
+                            <select name="sqlite_existing" id="sqlite_existing" class="form-control">
+                                <option value="">-- Novo arquivo --</option>
+                                {% for db in available_databases.sqlite %}
+                                    <option value="{{ db.path }}">{{ db.name }} ({{ db.tables_count }} tabelas)</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="sqlite_name">Nome do arquivo (novo ou existente)</label>
+                            <input type="text" name="sqlite_name" id="sqlite_name" class="form-control" placeholder="db.sqlite3">
+                        </div>
+                    </div>
+                    <div id="db-fields-postgresql" class="db-fields" style="display:none;">
+                        <div class="mb-3">
+                            <label for="pg_host">Host</label>
+                            <input type="text" name="pg_host" id="pg_host" class="form-control" placeholder="localhost">
+                        </div>
+                        <div class="mb-3">
+                            <label for="pg_port">Porta</label>
+                            <input type="number" name="pg_port" id="pg_port" class="form-control" placeholder="5432">
+                        </div>
+                        <div class="mb-3">
+                            <label for="pg_user">Usuário</label>
+                            <input type="text" name="pg_user" id="pg_user" class="form-control" placeholder="postgres">
+                        </div>
+                        <div class="mb-3">
+                            <label for="pg_password">Senha</label>
+                            <input type="password" name="pg_password" id="pg_password" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label for="pg_existing">Usar banco existente</label>
+                            <select name="pg_existing" id="pg_existing" class="form-control">
+                                <option value="">-- Novo banco --</option>
+                                {% for instance in available_databases.postgresql %}
+                                    {% for db in instance.databases %}
+                                        <option value="{{ db.name }}">{{ db.name }} ({{ db.tables_count }} tabelas)</option>
+                                    {% endfor %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="pg_name">Nome do banco (novo ou existente)</label>
+                            <input type="text" name="pg_name" id="pg_name" class="form-control">
+                        </div>
+                    </div>
+                    <div id="db-fields-mysql" class="db-fields" style="display:none;">
+                        <div class="mb-3">
+                            <label for="mysql_host">Host</label>
+                            <input type="text" name="mysql_host" id="mysql_host" class="form-control" placeholder="localhost">
+                        </div>
+                        <div class="mb-3">
+                            <label for="mysql_port">Porta</label>
+                            <input type="number" name="mysql_port" id="mysql_port" class="form-control" placeholder="3306">
+                        </div>
+                        <div class="mb-3">
+                            <label for="mysql_user">Usuário</label>
+                            <input type="text" name="mysql_user" id="mysql_user" class="form-control" placeholder="root">
+                        </div>
+                        <div class="mb-3">
+                            <label for="mysql_password">Senha</label>
+                            <input type="password" name="mysql_password" id="mysql_password" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label for="mysql_existing">Usar banco existente</label>
+                            <select name="mysql_existing" id="mysql_existing" class="form-control">
+                                <option value="">-- Novo banco --</option>
+                                {% for instance in available_databases.mysql %}
+                                    {% for db in instance.databases %}
+                                        <option value="{{ db.name }}">{{ db.name }} ({{ db.tables_count }} tabelas)</option>
+                                    {% endfor %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="mysql_name">Nome do banco (novo ou existente)</label>
+                            <input type="text" name="mysql_name" id="mysql_name" class="form-control">
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-secondary mb-2" onclick="testDbConnection()">Testar conexão</button>
+                    <span id="db-test-result" class="ml-2"></span>
+                    <button type="submit" class="btn btn-primary float-end">Próximo</button>
+                </form>
+                <script>
+                function showDbFields() {
+                    var type = document.getElementById('database_type').value;
+                    document.getElementById('db-fields-sqlite').style.display = (type === 'sqlite') ? '' : 'none';
+                    document.getElementById('db-fields-postgresql').style.display = (type === 'postgresql') ? '' : 'none';
+                    document.getElementById('db-fields-mysql').style.display = (type === 'mysql') ? '' : 'none';
+                }
+                document.addEventListener('DOMContentLoaded', showDbFields);
+                function testDbConnection() {
+                    var type = document.getElementById('database_type').value;
+                    var data = { type: type };
+                    if (type === 'sqlite') {
+                        data.name = document.getElementById('sqlite_name').value;
+                        data.existing = document.getElementById('sqlite_existing').value;
+                    } else if (type === 'postgresql') {
+                        data.host = document.getElementById('pg_host').value;
+                        data.port = document.getElementById('pg_port').value;
+                        data.user = document.getElementById('pg_user').value;
+                        data.password = document.getElementById('pg_password').value;
+                        data.name = document.getElementById('pg_name').value;
+                        data.existing = document.getElementById('pg_existing').value;
+                    } else if (type === 'mysql') {
+                        data.host = document.getElementById('mysql_host').value;
+                        data.port = document.getElementById('mysql_port').value;
+                        data.user = document.getElementById('mysql_user').value;
+                        data.password = document.getElementById('mysql_password').value;
+                        data.name = document.getElementById('mysql_name').value;
+                        data.existing = document.getElementById('mysql_existing').value;
+                    }
+                    var result = document.getElementById('db-test-result');
+                    result.innerHTML = 'Testando...';
+                    fetch('/config/setup/api/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': '{{ csrf_token }}' },
+                        body: 'action=test_connection&config=' + encodeURIComponent(JSON.stringify(data))
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            result.innerHTML = '<span class="text-success">Conexão bem-sucedida!</span>';
+                        } else {
+                            result.innerHTML = '<span class="text-danger">' + (data.error || 'Falha na conexão') + '</span>';
+                        }
+                    })
+                    .catch(() => { result.innerHTML = '<span class="text-danger">Erro ao testar conexão</span>'; });
+                }
+                </script>
+            {% elif step == '2' %}
+                <h4>Usuário Administrador</h4>
+                <p>Crie o usuário administrador do sistema. Todos os campos são obrigatórios, exceto nome e sobrenome.</p>
+                <form method="post" id="admin-wizard-form">{% csrf_token %}
+                    <input type="hidden" name="step" value="2">
+                    <div class="mb-3">
+                        <label for="username">Usuário</label>
+                        <input type="text" name="username" id="username" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email">Email</label>
+                        <input type="email" name="email" id="email" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password">Senha</label>
+                        <input type="password" name="password" id="password" class="form-control" minlength="8" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password_confirm">Confirme a Senha</label>
+                        <input type="password" name="password_confirm" id="password_confirm" class="form-control" minlength="8" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="first_name">Primeiro Nome (opcional)</label>
+                        <input type="text" name="first_name" id="first_name" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label for="last_name">Sobrenome (opcional)</label>
+                        <input type="text" name="last_name" id="last_name" class="form-control">
+                    </div>
+                    <button type="submit" class="btn btn-primary float-end">Próximo</button>
+                </form>
+                <script>
+                document.getElementById('admin-wizard-form').onsubmit = function(e) {
+                    var pass = document.getElementById('password').value;
+                    var pass2 = document.getElementById('password_confirm').value;
+                    if (pass !== pass2) {
+                        alert('As senhas não coincidem!');
+                        e.preventDefault();
+                        return false;
+                    }
+                    if (pass.length < 8) {
+                        alert('A senha deve ter pelo menos 8 caracteres!');
+                        e.preventDefault();
+                        return false;
+                    }
+                };
+                </script>
+            {% elif step == '3' %}
+                <h4>Configuração de Email</h4>
+                <p>Configure o envio de emails do sistema. Para desenvolvimento, use o backend Console. Para produção, configure SMTP.</p>
+                <form method="post" id="email-wizard-form">{% csrf_token %}
+                    <input type="hidden" name="step" value="3">
+                    <div class="mb-3">
+                        <label for="email_backend">Backend de Email</label>
+                        <select name="email_backend" id="email_backend" class="form-control" onchange="showEmailFields()">
+                            <option value="console">Console (desenvolvimento)</option>
+                            <option value="smtp">SMTP</option>
+                        </select>
+                    </div>
+                    <div id="smtp-fields" style="display:none;">
+                        <div class="mb-3">
+                            <label for="email_host">Servidor SMTP</label>
+                            <input type="text" name="email_host" id="email_host" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label for="email_port">Porta</label>
+                            <input type="number" name="email_port" id="email_port" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label for="email_user">Usuário</label>
+                            <input type="text" name="email_user" id="email_user" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label for="email_password">Senha</label>
+                            <input type="password" name="email_password" id="email_password" class="form-control">
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" name="use_tls" id="use_tls">
+                            <label class="form-check-label" for="use_tls">Usar TLS</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" name="use_ssl" id="use_ssl">
+                            <label class="form-check-label" for="use_ssl">Usar SSL</label>
+                        </div>
+                        <div class="mb-3">
+                            <label for="default_from">Remetente padrão (opcional)</label>
+                            <input type="text" name="default_from" id="default_from" class="form-control">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary float-end">Próximo</button>
+                </form>
+                <script>
+                function showEmailFields() {
+                    var backend = document.getElementById('email_backend').value;
+                    document.getElementById('smtp-fields').style.display = (backend === 'smtp') ? '' : 'none';
+                }
+                document.addEventListener('DOMContentLoaded', showEmailFields);
+                document.getElementById('email-wizard-form').onsubmit = function(e) {
+                    var backend = document.getElementById('email_backend').value;
+                    if (backend === 'smtp') {
+                        var required = ['email_host','email_port','email_user','email_password'];
+                        for (var i=0; i<required.length; i++) {
+                            var el = document.getElementById(required[i]);
+                            if (!el.value) {
+                                alert('Preencha todos os campos SMTP obrigatórios!');
+                                el.focus();
+                                e.preventDefault();
+                                return false;
+                            }
+                        }
+                    }
+                };
+                </script>
+            {% elif step == '4' %}
+                <h4>Opções de Segurança</h4>
+                <p>Você pode deixar tudo liberado (modo desenvolvimento) ou configurar manualmente as opções de segurança para produção.</p>
+                <form method="post" id="security-wizard-form">{% csrf_token %}
+                    <input type="hidden" name="step" value="4">
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="radio" name="security_mode" id="security_open" value="open" checked onclick="showSecurityFields()">
+                        <label class="form-check-label" for="security_open">Deixar tudo liberado (modo desenvolvimento)</label>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="radio" name="security_mode" id="security_manual" value="manual" onclick="showSecurityFields()">
+                        <label class="form-check-label" for="security_manual">Configurar opções de segurança manualmente</label>
+                    </div>
+                    <div id="security-fields" style="display:none;">
+                        <div class="mb-3">
+                            <label for="allowed_hosts">Allowed Hosts</label>
+                            <input type="text" name="allowed_hosts" id="allowed_hosts" class="form-control" placeholder="Ex: 127.0.0.1,localhost">
+                        </div>
+                        <div class="mb-3">
+                            <label for="csrf_trusted_origins">CSRF Trusted Origins</label>
+                            <input type="text" name="csrf_trusted_origins" id="csrf_trusted_origins" class="form-control" placeholder="Ex: http://localhost">
+                        </div>
+                        <div class="mb-3">
+                            <label for="security_level">Nível de Segurança</label>
+                            <select name="security_level" id="security_level" class="form-control">
+                                <option value="standard">Padrão</option>
+                                <option value="enhanced">Reforçado</option>
+                            </select>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" name="enable_https" id="enable_https">
+                            <label class="form-check-label" for="enable_https">Habilitar HTTPS</label>
+                        </div>
+                        <div class="mb-3">
+                            <label for="session_timeout">Tempo de sessão (segundos)</label>
+                            <input type="number" name="session_timeout" id="session_timeout" class="form-control" value="3600">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary float-end">Finalizar</button>
+                </form>
+                <script>
+                function showSecurityFields() {
+                    var manual = document.getElementById('security_manual').checked;
+                    document.getElementById('security-fields').style.display = manual ? '' : 'none';
+                }
+                document.addEventListener('DOMContentLoaded', showSecurityFields);
+                </script>
+            {% elif step == '5' %}
+                <h4>Finalização</h4>
+                <p>Configuração concluída! O sistema está pronto para uso.</p>
+                <a href="/" class="btn btn-success">Ir para o sistema</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5>Informações do Sistema</h5>
+            <ul>
+                <li><b>OS:</b> {{ system_info.os }} {{ system_info.os_version }}</li>
+                <li><b>Python:</b> {{ system_info.python_version }}</li>
+                <li><b>Django:</b> {{ system_info.django_version }}</li>
+                <li><b>CPU:</b> {{ system_info.cpu_count }}</li>
+                <li><b>Memória:</b> {{ system_info.memory_total|filesizeformat }}</li>
+            </ul>
+            <h5>Recomendações</h5>
+            <ul>
+                <li><b>Banco recomendado:</b> {{ recommendations.database }}</li>
+                <li><b>Email backend recomendado:</b> {{ recommendations.email_backend }}</li>
+                <li><b>Nível de segurança recomendado:</b> {{ recommendations.security_level }}</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %} 

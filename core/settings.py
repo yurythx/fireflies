@@ -626,7 +626,6 @@ SENTRY_DSN = os.environ.get('SENTRY_DSN', '')
 HEALTH_CHECK_ENABLED = os.environ.get('HEALTH_CHECK_ENABLED', 'True').lower() == 'true'
 
 # Configurações de desenvolvimento
-DJANGO_DEBUG_TOOLBAR = os.environ.get('DJANGO_DEBUG_TOOLBAR', 'False').lower() == 'true'
 SHOW_SQL_QUERIES = os.environ.get('SHOW_SQL_QUERIES', 'False').lower() == 'true'
 
 # =============================================================================
@@ -651,12 +650,6 @@ if ENVIRONMENT == 'production':
 
 # Configurações específicas para desenvolvimento
 elif ENVIRONMENT == 'development':
-    # Debug toolbar se habilitado
-    if DJANGO_DEBUG_TOOLBAR:
-        INSTALLED_APPS.append('debug_toolbar')
-        MIDDLEWARE.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
-        INTERNAL_IPS = ['127.0.0.1', 'localhost']
-
     # Mostrar queries SQL se habilitado
     if SHOW_SQL_QUERIES:
         LOGGING['loggers']['django.db.backends'] = {
@@ -789,3 +782,6 @@ TINYMCE_CONFIGS = {
         ],
     }
 }
+
+# Versão do sistema para uso no wizard e exibição
+VERSION = '1.0.0'
