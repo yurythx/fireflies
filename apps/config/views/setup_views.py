@@ -120,19 +120,17 @@ class SetupAPIView(View):
     def finalize_setup(self, request):
         """Finaliza a configuração"""
         try:
-            # Aplicar configurações
-            wizard = SetupWizardView()
-            wizard.apply_all_configurations()
+            # Usar o orchestrator para aplicar configurações
+            from .setup_wizard import orchestrator
+            success = orchestrator.apply_all_configurations()
             
-            # Limpar arquivos temporários
-            wizard.cleanup_temp_files()
+            if success:
+                # Remover arquivo de primeira instalação
+                first_install_file = Path(settings.BASE_DIR) / '.first_install'
+                if first_install_file.exists():
+                    first_install_file.unlink()
             
-            # Remover arquivo de primeira instalação
-            first_install_file = Path(settings.BASE_DIR) / '.first_install'
-            if first_install_file.exists():
-                first_install_file.unlink()
-            
-            return JsonResponse({'success': True, 'message': 'Configuração finalizada!'})
+            return JsonResponse({'success': success, 'message': 'Configuração finalizada!' if success else 'Erro na finalização'})
             
         except Exception as e:
             return JsonResponse({'error': f'Erro ao finalizar: {str(e)}'}, status=500)
@@ -146,6 +144,6 @@ def setup_redirect(request):
     first_install_file = Path(settings.BASE_DIR) / '.first_install'
     
     if first_install_file.exists():
-        return redirect('setup_wizard')
+        return redirect('config:setup_wizard')
     else:
         return redirect('pages:home')  # Redireciona para a página inicial do app pages 

@@ -11,7 +11,7 @@ from .database_views import (
     DatabaseConfigListView, DatabaseConfigCreateView, DatabaseConfigUpdateView,
     DatabaseConfigDeleteView
 )
-from .setup_wizard_improved import ImprovedSetupWizardViewZZZZZZ as SetupWizardView, SetupAPIView, setup_redirect
+from .setup_wizard_view import SetupWizardView, SetupAPIView, setup_redirect
 
 __all__ = [
     'ConfigDashboardView',
@@ -38,4 +38,5 @@ __all__ = [
     'DatabaseConfigDeleteView',
     'SetupWizardView',
     'SetupAPIView',
+    'setup_redirect',
 ]

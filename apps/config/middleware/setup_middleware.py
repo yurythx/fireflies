@@ -30,8 +30,11 @@ class SetupMiddleware:
         if self.is_first_installation():
             # Verificar se a URL atual não está na lista de exceções
             if not self.is_exempt_url(request.path):
+                print(f"SetupMiddleware: Redirecting {request.path} to setup wizard")
                 # Redirecionar para setup
-                return redirect('config:setup_wizard_teste')
+                return redirect('config:setup_wizard')
+            else:
+                print(f"SetupMiddleware: Allowing {request.path} (exempt)")
         
         response = self.get_response(request)
         return response
@@ -45,8 +48,10 @@ class SetupMiddleware:
         """Verifica se a URL está na lista de exceções"""
         # URLs que não devem ser redirecionadas para o wizard
         exempt_urls = [
+            '/config/wizard/',
             '/config/wizard-teste/',
             '/config/setup/api/',
+            '/config/setup-wizard/api/',
             '/config/setup/redirect/',
             '/admin/',
             '/accounts/login/',

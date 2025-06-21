@@ -152,89 +152,40 @@ class DynamicEmailConfigService(IEmailConfigService):
             logger.error(f'Erro ao atualizar variáveis de ambiente: {e}')
 
     def _update_env_file(self, config_dict, env_mapping):
-        """Atualiza o arquivo .env com as configurações de email"""
+        """Atualiza o arquivo .env com as configurações de email usando python-dotenv."""
         try:
-            from pathlib import Path
-            from django.conf import settings
-            from datetime import datetime
+            from dotenv import find_dotenv, set_key
 
-            # Caminho para o arquivo .env
-            env_path = Path(settings.BASE_DIR) / '.env'
+            # Encontra o arquivo .env na raiz do projeto
+            env_path = find_dotenv()
 
-            # Lê o conteúdo atual do .env
-            if env_path.exists():
-                with open(env_path, 'r', encoding='utf-8') as f:
-                    lines = f.readlines()
-            else:
-                lines = []
+            # Se o .env não existir, cria um
+            if not env_path:
+                from pathlib import Path
+                from django.conf import settings
+                env_path = Path(settings.BASE_DIR) / '.env'
+                env_path.touch()
+                logger.info("Arquivo .env não encontrado, um novo foi criado.")
 
-            # Cria backup antes de modificar
-            if env_path.exists():
-                backup_path = Path(settings.BASE_DIR) / f'.env.backup.email.{datetime.now().strftime("%Y%m%d_%H%M%S")}'
-                import shutil
-                shutil.copy2(env_path, backup_path)
-                logger.info(f'Backup do .env criado: {backup_path.name}')
-
-            # Processa as linhas existentes
-            updated_lines = []
-            updated_keys = set()
-
-            for line in lines:
-                line_stripped = line.strip()
-
-                # Se é uma linha de comentário ou vazia, mantém
-                if not line_stripped or line_stripped.startswith('#'):
-                    updated_lines.append(line)
-                    continue
-
-                # Se é uma variável
-                if '=' in line_stripped:
-                    key = line_stripped.split('=')[0].strip()
-
-                    # Se é uma variável de email que estamos atualizando
-                    if key in env_mapping.values():
-                        # Encontra a chave de configuração correspondente
-                        config_key = None
-                        for ck, ek in env_mapping.items():
-                            if ek == key:
-                                config_key = ck
-                                break
-
-                        if config_key and config_key in config_dict:
-                            value = config_dict[config_key]
-                            if isinstance(value, bool):
-                                value = 'True' if value else 'False'
-                            elif value is None:
-                                value = ''
-                            
-                            updated_lines.append(f'{key}={value}\n')
-                            updated_keys.add(key)
-                        else:
-                            updated_lines.append(line)
-                    else:
-                        updated_lines.append(line)
-                else:
-                    updated_lines.append(line)
-
-            # Adiciona variáveis que não existiam
+            # Itera sobre o mapeamento e atualiza as chaves no arquivo .env
             for config_key, env_key in env_mapping.items():
-                if env_key not in updated_keys and config_key in config_dict:
+                if config_key in config_dict:
                     value = config_dict[config_key]
+                    
+                    # Converte booleano para string
                     if isinstance(value, bool):
                         value = 'True' if value else 'False'
+                    # Converte None para string vazia
                     elif value is None:
                         value = ''
                     
-                    updated_lines.append(f'{env_key}={value}\n')
+                    # Usa set_key para atualizar a variável de forma segura
+                    set_key(env_path, env_key, str(value))
 
-            # Salva o arquivo atualizado
-            with open(env_path, 'w', encoding='utf-8') as f:
-                f.writelines(updated_lines)
-
-            logger.info(f'Arquivo .env atualizado com configurações de email')
+            logger.info(f'Arquivo .env atualizado com sucesso em: {env_path}')
 
         except Exception as e:
-            logger.error(f'Erro ao atualizar arquivo .env: {e}')
+            logger.error(f'Erro ao atualizar arquivo .env com python-dotenv: {e}')
     
     def save_config(self, config_dict, user=None, description="Configuração de email"):
         """Salva configuração no repositório"""

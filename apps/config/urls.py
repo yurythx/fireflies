@@ -48,8 +48,11 @@ app_name = 'config'
 
 urlpatterns = [
     # Setup Wizard (primeira instalação)
+    path('wizard/', SetupWizardView.as_view(), name='setup_wizard'),
     path('wizard-teste/', SetupWizardView.as_view(), name='setup_wizard_teste'),
     path('setup/api/', SetupAPIView.as_view(), name='setup_api'),
+    path('setup-wizard/api/database-step/', SetupAPIView.as_view(), name='setup_database_api'),
+    path('setup-wizard/api/finalize/', SetupAPIView.as_view(), name='setup_finalize_api'),
     path('setup/redirect/', setup_redirect, name='setup_redirect'),
     
     # Dashboard

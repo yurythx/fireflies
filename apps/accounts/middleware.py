@@ -302,8 +302,16 @@ class SmartRedirectMiddleware:
     def process_view(self, request, view_func, view_args, view_kwargs):
         """Processa views antes da execução"""
         
+        # Debug logs
+        print(f"SmartRedirectMiddleware: Processing {request.path}")
+        print(f"SmartRedirectMiddleware: First installation: {self.is_first_installation()}")
+        print(f"SmartRedirectMiddleware: Is setup wizard: {self.is_setup_wizard(request.path)}")
+        print(f"SmartRedirectMiddleware: Is restricted area: {self.is_restricted_area(request.path)}")
+        print(f"SmartRedirectMiddleware: User authenticated: {request.user.is_authenticated}")
+        
         # Verificar se é primeira instalação e permitir acesso ao wizard
         if self.is_first_installation() and self.is_setup_wizard(request.path):
+            print("SmartRedirectMiddleware: Allowing setup wizard access")
             return None
         
         # Se é uma tentativa de acesso a área restrita
@@ -311,6 +319,7 @@ class SmartRedirectMiddleware:
             
             # Se não está logado
             if not request.user.is_authenticated:
+                print("SmartRedirectMiddleware: Redirecting to login")
                 return self.redirect_to_smart_login(request)
             
             # Se está logado mas pode não ter permissão
@@ -330,8 +339,12 @@ class SmartRedirectMiddleware:
         setup_paths = [
             '/config/setup/',
             '/config/setup/api/',
+            '/config/wizard/',
             '/config/wizard-teste/',
             '/config/wizard-teste/api/',
+            '/config/setup-wizard/',
+            '/config/setup-wizard/api/',
+            '/config/setup-wizard/api/finalize/',
         ]
         return any(path.startswith(setup_path) for setup_path in setup_paths)
     

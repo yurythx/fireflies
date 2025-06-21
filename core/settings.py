@@ -107,14 +107,8 @@ DEBUG = get_debug_setting()
 
 # Hosts permitidos com validação
 def get_allowed_hosts() -> List[str]:
-    """Configura ALLOWED_HOSTS baseado no ambiente"""
-    hosts_env = os.environ.get('ALLOWED_HOSTS', '')
-    # Permitir * em qualquer ambiente, inclusive produção
-    if hosts_env == '*':
-        return ['*']
-    if hosts_env:
-        return [host.strip() for host in hosts_env.split(',') if host.strip()]
-    return ['localhost', '127.0.0.1', 'testserver']
+    """Configura ALLOWED_HOSTS para permitir todos os hosts, conforme solicitado."""
+    return ['*']
 
 ALLOWED_HOSTS = get_allowed_hosts()
 

@@ -18,6 +18,9 @@ class HomeView(View):
     
     def get(self, request):
         """Exibe a página inicial"""
+        # Verificar se o setup foi concluído
+        setup_completed = request.session.pop('setup_completed', False)
+        
         # Inicializa service
         page_service = PageService(DjangoPageRepository())
         
@@ -32,6 +35,7 @@ class HomeView(View):
                     'is_homepage': True,
                     'meta_title': 'Bem-vindo ao FireFlies',
                     'meta_description': 'Sistema de gerenciamento de conteúdo moderno com arquitetura limpa',
+                    'setup_completed': setup_completed,
                 }
                 return render(request, 'pages/home_default.html', context)
             
@@ -52,6 +56,7 @@ class HomeView(View):
                 'meta_title': homepage.seo_title,
                 'meta_description': homepage.seo_description,
                 'meta_keywords': homepage.meta_keywords,
+                'setup_completed': setup_completed,
             }
             
             # Usa template personalizado se definido
@@ -67,6 +72,7 @@ class HomeView(View):
                 'error': str(e),
                 'meta_title': 'FireFlies - Sistema de Gerenciamento',
                 'meta_description': 'Sistema de gerenciamento de conteúdo',
+                'setup_completed': setup_completed,
             }
             return render(request, 'pages/home_default.html', context)
 
