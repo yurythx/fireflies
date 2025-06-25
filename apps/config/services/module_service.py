@@ -214,8 +214,8 @@ class ModuleService(IModuleService):
         }
     
     def get_installed_apps_list(self) -> List[str]:
-        """Retorna lista de apps instalados"""
-        return list(settings.INSTALLED_APPS)
+        """Retorna lista de apps locais definidos explicitamente em settings.LOCAL_APPS"""
+        return getattr(settings, 'LOCAL_APPS', [])
     
     def sync_with_installed_apps(self, user: User = None) -> Dict:
         """Sincroniza módulos com apps instalados"""

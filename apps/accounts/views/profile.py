@@ -42,6 +42,7 @@ class UserProfileView(LoginRequiredMixin, View):
             }
             return render(request, self.template_name, context)
         except Exception as e:
+            print('DEBUG EXCEPTION PERFIL:', e)
             messages.error(request, f'Erro ao carregar perfil: {str(e)}')
             return redirect('accounts:profile')
 

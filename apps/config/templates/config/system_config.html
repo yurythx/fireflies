@@ -3,14 +3,12 @@
 {% block config_title %}Configurações do Sistema{% endblock %}
 
 {% block breadcrumbs %}
-<div class="container">
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'config:dashboard' %}">Dashboard</a></li>
-            <li class="breadcrumb-item active">Configurações do Sistema</li>
-        </ol>
-    </nav>
-</div>
+    {% with breadcrumbs=[
+        {"title": "Dashboard", "url": url 'config:dashboard'},
+        {"title": "Configurações do Sistema", "is_current": True}
+    ] %}
+        {{ block.super }}
+    {% endwith %}
 {% endblock %}
 
 {% block config_content %}
@@ -203,7 +201,7 @@
                                             </div>
                                             <div class="flex-grow-1 ms-3">
                                                 <h6 class="mb-1">Variáveis de Ambiente</h6>
-                                                <p class="small mb-2 opacity-75">Gerencie variáveis do sistema</p>
+                                                <p class="small mb-2 opacity-75">Gerencie configurações do Django e variáveis customizadas</p>
                                                 <a href="{% url 'config:environment_variables' %}" class="btn btn-light btn-sm">
                                                     <i class="fas fa-code me-1"></i>Configurar
                                                 </a>
@@ -253,32 +251,34 @@
                                             <h6 class="mb-0"><i class="fas fa-info-circle me-1"></i>Informações Básicas</h6>
                                         </div>
                                         <div class="card-body">
-                                            <table class="table table-sm table-borderless">
-                                                <tr>
-                                                    <td class="text-muted">Plataforma:</td>
-                                                    <td>{{ system_info.platform }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-muted">Arquitetura:</td>
-                                                    <td>{{ system_info.architecture }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-muted">Hostname:</td>
-                                                    <td>{{ system_info.hostname }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-muted">Python:</td>
-                                                    <td>{{ system_info.python_version }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-muted">Processador:</td>
-                                                    <td>{{ system_info.processor|truncatechars:30 }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-muted">Uptime:</td>
-                                                    <td>{{ system_info.uptime }}</td>
-                                                </tr>
-                                            </table>
+                                            <div class="table-responsive">
+                                                <table class="table table-sm table-borderless">
+                                                    <tr>
+                                                        <td class="text-muted">Plataforma:</td>
+                                                        <td>{{ system_info.platform }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted">Arquitetura:</td>
+                                                        <td>{{ system_info.architecture }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted">Hostname:</td>
+                                                        <td>{{ system_info.hostname }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted">Python:</td>
+                                                        <td>{{ system_info.python_version }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted">Processador:</td>
+                                                        <td>{{ system_info.processor|truncatechars:30 }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted">Uptime:</td>
+                                                        <td>{{ system_info.uptime }}</td>
+                                                    </tr>
+                                                </table>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -343,44 +343,46 @@
                                         <h6 class="mb-0"><i class="fab fa-python me-1"></i>Configurações Básicas</h6>
                                     </div>
                                     <div class="card-body">
-                                        <table class="table table-sm table-borderless">
-                                            <tr>
-                                                <td class="text-muted">Versão Django:</td>
-                                                <td>{{ django_info.version|default:"N/A" }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-muted">Modo Debug:</td>
-                                                <td>
-                                                    {% if django_info.debug %}
-                                                        <span class="badge bg-warning">Ativo</span>
-                                                    {% else %}
-                                                        <span class="badge bg-success">Inativo</span>
-                                                    {% endif %}
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-muted">Secret Key:</td>
-                                                <td>
-                                                    {% if django_info.secret_key_set %}
-                                                        <span class="badge bg-success">Configurada</span>
-                                                    {% else %}
-                                                        <span class="badge bg-danger">Não configurada</span>
-                                                    {% endif %}
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-muted">Timezone:</td>
-                                                <td>{{ django_info.time_zone }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-muted">Idioma:</td>
-                                                <td>{{ django_info.language_code }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-muted">Apps Instalados:</td>
-                                                <td>{{ django_info.installed_apps_count }}</td>
-                                            </tr>
-                                        </table>
+                                        <div class="table-responsive">
+                                            <table class="table table-sm table-borderless">
+                                                <tr>
+                                                    <td class="text-muted">Versão Django:</td>
+                                                    <td>{{ django_info.version|default:"N/A" }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-muted">Modo Debug:</td>
+                                                    <td>
+                                                        {% if django_info.debug %}
+                                                            <span class="badge bg-warning">Ativo</span>
+                                                        {% else %}
+                                                            <span class="badge bg-success">Inativo</span>
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-muted">Secret Key:</td>
+                                                    <td>
+                                                        {% if django_info.secret_key_set %}
+                                                            <span class="badge bg-success">Configurada</span>
+                                                        {% else %}
+                                                            <span class="badge bg-danger">Não configurada</span>
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-muted">Timezone:</td>
+                                                    <td>{{ django_info.time_zone }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-muted">Idioma:</td>
+                                                    <td>{{ django_info.language_code }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-muted">Apps Instalados:</td>
+                                                    <td>{{ django_info.installed_apps_count }}</td>
+                                                </tr>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -391,40 +393,42 @@
                                         <h6 class="mb-0"><i class="fas fa-cog me-1"></i>Configurações Avançadas</h6>
                                     </div>
                                     <div class="card-body">
-                                        <table class="table table-sm table-borderless">
-                                            <tr>
-                                                <td class="text-muted">Middlewares:</td>
-                                                <td>{{ django_info.middleware_count }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-muted">Internacionalização:</td>
-                                                <td>
-                                                    {% if django_info.use_i18n %}
-                                                        <span class="badge bg-success">Ativa</span>
-                                                    {% else %}
-                                                        <span class="badge bg-secondary">Inativa</span>
-                                                    {% endif %}
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-muted">Timezone Support:</td>
-                                                <td>
-                                                    {% if django_info.use_tz %}
-                                                        <span class="badge bg-success">Ativo</span>
-                                                    {% else %}
-                                                        <span class="badge bg-secondary">Inativo</span>
-                                                    {% endif %}
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-muted">Static URL:</td>
-                                                <td><code>{{ django_info.static_url }}</code></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-muted">Media URL:</td>
-                                                <td><code>{{ django_info.media_url }}</code></td>
-                                            </tr>
-                                        </table>
+                                        <div class="table-responsive">
+                                            <table class="table table-sm table-borderless">
+                                                <tr>
+                                                    <td class="text-muted">Middlewares:</td>
+                                                    <td>{{ django_info.middleware_count }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-muted">Internacionalização:</td>
+                                                    <td>
+                                                        {% if django_info.use_i18n %}
+                                                            <span class="badge bg-success">Ativa</span>
+                                                        {% else %}
+                                                            <span class="badge bg-secondary">Inativa</span>
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-muted">Timezone Support:</td>
+                                                    <td>
+                                                        {% if django_info.use_tz %}
+                                                            <span class="badge bg-success">Ativo</span>
+                                                        {% else %}
+                                                            <span class="badge bg-secondary">Inativo</span>
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-muted">Static URL:</td>
+                                                    <td><code>{{ django_info.static_url }}</code></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-muted">Media URL:</td>
+                                                    <td><code>{{ django_info.media_url }}</code></td>
+                                                </tr>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -468,30 +472,32 @@
                                         <h6 class="mb-0"><i class="fas fa-database me-1"></i>Informações de Conexão</h6>
                                     </div>
                                     <div class="card-body">
-                                        <table class="table table-sm table-borderless">
-                                            <tr>
-                                                <td class="text-muted">Engine:</td>
-                                                <td>{{ database_info.engine|title }}</td>
-                                            </tr>
-                                            {% if not database_info.error %}
-                                            <tr>
-                                                <td class="text-muted">Versão:</td>
-                                                <td>{{ database_info.version|truncatechars:50 }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-muted">Banco:</td>
-                                                <td>{{ database_info.name }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-muted">Host:</td>
-                                                <td>{{ database_info.host }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-muted">Porta:</td>
-                                                <td>{{ database_info.port }}</td>
-                                            </tr>
-                                            {% endif %}
-                                        </table>
+                                        <div class="table-responsive">
+                                            <table class="table table-sm table-borderless">
+                                                <tr>
+                                                    <td class="text-muted">Engine:</td>
+                                                    <td>{{ database_info.engine|title }}</td>
+                                                </tr>
+                                                {% if not database_info.error %}
+                                                <tr>
+                                                    <td class="text-muted">Versão:</td>
+                                                    <td>{{ database_info.version|truncatechars:50 }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-muted">Banco:</td>
+                                                    <td>{{ database_info.name }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-muted">Host:</td>
+                                                    <td>{{ database_info.host }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-muted">Porta:</td>
+                                                    <td>{{ database_info.port }}</td>
+                                                </tr>
+                                                {% endif %}
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

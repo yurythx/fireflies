@@ -448,45 +448,39 @@ event_dispatcher.notify('article_created', article_instance)
 
 # FireFlies CMS
 
-Sistema de gerenciamento de conteúdo modular, seguro e moderno, com wizard de configuração inicial.
+## Visão Geral
+Sistema de gerenciamento de conteúdo moderno, modular e responsivo, com suporte a temas claro/escuro, autenticação, artigos, páginas estáticas e painel administrativo.
 
-## 🚀 Instalação e Setup
+## Estrutura
+- `apps/accounts/`: Autenticação, perfis, registro, login.
+- `apps/articles/`: Artigos, categorias, comentários.
+- `apps/config/`: Configurações, módulos, permissões, painel admin.
+- `apps/pages/`: Páginas estáticas, navegação, SEO.
+- `core/`: Configurações globais do Django.
 
-### 1. Instale as dependências
+## Tecnologias
+- Python 3, Django 4+
+- Bootstrap 5, SCSS/CSS customizado
+- SQLite/PostgreSQL
+- Gunicorn, Nginx (produção)
+
+## Como rodar localmente
 ```bash
+git clone <repo>
+cd fireflies
+python -m venv venv
+source venv/bin/activate  # ou venv\Scripts\activate no Windows
 pip install -r requirements.txt
-```
-
-### 2. Execute as migrações
-```bash
+cp .env.example .env  # configure as variáveis
 python manage.py migrate
-```
-
-### 3. Inicie o servidor
-```bash
+python manage.py createsuperuser
 python manage.py runserver
 ```
 
-### 4. Wizard de Configuração
-Ao acessar o sistema pela primeira vez, você será redirecionado para o wizard de configuração inicial, onde poderá:
-- Configurar o banco de dados
-- Criar o usuário administrador
-- Configurar email
-- Definir opções de segurança
-
-## 🧙‍♂️ Wizard de Configuração
-O wizard pode ser acessado manualmente em `/config/setup/` se o arquivo `.first_install` existir na raiz do projeto.
-
-## 🧪 Testes
+## Rodando os testes
 ```bash
 python manage.py test
 ```
 
-## 🛡️ Segurança
-- Proteção CSRF
-- Validação de dados
-- Configuração de email segura
-
-## 📚 Documentação
-- O código segue padrões SOLID e arquitetura modular.
-- Veja a pasta `docs/` para guias de arquitetura e padrões.
+## Como contribuir
+- Faça um fork, crie uma branch, envie um PR.

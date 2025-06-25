@@ -28,15 +28,7 @@
 
                 <!-- Navigation Links -->
                 <div class="collapse navbar-collapse" id="navbarNav">
-                    <!-- Config Navigation -->
                     <ul class="navbar-nav me-auto">
-                        <!-- Indicador de que estamos no Config -->
-                        <li class="nav-item">
-                            <span class="nav-link text-django-green fw-bold">
-                                <i class="fas fa-cogs me-1"></i>Painel de Administração
-                            </span>
-                        </li>
-
                         <!-- Link para voltar ao site -->
                         <li class="nav-item">
                             <a class="nav-link text-info" href="{% url 'pages:home' %}">
@@ -83,24 +75,6 @@
                                         <i class="fas fa-user-circle me-2"></i>Meu Perfil
                                     </a></li>
 
-                                    <!-- Admin Links -->
-                                    {% if user.is_staff %}
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li>
-                                            <h6 class="dropdown-header text-django-green text-sans text-body">
-                                                <i class="fas fa-cog me-2"></i>Administração
-                                            </h6>
-                                        </li>
-                                        <li><a class="dropdown-item" href="{% url 'config:dashboard' %}">
-                                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-                                        </a></li>
-                                        <li><a class="dropdown-item" href="/admin/">
-                                            <i class="fas fa-tools me-2"></i>Django Admin
-                                        </a></li>
-                                    {% endif %}
-
-                                    <li><hr class="dropdown-divider"></li>
-
                                     <!-- Settings -->
                                     <li><a class="dropdown-item" href="{% url 'accounts:settings' %}">
                                         <i class="fas fa-cog me-2"></i>Configurações
@@ -131,34 +105,15 @@
 
     <!-- Breadcrumbs -->
     {% block breadcrumbs %}
-    {% if breadcrumbs %}
-    <nav aria-label="breadcrumb" class="bg-secondary border-bottom">
-        <div class="container">
-            <ol class="breadcrumb mb-0 py-2">
-                {% for breadcrumb in breadcrumbs %}
-                    {% if breadcrumb.is_current %}
-                        <li class="breadcrumb-item active" aria-current="page">
-                            {{ breadcrumb.title }}
-                        </li>
-                    {% else %}
-                        <li class="breadcrumb-item">
-                            <a href="{{ breadcrumb.url }}" class="text-decoration-none">
-                                {{ breadcrumb.title }}
-                            </a>
-                        </li>
-                    {% endif %}
-                {% endfor %}
-            </ol>
-        </div>
-    </nav>
-    {% endif %}
+        {% include 'includes/_breadcrumbs.html' with breadcrumbs=breadcrumbs %}
     {% endblock %}
 
     <!-- Main Content with Sidebar -->
     <main id="main-content" class="flex-shrink-0">
         <div class="container-fluid">
             <div class="row">
-                <!-- Sidebar -->
+                <!-- Sidebar (apenas para admin/config) -->
+                {# Este include é específico do admin. Todos os outros includes globais (head, nav, footer, toasts, breadcrumbs) estão centralizados em apps/pages/templates/includes/. #}
                 {% include 'config/includes/sidebar.html' %}
 
                 <!-- Main content area -->

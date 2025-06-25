@@ -87,7 +87,11 @@ class ProfileService(IProfileService):
             # Contar comentários se o app articles estiver disponível
             try:
                 Comment = apps.get_model('articles', 'Comment')
-                stats['total_comments'] = Comment.objects.filter(author=user).count()
+                # Tenta pelo campo 'user', se não existir tenta 'author'
+                if hasattr(Comment, 'user'):
+                    stats['total_comments'] = Comment.objects.filter(user=user).count()
+                elif hasattr(Comment, 'author'):
+                    stats['total_comments'] = Comment.objects.filter(author=user).count()
             except (LookupError, AttributeError):
                 pass
             

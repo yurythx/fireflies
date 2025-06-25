@@ -5,6 +5,16 @@
 {% block meta_description %}{{ article.seo_description|default:article.excerpt|default:"" }}{% endblock %}
 {% block meta_keywords %}{{ article.meta_keywords|default:"" }}{% endblock %}
 
+{% block breadcrumbs %}
+    {% with breadcrumbs=[
+        {"title": "Home", "url": url 'pages:home'},
+        {"title": "Artigos", "url": url 'articles:article_list'},
+        {"title": article.title, "is_current": True}
+    ] %}
+        {{ block.super }}
+    {% endwith %}
+{% endblock %}
+
 {% block content %}
 <div class="container my-5">
     <div class="row">

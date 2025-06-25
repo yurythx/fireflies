@@ -7,5 +7,5 @@ class AccountsConfig(AppConfig):
     verbose_name = "Autenticação e Usuários"
 
     def ready(self):
-        # Importa os signals quando o app estiver pronto
-        import apps.accounts.signals
+        # import apps.accounts.signals  # Removido pois o arquivo não existe mais
+        pass

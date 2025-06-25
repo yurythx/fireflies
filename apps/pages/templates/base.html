@@ -83,5 +83,10 @@
     }
     </script>
     {% endblock %}
+
+    <!-- Breadcrumbs -->
+    {% block breadcrumbs %}
+        {% include 'includes/_breadcrumbs.html' with breadcrumbs=breadcrumbs %}
+    {% endblock %}
 </body>
 </html>

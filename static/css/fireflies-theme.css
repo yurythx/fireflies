@@ -2,13 +2,62 @@
 
 /* CSS Variables for FireFlies Theme */
 :root {
-    /* FireFlies Brand Colors (inspired by TLOU) */
+    /* Paleta revisada para melhor contraste e sem amarelo predominante */
     --fireflies-green: #2d5a27;
     --fireflies-green-light: #4a7c59;
-    --fireflies-green-glow: #6b8e23;
-    --fireflies-yellow: #ffd700;
-    --fireflies-yellow-glow: #ffff00;
-    
+    --fireflies-green-glow: #43a047;
+    --fireflies-blue: #1976d2;
+    --fireflies-blue-light: #90caf9;
+    --fireflies-gray: #23272a;
+    --fireflies-gray-light: #f8f9fa;
+    --fireflies-gray-dark: #181a1b;
+
+    /* Django Brand Colors */
+    --django-green-dark: #092E20;
+    --django-green: #0C4B33;
+    --django-green-light: #44B78B;
+    --django-blue: #66B2FF;
+
+    /* Base */
+    --color-bg-light: #fff;
+    --color-surface-light: #fff;
+    --color-text-light: #222;
+    --color-text-secondary-light: #6c757d;
+    --color-border-light: #dee2e6;
+
+    /* Primary */
+    --primary-color: var(--django-green);
+    --primary-dark: var(--django-green-dark);
+    --primary-light: var(--django-green-light);
+    --accent-color: var(--django-green-light);
+
+    /* Buttons */
+    --btn-primary-bg: var(--primary-color);
+    --btn-primary-text: #fff;
+    --btn-primary-hover-bg: var(--primary-light);
+    --btn-primary-hover-text: #fff;
+
+    /* Links */
+    --link-color: var(--django-green-light);
+    --link-hover-color: var(--django-green);
+
+    /* Alerts */
+    --success-color: #44B78B;
+    --error-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+
+    /* Tipografia */
+    --font-family-sans-serif: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-family-mono: 'Fira Mono', 'Monaco', 'Consolas', monospace;
+
+    /* Fundo e texto */
+    --color-bg-dark: #181a1b;
+    --color-surface-dark: #23272a;
+    --color-text-dark: #f8f9fa;
+    --color-text-secondary-dark: #b0b3b8;
+    --color-border-dark: #33363a;
+
     /* Dark Theme Colors */
     --dark-bg: #0a0a0a;
     --dark-surface: #1a1a1a;
@@ -17,35 +66,13 @@
     --dark-text: #e0e0e0;
     --dark-text-muted: #a0a0a0;
     
-    /* Primary Colors */
-    --primary-color: #222;
-    --primary-light: #444;
-    --secondary-color: #fff;
-    --accent-color: #7ed6a7;
-    --success-color: #43a047;
-    --error-color: #d32f2f;
-    
-    /* Semantic Colors */
-    --warning-color: #ffc107;
-    --info-color: #17a2b8;
-    
-    /* Typography */
-    --font-family-sans-serif: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    --font-family-mono: 'Fira Mono', 'Monaco', 'Consolas', monospace;
-    
     /* Spacing & Layout */
     --border-radius: 0.5rem;
     --box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
     --transition: all 0.2s ease-in-out;
 
-    --color-bg-light: #f8f8f8;
-    --color-bg-dark: #181818;
     --color-bg-secondary-light: #ffffff;
     --color-bg-secondary-dark: #23272a;
-    --color-text-light: #181818;
-    --color-text-dark: #f8f8f8;
-    --color-text-secondary-light: #444;
-    --color-text-secondary-dark: #bdbdbd;
     --color-accent-yellow: #ffe066;
     --color-accent-yellow-light: #ffd600;
     --color-accent-green: #7fff00;
@@ -60,209 +87,13 @@
     --coke-red: #E41A1C;
     --bg-light: #fff;
     --bg-dark: #181818;
-    --text-light: #222;
     --text-dark: #fff;
     --card-light: #f7f7f7;
     --card-dark: #232323;
     --transition: 0.3s cubic-bezier(.4,0,.2,1);
 }
 
-/* Dark Theme (Default for FireFlies) */
-body {
-    background: var(--secondary-color);
-    color: var(--primary-color);
-    font-family: 'Roboto', Arial, sans-serif;
-    transition: var(--transition);
-}
-
-body.dark-mode {
-    background: var(--bg-dark);
-    color: var(--text-dark);
-}
-
-/* Navbar Styling */
-.navbar-django {
-    background: var(--primary-color);
-    color: var(--secondary-color);
-    border-bottom: 1px solid #eee;
-    box-shadow: var(--box-shadow);
-}
-
-body.dark-mode .navbar-django {
-    background: var(--bg-dark);
-    color: var(--text-dark);
-}
-
-.navbar-brand {
-    font-weight: bold;
-    color: var(--accent-color);
-    font-size: 1.5rem;
-}
-
-.navbar-brand:hover {
-    color: var(--accent-color);
-}
-
-.navbar-brand img {
-    height: 40px;
-    width: auto;
-    vertical-align: middle;
-}
-
-.navbar-nav .nav-link {
-    color: var(--dark-text) !important;
-    transition: var(--transition);
-}
-
-.navbar-nav .nav-link:hover {
-    color: var(--accent-color) !important;
-    text-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
-}
-
-.navbar-nav .nav-link.active {
-    color: var(--primary-light) !important;
-    background-color: rgba(74, 124, 89, 0.1);
-    border-radius: var(--border-radius);
-}
-
-/* Cards */
-.card {
-    background: var(--secondary-color);
-    color: var(--primary-color);
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
-    transition: var(--transition);
-}
-
-body.dark-mode .card {
-    background: var(--card-dark);
-    color: var(--text-dark);
-}
-
-.card:hover {
-    box-shadow: var(--box-shadow-glow);
-    border-color: var(--primary-light);
-}
-
-.card-header {
-    background-color: var(--dark-surface-light);
-    border-bottom: 1px solid var(--dark-border);
-    color: var(--dark-text);
-}
-
-.card-body {
-    color: var(--dark-text);
-}
-
-/* Buttons */
-.btn-primary {
-    background: var(--accent-color);
-    color: var(--primary-color);
-    border: none;
-    border-radius: var(--border-radius);
-    transition: var(--transition);
-}
-
-.btn-primary:hover {
-    background: var(--primary-light);
-    color: var(--accent-color);
-}
-
-body.dark-mode .btn-primary {
-    background: var(--color-accent-yellow);
-    color: var(--color-bg-dark);
-}
-
-body.dark-mode .btn-primary:hover {
-    background: var(--color-accent-green);
-    color: #fff;
-}
-
-.btn-outline-primary {
-    color: var(--primary-light);
-    border-color: var(--primary-light);
-    background-color: transparent;
-}
-
-.btn-outline-primary:hover {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-    color: white;
-    box-shadow: 0 0 15px rgba(107, 142, 35, 0.4);
-}
-
-.btn-accent {
-    background-color: var(--accent-color);
-    border-color: var(--accent-color);
-    color: var(--dark-bg);
-    font-weight: 600;
-}
-
-.btn-accent:hover {
-    background-color: var(--accent-glow);
-    border-color: var(--accent-glow);
-    color: var(--dark-bg);
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
-}
-
-/* Forms */
-.form-control, .form-select {
-    background-color: var(--dark-surface-light);
-    border: 1px solid var(--dark-border);
-    color: var(--dark-text);
-    transition: var(--transition);
-}
-
-.form-control:focus, .form-select:focus {
-    background-color: var(--dark-surface-light);
-    border-color: var(--primary-light);
-    color: var(--dark-text);
-    box-shadow: 0 0 0 0.2rem rgba(107, 142, 35, 0.25);
-}
-
-.form-control::placeholder {
-    color: var(--dark-text-muted);
-}
-
-/* Alerts */
-.alert {
-    border-radius: var(--border-radius);
-    border: none;
-}
-
-.alert-primary {
-    background-color: rgba(45, 90, 39, 0.2);
-    color: var(--primary-light);
-    border-left: 4px solid var(--primary-color);
-}
-
-.alert-success {
-    background: var(--success-color);
-    color: #fff;
-}
-
-body.dark-mode .alert-success {
-    background: var(--color-success-dark);
-    color: #fff;
-}
-
-.alert-danger, .alert-error {
-    background: var(--error-color);
-    color: #fff;
-}
-
-body.dark-mode .alert-danger, body.dark-mode .alert-error {
-    background: var(--color-error-dark);
-    color: #fff;
-}
-
-.alert-warning {
-    background-color: rgba(255, 193, 7, 0.2);
-    color: #ffc107;
-    border-left: 4px solid #ffc107;
-}
-
-/* FireFlies Glow Effect */
+/* Estilos exclusivos do tema Fireflies */
 .fireflies-glow {
     position: relative;
 }
@@ -475,7 +306,7 @@ body.dark-mode .theme-toggle {
 }
 
 a {
-    color: var(--primary-color);
+    color: var(--link-color);
     text-decoration: underline;
     transition: var(--transition);
 }
@@ -484,5 +315,62 @@ body.dark-mode a {
 }
 
 a:hover {
-    color: var(--accent-color);
+    color: var(--link-hover-color);
+}
+
+/* ================================================ */
+/* == OVERRIDE FINAL MODO ESCURO (ALTA ESPECIFICIDADE) == */
+/* ================================================ */
+
+/* Força o fundo escuro em todos os contextos */
+[data-theme="dark"] body,
+[data-theme="dark"] .bg-light,
+[data-theme="dark"] .card,
+[data-theme="dark"] .sidebar,
+[data-theme="dark"] .card-header,
+[data-theme="dark"] .footer-django {
+  background-color: #23272a !important;
+  color: #f8f9fa !important;
+}
+[data-theme="dark"] body {
+  background-color: #181a1b !important;
+}
+
+/* Força TODAS as fontes e ícones para cor clara */
+[data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3, [data-theme="dark"] h4, [data-theme="dark"] h5, [data-theme="dark"] h6,
+[data-theme="dark"] p, [data-theme="dark"] span, [data-theme="dark"] div, [data-theme="dark"] li,
+[data-theme="dark"] .text-gray-800, [data-theme="dark"] .text-body, [data-theme="dark"] .text-muted,
+[data-theme="dark"] .text-secondary, [data-theme="dark"] .text-primary, [data-theme="dark"] .text-success,
+[data-theme="dark"] .text-warning, [data-theme="dark"] .text-info, [data-theme="dark"] .text-xs,
+[data-theme="dark"] .sidebar-heading, [data-theme="dark"] .text-django-green,
+[data-theme="dark"] .fa, [data-theme="dark"] .fas, [data-theme="dark"] .far, [data-theme="dark"] .fab,
+[data-theme="dark"] .icon, [data-theme="dark"] svg, [data-theme="dark"] i, [data-theme="dark"] .text-gray-300 {
+  color: #f8f9fa !important;
+  fill: #f8f9fa !important;
+}
+
+/* Força cor de links para melhor UX */
+[data-theme="dark"] a, [data-theme="dark"] .link, [data-theme="dark"] .nav-link, [data-theme="dark"] .dropdown-item {
+    color: #66B2FF !important;
+}
+[data-theme="dark"] a:hover, [data-theme="dark"] .link:hover, [data-theme="dark"] .nav-link:hover, [data-theme="dark"] .dropdown-item:hover {
+    color: #44B78B !important;
+    background-color: rgba(68, 183, 139, 0.1) !important;
+}
+[data-theme="dark"] .nav-link.active, [data-theme="dark"] .sidebar .nav-link.active {
+    color: #181a1b !important;
+    background-color: #44B78B !important;
+}
+
+/* Força cor de botões e bordas */
+[data-theme="dark"] .btn-outline-secondary {
+    color: #f8f9fa !important;
+    border-color: #f8f9fa !important;
+}
+[data-theme="dark"] .btn-outline-secondary:hover {
+    color: #181a1b !important;
+    background-color: #f8f9fa !important;
+}
+[data-theme="dark"] .border, [data-theme="dark"] .border-bottom, [data-theme="dark"] .dropdown-divider {
+    border-color: #33363a !important;
 } 

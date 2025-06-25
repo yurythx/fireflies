@@ -11,9 +11,6 @@ from apps.config.views import (
     SetupAPIView,
     setup_redirect,
 )
-from apps.config.views.advanced_config_views import (
-    EnvironmentVariablesView,
-)
 from apps.config.views.email_views import (
     EmailConfigView,
     EmailTestView,
@@ -31,15 +28,8 @@ from apps.config.views.module_views import (
     ModuleDependencyCheckView,
 )
 from apps.config.views.database_views import (
-    DatabaseConfigListView,
-    DatabaseConfigCreateView,
-    DatabaseConfigUpdateView,
-    DatabaseConfigDeleteView,
-    database_test_connection,
-    database_selection,
-    database_config_preview,
-    database_apply_production,
-    database_quick_setup,
+    database_info,
+    database_connection_test_ajax,
 )
 
 
@@ -95,19 +85,9 @@ urlpatterns = [
     path('api/modulos/stats/', ModuleStatsAPIView.as_view(), name='module_stats_api'),
     path('api/modulos/<str:app_name>/dependencies/', ModuleDependencyCheckView.as_view(), name='module_dependency_check'),
 
-    # Configurações Avançadas
-    path('sistema/variaveis-ambiente/', EnvironmentVariablesView.as_view(), name='environment_variables'),
-
-    # Banco de Dados
-    path('banco-dados/', DatabaseConfigListView.as_view(), name='database_list'),
-    path('banco-dados/criar/', DatabaseConfigCreateView.as_view(), name='database_create'),
-    path('banco-dados/<int:pk>/editar/', DatabaseConfigUpdateView.as_view(), name='database_edit'),
-    path('banco-dados/<int:pk>/deletar/', DatabaseConfigDeleteView.as_view(), name='database_delete'),
-    path('banco-dados/<int:pk>/test/', database_test_connection, name='database_test'),
-    path('banco-dados/<int:pk>/preview/', database_config_preview, name='database_preview'),
-    path('banco-dados/<int:pk>/aplicar-producao/', database_apply_production, name='database_apply_production'),
-    path('banco-dados/selecionar/', database_selection, name='database_selection'),
-    path('banco-dados/setup-rapido/', database_quick_setup, name='database_quick_setup'),
+    # Banco de Dados (somente informações)
+    path('banco-dados/', database_info, name='database_info'),
+    path('ajax/test-database-connection/', database_connection_test_ajax, name='database_connection_test'),
 
     # Backup & Manutenção (TODO)
     path('backup/', SystemConfigView.as_view(), name='backup_config'),

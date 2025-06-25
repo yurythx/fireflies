@@ -1060,6 +1060,19 @@ footer a:hover {
     }
 }
 
+@media (max-width: 576px) {
+    .display-1, .display-2, .display-3, .display-4, .display-5, .display-6,
+    .h1, .h2, .h3 {
+        font-size: 1.5rem !important;
+    }
+    .h4, .h5, .h6 {
+        font-size: 1.2rem !important;
+    }
+    .card {
+        padding: 0.75rem !important;
+    }
+}
+
 /* Print */
 @media print {
     .navbar, .breadcrumb, footer, .btn-floating {
@@ -1162,4 +1175,25 @@ footer a:hover {
 [data-theme="dark"] .theme-option.active {
     background-color: var(--django-green);
     color: white;
+}
+
+#btn-back-to-top {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: none;
+    z-index: 1000;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 15px;
+    border-radius: 50%;
+    font-size: 16px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+}
+
+#btn-back-to-top:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.4);
 }

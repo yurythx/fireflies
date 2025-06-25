@@ -46,27 +46,12 @@
             </ul>
         </div>
 
-        <!-- Banco de Dados -->
-        <div class="sidebar-section">
-            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted text-sans">
-                <span><i class="fas fa-database me-2"></i>Banco de Dados</span>
-                <small class="badge bg-primary">{{ stats.database_configs|default:0 }}</small>
-            </h6>
-            <ul class="nav flex-column">
-                {% sidebar_item 'database_list' 'fas fa-list' 'Configurações' 'Gerenciar configurações de banco de dados' %}
-                {% sidebar_item 'database_create' 'fas fa-plus' 'Nova Configuração' 'Criar nova configuração de banco' %}
-                {% sidebar_item 'database_selection' 'fas fa-exchange-alt' 'Trocar Banco' 'Selecionar banco ativo' %}
-            </ul>
-        </div>
-
         <!-- Configurações do Sistema -->
         <div class="sidebar-section">
             <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted text-sans">
                 <span><i class="fas fa-server me-2"></i>Sistema</span>
             </h6>
             <ul class="nav flex-column">
-                {% sidebar_item 'system_config' 'fas fa-sliders-h' 'Configurações Gerais' 'Configurações gerais do sistema' %}
-                {% sidebar_item 'environment_variables' 'fas fa-code' 'Variáveis de Ambiente' 'Gerenciar variáveis de ambiente' %}
             </ul>
         </div>
 

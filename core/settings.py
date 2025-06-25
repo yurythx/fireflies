@@ -115,6 +115,14 @@ ALLOWED_HOSTS = get_allowed_hosts()
 
 # Application definition
 
+# Local apps
+LOCAL_APPS = [
+    'apps.accounts',
+    'apps.config',
+    'apps.pages',
+    'apps.articles',
+]
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -129,10 +137,7 @@ INSTALLED_APPS = [
     'tinymce',
 
     # Local apps
-    'apps.accounts',
-    'apps.config',
-    'apps.pages',
-    'apps.articles',
+    *LOCAL_APPS,
 ]
 
 MIDDLEWARE = [
