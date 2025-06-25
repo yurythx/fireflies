@@ -48,8 +48,7 @@ class AdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
                 'Use seu e-mail ou nome de usuário para entrar.'
             )
             # Redireciona para login com next parameter
-            from django.contrib.auth.views import redirect_to_login
-            return redirect_to_login(self.request.get_full_path(), 'accounts:login')
+            return redirect('pages:home')
 
         # Se está logado mas não tem permissão
         user = self.request.user
@@ -101,8 +100,7 @@ class SuperuserRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
                 '🔐 Para acessar esta funcionalidade restrita, você precisa fazer login primeiro. '
                 'Use seu e-mail ou nome de usuário para entrar.'
             )
-            from django.contrib.auth.views import redirect_to_login
-            return redirect_to_login(self.request.get_full_path(), 'accounts:login')
+            return redirect('pages:home')
 
         # Mensagem específica para superusuários
         user = self.request.user
@@ -144,8 +142,7 @@ class StaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
                 '🔐 Para acessar esta área da equipe, você precisa fazer login primeiro. '
                 'Use seu e-mail ou nome de usuário para entrar.'
             )
-            from django.contrib.auth.views import redirect_to_login
-            return redirect_to_login(self.request.get_full_path(), 'accounts:login')
+            return redirect('pages:home')
 
         messages.error(
             self.request,
@@ -213,7 +210,7 @@ def admin_required(view_func):
     def wrapper(request, *args, **kwargs):
         if not request.user.is_authenticated:
             messages.error(request, '🔐 Você precisa estar logado para acessar esta área.')
-            return redirect('accounts:login')
+            return redirect('pages:home')
         
         # Verificar permissões
         user = request.user
@@ -248,7 +245,7 @@ def superuser_required(view_func):
     def wrapper(request, *args, **kwargs):
         if not request.user.is_authenticated:
             messages.error(request, '🔐 Você precisa estar logado para acessar esta área.')
-            return redirect('accounts:login')
+            return redirect('pages:home')
         
         if not request.user.is_superuser:
             messages.error(

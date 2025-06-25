@@ -27,11 +27,11 @@ class FinalizeStepHandler(WizardStepHandler):
                     logger.error(f"Erro na sincronização: {sync_result.get('error', 'Erro desconhecido')}")
                 
                 messages.success(request, "Configuração finalizada com sucesso!")
-                return redirect('config:dashboard')
+                return redirect('pages:home')
             except Exception as e:
                 logger.error(f"Erro ao inicializar módulos: {str(e)}", exc_info=True)
                 messages.warning(request, f"Configuração finalizada, mas houve erro na inicialização dos módulos: {str(e)}")
-                return redirect('config:dashboard')
+                return redirect('pages:home')
         else:
             messages.error(request, "Erro ao finalizar configuração.")
             return redirect('setup_wizard?step=5')
@@ -83,11 +83,24 @@ class FinalizeStepHandler(WizardStepHandler):
                     app_name=module_data['app_name'],
                     defaults=module_data
                 )
+                updated = False
+                # Atualiza campos principais se necessário
+                for field in ['display_name', 'description', 'url_pattern', 'menu_icon', 'menu_order', 'module_type']:
+                    if getattr(module, field) != module_data[field]:
+                        setattr(module, field, module_data[field])
+                        updated = True
+                # Garante que está habilitado, ativo e core
+                if not module.is_enabled or module.status != 'active' or not module.is_core:
+                    module.is_enabled = True
+                    module.status = 'active'
+                    module.is_core = True
+                    updated = True
+                if updated:
+                    module.save()
                 if created:
                     logger.info(f"Módulo core criado: {module.app_name}")
                 else:
-                    logger.info(f"Módulo core já existia: {module.app_name}")
-                    
+                    logger.info(f"Módulo core já existia (atualizado se necessário): {module.app_name}")
         except Exception as e:
             logger.error(f"Erro ao inicializar módulos core: {str(e)}", exc_info=True)
             raise e 

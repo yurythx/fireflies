@@ -65,8 +65,7 @@ class AccessControlMiddleware:
         )
         
         # Redirecionar para login com next parameter
-        login_url = reverse('accounts:login')
-        return redirect_to_login(request.get_full_path(), login_url)
+        return redirect('pages:home')
     
     def handle_unauthorized_access(self, request):
         """Trata acesso de usuários autenticados sem permissão"""
@@ -376,5 +375,4 @@ class SmartRedirectMiddleware:
         )
         
         # Redirecionar para login
-        login_url = reverse('accounts:login')
-        return redirect_to_login(request.get_full_path(), login_url)
+        return redirect('pages:home')
