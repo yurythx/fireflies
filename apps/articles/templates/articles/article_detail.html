@@ -7,8 +7,8 @@
 
 {% block breadcrumbs %}
     {% with breadcrumbs=[
-        {"title": "Home", "url": url 'pages:home'},
-        {"title": "Artigos", "url": url 'articles:article_list'},
+        {"title": "Home", "url": url('pages:home')},
+        {"title": "Artigos", "url": url('articles:article_list')},
         {"title": article.title, "is_current": True}
     ] %}
         {{ block.super }}

@@ -13,6 +13,7 @@ import sys
 import os
 import django
 from datetime import datetime, timedelta
+from django.contrib import messages
 
 User = get_user_model()
 
@@ -167,5 +168,8 @@ class ConfigDashboardView(ConfigPermissionMixin, PermissionHelperMixin, View):
             # Configuração de email
             **email_config,
         }
+
+        messages.success(request, '✅ Ação realizada com sucesso!')
+        messages.error(request, '❌ Ocorreu um erro ao realizar a ação. Tente novamente.')
 
         return render(request, self.template_name, context)

@@ -13,5 +13,11 @@ class SecurityStepHandler(WizardStepHandler):
             'enable_https': request.POST.get('enable_https') == 'on',
         }
         orchestrator.save_progress('security', config)
-        messages.success(request, "Configuração de segurança salva!")
-        return redirect('setup_wizard?step=5') 
+        messages.success(request, "✅ Configurações de segurança salvas.")
+        return redirect('setup_wizard?step=5')
+
+    def form_valid(self, form):
+        # Lógica para salvar os dados na sessão ou no banco de dados temporário
+        # Exemplo: request.session['security_config'] = form.cleaned_data
+        messages.success(self.request, "✅ Configurações de segurança salvas.")
+        return super().form_valid(form) 

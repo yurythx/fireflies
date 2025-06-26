@@ -67,9 +67,9 @@ class ModuleListView(LoginRequiredMixin, UserPassesTestMixin, View):
         elif action == 'enable':
             success = module_service.enable_module(module_name, request.user)
             if success:
-                messages.success(request, f'Módulo habilitado com sucesso.')
+                messages.success(request, '✅ O módulo foi ativado com sucesso!')
             else:
-                messages.error(request, f'Erro ao habilitar módulo.')
+                messages.error(request, f'❌ Não foi possível alterar o status do módulo. Tente novamente ou verifique os logs.')
         elif action == 'disable':
             success = module_service.disable_module(module_name, request.user)
             if success:
@@ -89,7 +89,7 @@ class ModuleListView(LoginRequiredMixin, UserPassesTestMixin, View):
             return False
 
         if module.is_core:
-            messages.error(self.request, f'Módulo {module.display_name} é principal e não pode ser desabilitado.')
+            messages.error(self.request, f'🔒 O módulo "{module.display_name}" é essencial e não pode ser desativado.')
             return False
 
         if module.is_enabled:
@@ -234,7 +234,7 @@ class ModuleToggleView(LoginRequiredMixin, UserPassesTestMixin, View):
         if module.is_core and not module.is_enabled:
             messages.error(
                 request,
-                f'O módulo "{module.display_name}" é principal e não pode ser desabilitado.'
+                f'🔒 O módulo "{module.display_name}" é essencial e não pode ser desativado.'
             )
             return redirect('config:module_list')
         

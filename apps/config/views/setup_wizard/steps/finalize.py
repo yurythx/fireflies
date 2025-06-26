@@ -26,12 +26,12 @@ class FinalizeStepHandler(WizardStepHandler):
                 else:
                     logger.error(f"Erro na sincronização: {sync_result.get('error', 'Erro desconhecido')}")
                 
-                messages.success(request, "Configuração finalizada com sucesso!")
-                return redirect('pages:home')
+                messages.success(request, "🎉 Tudo pronto! Sua configuração foi finalizada com sucesso.")
+                return redirect('config:dashboard')
             except Exception as e:
-                logger.error(f"Erro ao inicializar módulos: {str(e)}", exc_info=True)
-                messages.warning(request, f"Configuração finalizada, mas houve erro na inicialização dos módulos: {str(e)}")
-                return redirect('pages:home')
+                logger.error(f"Erro ao finalizar a configuração: {e}", exc_info=True)
+                messages.warning(request, f"⚠️ Configuração concluída, mas alguns módulos não puderam ser inicializados: {str(e)}")
+                return redirect('config:dashboard')
         else:
             messages.error(request, "Erro ao finalizar configuração.")
             return redirect('setup_wizard?step=5')

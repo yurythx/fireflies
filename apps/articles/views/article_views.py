@@ -224,16 +224,10 @@ class ArticleCreateView(AdminRequiredMixin, CreateView):
         article = self.article_service.create_article(form.cleaned_data, self.request.user)
         
         if article:
-            messages.success(
-                self.request,
-                f'✅ Artigo "{article.title}" criado com sucesso!'
-            )
+            messages.success(request, '✅ Artigo criado com sucesso!')
             return redirect('articles:article_detail', slug=article.slug)
         else:
-            messages.error(
-                self.request,
-                '❌ Erro ao criar artigo. Verifique os dados e tente novamente.'
-            )
+            messages.error(request, '❌ Ocorreu um erro ao criar o artigo. Tente novamente.')
             return self.form_invalid(form)
     
     def get_context_data(self, **kwargs):
@@ -260,16 +254,10 @@ class ArticleUpdateView(AdminRequiredMixin, UpdateView):
         success = self.article_service.update_article(self.get_object().id, form.cleaned_data, self.request.user)
         
         if success:
-            messages.success(
-                self.request,
-                f'✅ Artigo "{form.instance.title}" atualizado com sucesso!'
-            )
+            messages.success(request, '✅ Artigo atualizado com sucesso!')
             return redirect('articles:article_detail', slug=form.instance.slug)
         else:
-            messages.error(
-                self.request,
-                '❌ Erro ao atualizar artigo. Verifique os dados e tente novamente.'
-            )
+            messages.error(request, '❌ Ocorreu um erro ao atualizar o artigo. Tente novamente.')
             return self.form_invalid(form)
     
     def get_context_data(self, **kwargs):
@@ -298,15 +286,9 @@ class ArticleDeleteView(AdminRequiredMixin, DeleteView):
         success = self.article_service.delete_article(article.id, request.user)
         
         if success:
-            messages.success(
-                request,
-                f'✅ Artigo "{article.title}" excluído com sucesso!'
-            )
+            messages.success(request, '🗑️ Artigo removido com sucesso!')
         else:
-            messages.error(
-                request,
-                '❌ Erro ao excluir artigo. Tente novamente.'
-            )
+            messages.error(request, '❌ Ocorreu um erro ao remover o artigo. Tente novamente.')
         
         return redirect(self.success_url)
     

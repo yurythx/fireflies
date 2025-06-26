@@ -64,11 +64,11 @@ class ContactView(View):
                     fail_silently=False,
                 )
                 
-                messages.success(request, 'Mensagem enviada com sucesso! Entraremos em contato em breve.')
+                messages.success(request, '✅ Sua mensagem foi enviada com sucesso! Agradecemos o seu contato.')
                 form = ContactForm()  # Limpa o formulário
                 
             except Exception as e:
-                messages.error(request, 'Erro ao enviar mensagem. Tente novamente.')
+                messages.error(request, '❌ Ops! Ocorreu um erro ao enviar sua mensagem. Por favor, verifique os campos e tente novamente.')
         
         context = {
             'form': form,

@@ -37,23 +37,23 @@ class EnvironmentVariablesView(SuperuserRequiredMixin, PermissionHelperMixin, Vi
             # Cria backup do arquivo atual
             success, message = form.create_backup()
             if success:
-                messages.success(request, f'Backup criado com sucesso: {message}')
+                messages.success(request, f'🗄️ Backup criado com sucesso: {message}')
             else:
-                messages.error(request, f'Erro ao criar backup: {message}')
+                messages.error(request, f'❌ Erro ao criar backup: {message}')
 
         elif form.is_valid():
             try:
                 success = form.save(user=request.user)
 
                 if success:
-                    messages.success(request, 'Arquivo .env salvo com sucesso!')
-                    messages.warning(request, 'IMPORTANTE: Reinicie o servidor para aplicar as alterações.')
+                    messages.success(request, '✅ Arquivo .env salvo com sucesso!')
+                    messages.warning(request, '⚠️ IMPORTANTE: Reinicie o servidor para aplicar as alterações.')
                     return redirect('config:environment_variables')
                 else:
-                    messages.error(request, 'Erro ao salvar arquivo .env.')
+                    messages.error(request, '❌ Erro ao salvar arquivo .env.')
 
             except Exception as e:
-                messages.error(request, f'Erro ao salvar arquivo: {str(e)}')
+                messages.error(request, f'❌ Erro ao salvar arquivo: {str(e)}')
 
         # Recarrega informações para o template
         context = {

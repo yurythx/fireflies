@@ -21,4 +21,31 @@ class AdminStepHandler(WizardStepHandler):
             return redirect('setup_wizard?step=2')
         orchestrator.save_progress('admin', config)
         messages.success(request, "Configuração do administrador salva!")
-        return redirect('setup_wizard?step=3') 
+        return redirect('setup_wizard?step=3')
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        if form.is_valid():
+            self.wizard.set_step_data('admin', form.cleaned_data)
+            self.wizard.save()
+            messages.success(request, "✅ Conta de administrador criada com sucesso!")
+            return redirect('setup_wizard?step=2')
+        else:
+            if 'password_confirm' in form.errors:
+                messages.error(request, "🔑 As senhas não conferem. Tente novamente.")
+            else:
+                messages.error(request, "📝 Por favor, preencha todos os campos obrigatórios.")
+            return self.render_to_response(self.get_context_data(form=form))
+
+    def form_valid(self, form):
+        # Lógica para salvar os dados na sessão ou no banco de dados temporário
+        # Exemplo: request.session['admin_config'] = form.cleaned_data
+        messages.success(self.request, "Configuração do administrador salva!")
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        if form.has_error('password', code='password_mismatch'):
+            messages.error(self.request, "As senhas não coincidem.")
+        else:
+            messages.error(self.request, "Preencha todos os campos obrigatórios.")
+        return super().form_invalid(form) 

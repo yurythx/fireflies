@@ -3,6 +3,8 @@ from django.urls import reverse
 from django.contrib.auth import get_user_model
 from apps.config.models import AppModuleConfiguration, SystemConfiguration
 from apps.config.services.module_service import ModuleService
+import pytest
+from django.core.management import call_command
 
 User = get_user_model()
 
@@ -232,3 +234,19 @@ class MiddlewareTest(TestCase):
         response = self.client.get('/artigos/')
         # Deve permitir acesso (200 ou 404 se a view não existir)
         self.assertIn(response.status_code, [200, 404])
+
+
+@pytest.mark.django_db
+def test_modules_list_after_deploy():
+    # Garante que as migrações estão aplicadas
+    call_command('migrate', interactive=False)
+    # (Opcional) roda comando de inicialização de módulos, se existir
+    try:
+        call_command('init_modules')
+    except Exception:
+        pass  # Se não existir, ignora
+    # Verifica se os módulos essenciais estão no banco
+    modules = AppModuleConfiguration.objects.all()
+    assert modules.exists(), "Nenhum módulo encontrado após o deploy!"
+    # Verifica se pelo menos um módulo core está ativo
+    assert modules.filter(is_core=True, is_enabled=True).exists(), "Nenhum módulo core ativo!"

@@ -59,20 +59,13 @@ class EmailConfigView(ConfigPermissionMixin, FormView):
         try:
             # Salva as configurações usando o novo serviço
             if form.save(user=self.request.user):
-                messages.success(
-                    self.request,
-                    '✅ Configurações de email salvas e aplicadas com sucesso! '
-                    'As alterações já estão em vigor.'
-                )
+                messages.success(request, '✅ Configuração de e-mail salva com sucesso!')
 
                 # Log da ação
                 logger.info(f'Configurações de email atualizadas por {self.request.user.username}')
 
             else:
-                messages.error(
-                    self.request,
-                    '❌ Erro ao salvar configurações de email.'
-                )
+                messages.error(request, '❌ Ocorreu um erro ao salvar a configuração de e-mail. Tente novamente.')
         except Exception as e:
             logger.error(f'Erro ao salvar configurações de email: {e}', exc_info=True)
             messages.error(

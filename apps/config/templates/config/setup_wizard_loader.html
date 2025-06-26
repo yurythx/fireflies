@@ -203,6 +203,15 @@
             background: linear-gradient(135deg, #1e7e34, #155724);
         }
 
+        .btn-info {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #0056b3;
+        }
+
         .wizard-actions {
             display: flex;
             justify-content: space-between;
@@ -413,9 +422,14 @@
                             </div>
                         </div>
 
+                        <div id="db-test-feedback" class="mt-2"></div>
+
                         <div class="wizard-actions">
                             <button class="btn btn-secondary" onclick="prevStep()">
                                 <i class="fas fa-arrow-left me-1"></i>Anterior
+                            </button>
+                            <button class="btn btn-info" type="button" onclick="testDatabaseConnection()">
+                                <i class="fas fa-vial me-1"></i>Testar conexão
                             </button>
                             <button class="btn btn-primary" onclick="nextStep()">
                                 Próximo <i class="fas fa-arrow-right ms-1"></i>
@@ -787,6 +801,72 @@
                 }
             });
         }
+
+        function testDatabaseConnection() {
+            const type = document.getElementById('database-type').value;
+            const name = document.getElementById('database-name').value;
+            const host = document.getElementById('database-host')?.value || '';
+            const port = document.getElementById('database-port')?.value || '';
+            const user = document.getElementById('database-user')?.value || '';
+            const password = document.getElementById('database-password')?.value || '';
+
+            const data = { type, name, host, port, user, password };
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            const csrfToken = getCookie('csrftoken');
+            const btn = event.target;
+            const feedback = document.getElementById('db-test-feedback');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Testando...';
+            feedback.innerHTML = '<span class="text-info"><i class="fas fa-spinner fa-spin me-1"></i>Testando conexão...</span>';
+
+            fetch('/config/setup-wizard/api/test-db/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken || ''
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    feedback.innerHTML = '<span class="text-success"><i class="fas fa-check-circle me-1"></i>Conexão bem-sucedida!</span>';
+                } else {
+                    feedback.innerHTML = `<span class="text-danger"><i class="fas fa-times-circle me-1"></i>Falha na conexão: ${data.error || 'Erro desconhecido'}</span>`;
+                }
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-vial me-1"></i>Testar conexão';
+            })
+            .catch(error => {
+                feedback.innerHTML = '<span class="text-danger"><i class="fas fa-times-circle me-1"></i>Erro ao testar conexão.</span>';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-vial me-1"></i>Testar conexão';
+            });
+        }
+
+        // Limpar feedback ao editar qualquer campo do banco
+        ['database-type','database-name','database-host','database-port','database-user','database-password'].forEach(function(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('input', function() {
+                    const feedback = document.getElementById('db-test-feedback');
+                    if (feedback) feedback.innerHTML = '';
+                });
+            }
+        });
     </script>
 </body>
 </html>

@@ -46,6 +46,7 @@ class ModuleService(IModuleService):
     def is_module_enabled(self, app_name: str) -> bool:
         """Verifica se um módulo está habilitado"""
         module = self.get_module_by_name(app_name)
+        print(f"[DEBUG is_module_enabled] app_name={app_name} module={module} is_enabled={getattr(module, 'is_enabled', None)} status={getattr(module, 'status', None)}")
         return module.is_available if module else False
     
     def is_core_module(self, app_name: str) -> bool:
@@ -146,28 +147,29 @@ class ModuleService(IModuleService):
             if not module:
                 logger.error(f"Módulo {app_name} não encontrado")
                 return False
-            
+            # Centralizar regra crítica aqui:
+            if module.is_core and module_data.get('status') != 'active':
+                raise ValueError('Módulos principais devem permanecer ativos.')
             # Atualiza campos permitidos
             allowed_fields = [
                 'display_name', 'description', 'url_pattern', 'menu_icon',
                 'menu_order', 'show_in_menu', 'dependencies', 'required_permissions',
                 'module_settings', 'version', 'author', 'documentation_url',
-                'is_enabled'
+                'is_enabled', 'status'
             ]
-            
             for field, value in module_data.items():
                 if field in allowed_fields:
                     setattr(module, field, value)
-            
             module.updated_by = user
             module.full_clean()
             module.save()
-            
             logger.info(f"Módulo {app_name} atualizado por {user.email if user else 'sistema'}")
             return True
-            
         except ValidationError as e:
             logger.error(f"Erro de validação ao atualizar módulo {app_name}: {str(e)}")
+            return False
+        except ValueError as e:
+            logger.error(f"Regra de negócio violada ao atualizar módulo {app_name}: {str(e)}")
             return False
         except Exception as e:
             logger.error(f"Erro ao atualizar módulo {app_name}: {str(e)}")

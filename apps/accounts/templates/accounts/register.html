@@ -48,6 +48,16 @@
                         {% endfor %}
                     {% endif %}
 
+                    <!-- Mensagem de sucesso após registro -->
+                    {% if registration_success %}
+                        <div class="alert alert-success mt-3">
+                            <i class="fas fa-envelope me-2"></i>
+                            Sua conta foi criada! Verifique seu e-mail para ativar a conta antes de fazer login.
+                            <br>
+                            <span class="small">Não recebeu o e-mail? <a href="{% url 'accounts:resend_verification' %}?email={{ form.email.value }}">Reenviar confirmação</a></span>
+                        </div>
+                    {% endif %}
+
                     <div class="text-center mb-4">
                         <p class="text-secondary text-body">
                             <i class="fas fa-user-plus me-1"></i>

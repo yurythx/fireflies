@@ -1,6 +1,6 @@
 from ..base import WizardStepHandler
 from django.contrib import messages
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from pathlib import Path
 
 class DatabaseStepHandler(WizardStepHandler):
@@ -36,8 +36,8 @@ class DatabaseStepHandler(WizardStepHandler):
             mysql_name = request.POST.get('mysql_name')
             config['NAME'] = mysql_existing or mysql_name
         else:
-            messages.error(request, "Tipo de banco de dados inválido")
-            return redirect('setup_wizard')
+            messages.error(request, "❌ O tipo de banco de dados selecionado é inválido.")
+            return render(request, self.template_name, {'form': self.form})
 
         # Corrigir bug: converter Path para str se existir
         if config.get('ENGINE') == 'django.db.backends.sqlite3' or config.get('type') == 'sqlite':
@@ -51,5 +51,5 @@ class DatabaseStepHandler(WizardStepHandler):
             messages.error(request, "Falha na conexão com o banco de dados")
             return redirect('setup_wizard')
         orchestrator.save_progress('database', config)
-        messages.success(request, "Configuração do banco de dados salva!")
+        messages.success(request, "Configuração do banco de dados salva com sucesso!")
         return redirect('setup_wizard?step=2') 

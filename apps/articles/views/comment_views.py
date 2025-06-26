@@ -17,6 +17,8 @@ import json
 from apps.articles.models.article import Article
 from apps.articles.models.comment import Comment
 from apps.articles.forms import CommentForm, ReplyForm, CommentModerationForm
+from apps.articles.services.comment_service import CommentService
+from apps.articles.repositories.comment_repository import CommentRepository
 
 
 def get_client_ip(request):
@@ -33,6 +35,7 @@ def get_client_ip(request):
 def add_comment(request, slug):
     """Adicionar comentário a um artigo"""
     article = get_object_or_404(Article, slug=slug, status='published')
+    comment_service = CommentService(CommentRepository())
 
     # Verificar se comentários são permitidos
     if not article.allow_comments:
@@ -40,7 +43,6 @@ def add_comment(request, slug):
         return redirect('articles:article_detail', slug=slug)
 
     if request.method == 'POST':
-        # Dados do formulário
         name = request.POST.get('name', '').strip()
         email = request.POST.get('email', '').strip()
         website = request.POST.get('website', '').strip()
@@ -50,77 +52,31 @@ def add_comment(request, slug):
         # Verificar honeypot (anti-spam)
         if website_url:
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': False,
-                    'errors': {'__all__': ['Spam detectado']}
-                })
+                return JsonResponse({'success': False, 'errors': {'__all__': ['Spam detectado']}})
             messages.error(request, 'Spam detectado.')
             return redirect('articles:article_detail', slug=slug)
 
-        # Validações
-        errors = {}
-        if not name:
-            errors['name'] = ['Nome é obrigatório']
-        if not email:
-            errors['email'] = ['Email é obrigatório']
-        if not content:
-            errors['content'] = ['Comentário é obrigatório']
-        elif len(content) < 10:
-            errors['content'] = ['Comentário deve ter pelo menos 10 caracteres']
-
-        if errors:
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': False,
-                    'errors': errors
-                })
-            for field, field_errors in errors.items():
-                for error in field_errors:
-                    messages.error(request, error)
-            return redirect('articles:article_detail', slug=slug)
-
-        # Criar comentário
         try:
-            # Preparar dados do comentário
-            comment_data = {
-                'article': article,
-                'user': request.user if request.user.is_authenticated else None,
-                'name': name,
-                'email': email,
-                'content': content,
-                'ip_address': get_client_ip(request),
-                'user_agent': request.META.get('HTTP_USER_AGENT', '')[:500],
-                'is_approved': True  # Auto-aprovar para teste
-            }
-
-            # Adicionar website apenas se não estiver vazio
-            if website and website.strip():
-                comment_data['website'] = website.strip()
-
-            comment = Comment.objects.create(**comment_data)
-
-            # Resposta para AJAX
+            comment = comment_service.add_comment(
+                article=article,
+                user=request.user if request.user.is_authenticated else None,
+                name=name,
+                email=email,
+                content=content,
+                website=website,
+                ip_address=get_client_ip(request),
+                user_agent=request.META.get('HTTP_USER_AGENT', '')[:500]
+            )
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': True,
-                    'message': 'Comentário enviado com sucesso!',
-                    'comment_id': comment.id,
-                    'is_approved': comment.is_approved
-                })
-
-            messages.success(request, 'Comentário publicado com sucesso!')
+                return JsonResponse({'success': True, 'message': 'Comentário enviado com sucesso!', 'comment_id': comment.id, 'is_approved': comment.is_approved})
+            messages.success(request, '💬 Seu comentário foi publicado com sucesso. Obrigado por contribuir!')
+            return redirect('articles:article_detail', slug=slug)
+        except ValueError as e:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'errors': {'__all__': [str(e)]}})
+            messages.error(request, '❌ Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.')
             return redirect('articles:article_detail', slug=slug)
 
-        except Exception as e:
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': False,
-                    'errors': {'__all__': [f'Erro ao salvar: {str(e)}']}
-                })
-            messages.error(request, f'Erro ao enviar comentário: {str(e)}')
-            return redirect('articles:article_detail', slug=slug)
-
-    # GET request - redirecionar para o artigo
     return redirect('articles:article_detail', slug=slug)
 
 
@@ -130,82 +86,38 @@ def add_reply(request, slug, comment_id):
     """Adicionar resposta a um comentário"""
     article = get_object_or_404(Article, slug=slug, status='published')
     parent_comment = get_object_or_404(Comment, id=comment_id, article=article)
-    
-    # Verificar se comentários são permitidos
+    comment_service = CommentService(CommentRepository())
+
     if not article.allow_comments:
         messages.error(request, 'Comentários não são permitidos neste artigo.')
         return redirect('articles:article_detail', slug=slug)
-
-    # Verificar se o comentário pai pode receber respostas
     if not parent_comment.can_be_replied:
         messages.error(request, 'Este comentário não pode receber respostas.')
         return redirect('articles:article_detail', slug=slug)
-    
+
     if request.method == 'POST':
-        # Dados do formulário
         name = request.POST.get('name', '').strip()
         email = request.POST.get('email', '').strip()
         content = request.POST.get('content', '').strip()
-
-        # Validações
-        errors = {}
-        if not name:
-            errors['name'] = ['Nome é obrigatório']
-        if not email:
-            errors['email'] = ['Email é obrigatório']
-        if not content:
-            errors['content'] = ['Resposta é obrigatória']
-        elif len(content) < 10:
-            errors['content'] = ['Resposta deve ter pelo menos 10 caracteres']
-
-        if errors:
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': False,
-                    'errors': errors
-                })
-            for field, field_errors in errors.items():
-                for error in field_errors:
-                    messages.error(request, error)
-            return redirect('articles:article_detail', slug=slug)
-
-        # Criar resposta
         try:
-            # Preparar dados da resposta
-            reply_data = {
-                'article': article,
-                'parent': parent_comment,
-                'user': request.user if request.user.is_authenticated else None,
-                'name': name,
-                'email': email,
-                'content': content,
-                'ip_address': get_client_ip(request),
-                'user_agent': request.META.get('HTTP_USER_AGENT', '')[:500],
-                'is_approved': True  # Auto-aprovar para teste
-            }
-
-            reply = Comment.objects.create(**reply_data)
-
-            # Resposta para AJAX
+            reply = comment_service.add_reply(
+                article=article,
+                parent_comment=parent_comment,
+                user=request.user if request.user.is_authenticated else None,
+                name=name,
+                email=email,
+                content=content,
+                ip_address=get_client_ip(request),
+                user_agent=request.META.get('HTTP_USER_AGENT', '')[:500]
+            )
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': True,
-                    'message': 'Resposta enviada com sucesso!',
-                    'reply_id': reply.id,
-                    'parent_id': parent_comment.id,
-                    'is_approved': reply.is_approved
-                })
-
+                return JsonResponse({'success': True, 'message': 'Resposta enviada com sucesso!', 'reply_id': reply.id, 'parent_id': parent_comment.id, 'is_approved': reply.is_approved})
             messages.success(request, 'Resposta publicada com sucesso!')
             return redirect('articles:article_detail', slug=slug)
-
-        except Exception as e:
+        except ValueError as e:
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': False,
-                    'errors': {'__all__': [f'Erro ao salvar: {str(e)}']}
-                })
-            messages.error(request, f'Erro ao enviar resposta: {str(e)}')
+                return JsonResponse({'success': False, 'errors': {'__all__': [str(e)]}})
+            messages.error(request, str(e))
             return redirect('articles:article_detail', slug=slug)
 
     return redirect('articles:article_detail', slug=slug)

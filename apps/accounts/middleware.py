@@ -375,4 +375,4 @@ class SmartRedirectMiddleware:
         )
         
         # Redirecionar para login
-        return redirect('pages:home')
+        return redirect('accounts:login')

@@ -63,16 +63,13 @@ class EmailConfigCreateView(SuperuserRequiredMixin, PermissionHelperMixin, View)
                     
                     config.save()
                     
-                    messages.success(
-                        request,
-                        f'✅ Configuração "{config.name}" criada com sucesso!'
-                    )
+                    messages.success(request, '✅ Configuração criada com sucesso!')
                     
                     return redirect('config:email_configs')
                     
             except Exception as e:
                 logger.error(f'Erro ao criar configuração de email: {e}', exc_info=True)
-                messages.error(request, f'Erro ao criar configuração: {str(e)}')
+                messages.error(request, '❌ Ocorreu um erro ao criar a configuração. Tente novamente.')
         
         return render(request, self.template_name, {
             'form': form,
@@ -107,16 +104,13 @@ class EmailConfigUpdateView(SuperuserRequiredMixin, PermissionHelperMixin, View)
                     config.updated_by = request.user
                     config.save()
                     
-                    messages.success(
-                        request,
-                        f'✅ Configuração "{config.name}" atualizada com sucesso!'
-                    )
+                    messages.success(request, '✅ Configuração atualizada com sucesso!')
                     
                     return redirect('config:email_configs')
                     
             except Exception as e:
                 logger.error(f'Erro ao atualizar configuração de email: {e}', exc_info=True)
-                messages.error(request, f'Erro ao atualizar configuração: {str(e)}')
+                messages.error(request, '❌ Ocorreu um erro ao atualizar a configuração. Tente novamente.')
         
         return render(request, self.template_name, {
             'form': form,
@@ -143,14 +137,11 @@ class EmailConfigDeleteView(SuperuserRequiredMixin, PermissionHelperMixin, View)
                 config_name = config.name
                 config.delete()
                 
-                messages.success(
-                    request,
-                    f'✅ Configuração "{config_name}" deletada com sucesso!'
-                )
+                messages.success(request, '🗑️ Configuração removida com sucesso!')
                 
         except Exception as e:
             logger.error(f'Erro ao deletar configuração de email: {e}', exc_info=True)
-            messages.error(request, f'Erro ao deletar configuração: {str(e)}')
+            messages.error(request, '❌ Ocorreu um erro ao remover a configuração. Tente novamente.')
         
         return redirect('config:email_configs')
 

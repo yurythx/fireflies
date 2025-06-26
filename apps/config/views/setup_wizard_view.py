@@ -16,6 +16,10 @@ import json
 from .setup_wizard import orchestrator
 from django.core.cache import cache
 import logging
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from apps.config.views.setup_wizard.orchestrator import SetupWizardOrchestrator
+from apps.config.views.setup_wizard import wizard_steps
 
 @method_decorator(never_cache, name='dispatch')
 class SetupWizardView(View):
@@ -309,4 +313,19 @@ def setup_redirect(request):
     if first_install_file.exists():
         return redirect('config:setup_wizard')
     else:
-        return redirect('config:dashboard') 
+        return redirect('config:dashboard')
+
+@csrf_exempt
+def test_db_connection_api(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            orchestrator = SetupWizardOrchestrator(wizard_steps)
+            result = orchestrator.test_database_connection(data)
+            if result:
+                return JsonResponse({'success': True})
+            else:
+                return JsonResponse({'success': False, 'error': 'Falha na conexão com o banco de dados.'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Método não permitido.'}, status=405) 

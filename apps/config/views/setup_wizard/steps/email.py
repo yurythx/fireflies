@@ -1,6 +1,6 @@
 from ..base import WizardStepHandler
 from django.contrib import messages
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 
 class EmailStepHandler(WizardStepHandler):
     def process(self, request, orchestrator):
@@ -19,5 +19,20 @@ class EmailStepHandler(WizardStepHandler):
             messages.error(request, "Preencha todos os campos SMTP obrigatórios.")
             return redirect('setup_wizard?step=3')
         orchestrator.save_progress('email', config)
-        messages.success(request, "Configuração de email salva!")
-        return redirect('setup_wizard?step=4') 
+        messages.success(request, "✅ Configurações de e-mail salvas com sucesso.")
+        return redirect('setup_wizard?step=4')
+
+    def render_form(self, request):
+        # Implemente a lógica para renderizar o formulário de configuração de email
+        # Este método deve retornar um objeto de formulário válido
+        # Exemplo:
+        # form = EmailForm(request.POST)
+        # return render(request, self.template_name, {'form': form})
+        pass
+
+    def is_valid(self, request):
+        # Implemente a lógica para validar os dados do formulário de configuração de email
+        # Este método deve retornar True se os dados são válidos, False caso contrário
+        # Exemplo:
+        # return form.is_valid()
+        return True 

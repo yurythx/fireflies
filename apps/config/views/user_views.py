@@ -204,12 +204,12 @@ class UserDeleteView(SuperuserRequiredMixin, PermissionHelperMixin, View):
 
             # Não permite deletar o próprio usuário
             if user == request.user:
-                messages.error(request, 'Você não pode deletar sua própria conta.')
+                messages.error(request, '🛡️ Para sua segurança, você não pode excluir a própria conta logada.')
                 return redirect('config:user_list')
 
             # Não permite deletar superusuários (exceto por outros superusuários)
             if user.is_superuser and not request.user.is_superuser:
-                messages.error(request, 'Você não tem permissão para deletar superusuários.')
+                messages.error(request, '🚫 Superusuários não podem ser excluídos por esta interface.')
                 return redirect('config:user_list')
 
             return render(request, self.template_name, {'user_detail': user})
@@ -224,11 +224,11 @@ class UserDeleteView(SuperuserRequiredMixin, PermissionHelperMixin, View):
 
             # Validações de segurança
             if user == request.user:
-                messages.error(request, 'Você não pode deletar sua própria conta.')
+                messages.error(request, '🛡️ Para sua segurança, você não pode excluir a própria conta logada.')
                 return redirect('config:user_list')
 
             if user.is_superuser and not request.user.is_superuser:
-                messages.error(request, 'Você não tem permissão para deletar superusuários.')
+                messages.error(request, '🚫 Superusuários não podem ser excluídos por esta interface.')
                 return redirect('config:user_list')
 
             # Salva informações para o log antes de deletar
@@ -246,7 +246,7 @@ class UserDeleteView(SuperuserRequiredMixin, PermissionHelperMixin, View):
                 extra_data={'deleted_user_email': user_email}
             )
 
-            messages.success(request, f'🗑️ Usuário {user_email} deletado com sucesso!')
+            messages.success(request, f'🗑️ O usuário {user_email} foi removido com sucesso.')
             return redirect('config:user_list')
 
         except User.DoesNotExist:
