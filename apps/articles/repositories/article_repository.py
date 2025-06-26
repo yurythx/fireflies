@@ -11,7 +11,24 @@ class DjangoArticleRepository(IArticleRepository):
     def create(self, article_data: Dict[str, Any]) -> Article:
         """Cria um novo artigo"""
         try:
-            article = Article.objects.create(**article_data)
+            # Separa campos many-to-many dos dados do artigo
+            many_to_many_fields = {}
+            article_fields = {}
+            
+            for field, value in article_data.items():
+                if field in ['tags', 'contributors']:
+                    many_to_many_fields[field] = value
+                else:
+                    article_fields[field] = value
+            
+            # Cria o artigo sem os campos many-to-many
+            article = Article.objects.create(**article_fields)
+            
+            # Adiciona os campos many-to-many após a criação
+            for field, value in many_to_many_fields.items():
+                if hasattr(article, field) and value:
+                    getattr(article, field).set(value)
+            
             return article
         except Exception as e:
             raise ValueError(f"Erro ao criar artigo: {str(e)}")
@@ -37,11 +54,28 @@ class DjangoArticleRepository(IArticleRepository):
         """Atualiza artigo"""
         article = self.get_by_id(article_id)
         
+        # Separa campos many-to-many dos dados do artigo
+        many_to_many_fields = {}
+        article_fields = {}
+        
         for field, value in article_data.items():
+            if field in ['tags', 'contributors']:
+                many_to_many_fields[field] = value
+            else:
+                article_fields[field] = value
+        
+        # Atualiza campos normais
+        for field, value in article_fields.items():
             if hasattr(article, field):
                 setattr(article, field, value)
         
         article.save()
+        
+        # Atualiza campos many-to-many
+        for field, value in many_to_many_fields.items():
+            if hasattr(article, field) and value is not None:
+                getattr(article, field).set(value)
+        
         return article
     
     def delete(self, article_id: int) -> bool:

@@ -224,10 +224,10 @@ class ArticleCreateView(AdminRequiredMixin, CreateView):
         article = self.article_service.create_article(form.cleaned_data, self.request.user)
         
         if article:
-            messages.success(request, '✅ Artigo criado com sucesso!')
+            messages.success(self.request, '✅ Artigo criado com sucesso!')
             return redirect('articles:article_detail', slug=article.slug)
         else:
-            messages.error(request, '❌ Ocorreu um erro ao criar o artigo. Tente novamente.')
+            messages.error(self.request, '❌ Ocorreu um erro ao criar o artigo. Tente novamente.')
             return self.form_invalid(form)
     
     def get_context_data(self, **kwargs):
@@ -254,10 +254,10 @@ class ArticleUpdateView(AdminRequiredMixin, UpdateView):
         success = self.article_service.update_article(self.get_object().id, form.cleaned_data, self.request.user)
         
         if success:
-            messages.success(request, '✅ Artigo atualizado com sucesso!')
+            messages.success(self.request, '✅ Artigo atualizado com sucesso!')
             return redirect('articles:article_detail', slug=form.instance.slug)
         else:
-            messages.error(request, '❌ Ocorreu um erro ao atualizar o artigo. Tente novamente.')
+            messages.error(self.request, '❌ Ocorreu um erro ao atualizar o artigo. Tente novamente.')
             return self.form_invalid(form)
     
     def get_context_data(self, **kwargs):

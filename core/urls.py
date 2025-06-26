@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.static import serve
 from .health_check import health_check, readiness_check, liveness_check
 from apps.config.views.setup_views import setup_redirect
 
@@ -48,7 +49,13 @@ urlpatterns = [
 handler403 = 'apps.accounts.middleware.handle_403_error'
 handler404 = 'apps.accounts.middleware.handle_404_error'
 
-# Servir arquivos de mídia em desenvolvimento
+# Servir arquivos de mídia (desenvolvimento e produção)
 if settings.DEBUG:
+    # Em desenvolvimento, usar o servidor de desenvolvimento do Django
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+else:
+    # Em produção, usar view personalizada para mídia
+    urlpatterns += [
+        path('media/<path:path>', serve, {'document_root': settings.MEDIA_ROOT}, name='media'),
+    ]

@@ -707,7 +707,6 @@ TINYMCE_DEFAULT_CONFIG = {
     'statusbar': True,
     'branding': False,
     'promotion': False,
-    'content_css': '/static/css/tinymce-content.css',
     'contextmenu': 'link image table',
     'directionality': 'ltr',
     'language': 'pt_BR',
@@ -722,6 +721,16 @@ TINYMCE_DEFAULT_CONFIG = {
     'elementpath': False,
     'toolbar_mode': 'sliding',
     'toolbar_sticky': True,
+    # Configurações básicas para produção
+    'relative_urls': False,
+    'remove_script_host': False,
+    'convert_urls': True,
+    'verify_html': False,
+    'cleanup': True,
+    'forced_root_block': 'p',
+    'entity_encoding': 'raw',
+    'encoding': 'xml',
+    'element_format': 'html',
 }
 
 # Configurações específicas para diferentes campos
@@ -758,7 +767,6 @@ TINYMCE_CONFIGS = {
         'statusbar': True,
         'branding': False,
         'promotion': False,
-        'content_css': '/static/css/tinymce-content.css',
         'contextmenu': 'link image table',
         'directionality': 'ltr',
         'language': 'pt_BR',

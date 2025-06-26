@@ -6,13 +6,17 @@
 {% block meta_keywords %}{{ article.meta_keywords|default:"" }}{% endblock %}
 
 {% block breadcrumbs %}
-    {% with breadcrumbs=[
-        {"title": "Home", "url": url('pages:home')},
-        {"title": "Artigos", "url": url('articles:article_list')},
-        {"title": article.title, "is_current": True}
-    ] %}
-        {{ block.super }}
-    {% endwith %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'pages:home' %}">Home</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'articles:article_list' %}">Artigos</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">{{ article.title }}</li>
+        </ol>
+    </nav>
 {% endblock %}
 
 {% block content %}

@@ -5,7 +5,8 @@ from django.contrib.auth import get_user_model
 from apps.articles.interfaces.services import IArticleService
 from apps.articles.interfaces.repositories import IArticleRepository
 import logging
-from core.observers import event_dispatcher
+from core.observers import event_dispatcher, Event
+from datetime import datetime
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -72,7 +73,13 @@ class ArticleService(IArticleService):
         article = self.article_repository.create(article_data)
         
         # Dispara evento para observers
-        event_dispatcher.notify('article_created', article)
+        event = Event(
+            name='article_created',
+            data=article,
+            timestamp=datetime.now(),
+            source='article_service'
+        )
+        event_dispatcher.dispatch(event)
         
         logger.info(f"Artigo criado: {article.title} por {author.email}")
         return article

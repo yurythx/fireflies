@@ -3,12 +3,14 @@
 {% block config_title %}Configurações do Sistema{% endblock %}
 
 {% block breadcrumbs %}
-    {% with breadcrumbs=[
-        {"title": "Dashboard", "url": url 'config:dashboard'},
-        {"title": "Configurações do Sistema", "is_current": True}
-    ] %}
-        {{ block.super }}
-    {% endwith %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'config:dashboard' %}">Dashboard</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">Configurações do Sistema</li>
+        </ol>
+    </nav>
 {% endblock %}
 
 {% block config_content %}
