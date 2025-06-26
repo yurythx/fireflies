@@ -81,13 +81,54 @@
                     <div class="card h-100 border-0 shadow-sm fireflies-glow">
                         <div class="card-body text-center p-4">
                             <div class="mb-3">
-                                <i class="fas fa-rocket fa-3x text-fireflies fireflies-icon"></i>
+                                <i class="fas fa-lightbulb fa-3x text-fireflies fireflies-icon"></i>
                             </div>
-                            <h5 class="card-title text-sans text-fireflies">Performance</h5>
+                            <h5 class="card-title text-sans text-fireflies">Inspiração & Colaboração</h5>
                             <p class="card-text text-muted">
-                                Otimizado para velocidade e eficiência em todos os dispositivos.
+                                Plataforma inspirada nos vaga-lumes: ilumine ideias, colabore e brilhe em comunidade.
                             </p>
                         </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Artigos em destaque -->
+            <div class="row g-4 mt-5">
+                <div class="col-12">
+                    <h2 class="text-fireflies-glow mb-4 text-center">
+                        <i class="fas fa-newspaper me-2"></i>Conteúdo em Destaque
+                    </h2>
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                        {% for article in main_articles %}
+                        <div class="col">
+                            <div class="card h-100 border-0 shadow fireflies-glow">
+                                {% if article.featured_image %}
+                                <img src="{{ article.featured_image.url }}" class="card-img-top" alt="{{ article.featured_image_alt|default:article.title }}">
+                                {% endif %}
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title text-fireflies">{{ article.title }}</h5>
+                                    <p class="card-text text-muted small mb-2">{{ article.excerpt|truncatechars:120 }}</p>
+                                    <div class="mt-auto">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="fas fa-user text-fireflies me-1"></i>
+                                            <span class="me-2">{{ article.author.get_full_name|default:article.author.username }}</span>
+                                            <i class="fas fa-calendar-alt text-fireflies me-1"></i>
+                                            <span>{{ article.published_at|date:'d M Y' }}</span>
+                                        </div>
+                                        <a href="{{ article.get_absolute_url }}" class="btn btn-outline-primary btn-sm w-100">
+                                            <i class="fas fa-arrow-right me-1"></i>Ler artigo completo
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="col-12">
+                            <div class="alert alert-info text-center my-4">
+                                <i class="fas fa-info-circle me-2"></i>Nenhum artigo publicado ainda. Que tal ser o primeiro a contribuir?
+                            </div>
+                        </div>
+                        {% endfor %}
                     </div>
                 </div>
             </div>

@@ -76,6 +76,17 @@ class Command(BaseCommand):
                 for app_name in sync_result['updated_modules']:
                     self.stdout.write(f'    - {app_name}')
             
+            # Após sincronizar, garantir que todos os módulos core estejam habilitados
+            core_modules = AppModuleConfiguration.objects.filter(is_core=True)
+            updated = 0
+            for module in core_modules:
+                if not module.is_enabled:
+                    module.is_enabled = True
+                    module.save()
+                    updated += 1
+            if updated:
+                self.stdout.write(self.style.SUCCESS(f'🔓 {updated} módulos core foram habilitados automaticamente.'))
+            
             # Estatísticas finais
             stats = module_service.get_module_statistics()
             self.stdout.write('\n📊 Estatísticas do Sistema:')
