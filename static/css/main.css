@@ -347,9 +347,9 @@ a:hover {
 }
 
 .card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--box-shadow-lg);
-    border-color: rgba(0, 0, 0, 0.2);
+    border: 2px solid var(--django-green-light) !important;
+    box-shadow: 0 0 0 0.15rem rgba(68, 183, 139, 0.25), var(--box-shadow);
+    transition: border 0.2s, box-shadow 0.2s;
 }
 
 .card-header {

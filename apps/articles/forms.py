@@ -17,11 +17,17 @@ User = get_user_model()
 class ArticleForm(forms.ModelForm):
     """Formulário para criação e edição de artigos"""
     
+    is_published = forms.BooleanField(
+        required=False,
+        label='Publicado',
+        help_text='Marque para publicar o artigo. Se desmarcado, ficará como rascunho.'
+    )
+    
     class Meta:
         model = Article
         fields = [
             'title', 'excerpt', 'content', 'featured_image', 'featured_image_alt',
-            'category', 'tags', 'status', 'is_featured', 'allow_comments',
+            'category', 'tags', 'is_featured', 'allow_comments',
             'meta_title', 'meta_description', 'meta_keywords'
         ]
         
@@ -38,8 +44,9 @@ class ArticleForm(forms.ModelForm):
                 'maxlength': 500
             }),
             'content': TinyMCE(attrs={
-                'class': 'form-control',
+                'class': 'tinymce',
                 'placeholder': 'Escreva o conteúdo completo do artigo...',
+                'style': 'min-height:600px;'
             }, mce_attrs={'config': 'advanced'}),
             'featured_image': forms.FileInput(attrs={
                 'class': 'form-control',
@@ -56,9 +63,6 @@ class ArticleForm(forms.ModelForm):
             'tags': forms.SelectMultiple(attrs={
                 'class': 'form-select',
                 'size': '5'
-            }),
-            'status': forms.Select(attrs={
-                'class': 'form-select'
             }),
             'is_featured': forms.CheckboxInput(attrs={
                 'class': 'form-check-input'
@@ -92,7 +96,6 @@ class ArticleForm(forms.ModelForm):
             'featured_image_alt': 'Texto Alternativo',
             'category': 'Categoria',
             'tags': 'Tags',
-            'status': 'Status',
             'is_featured': 'Artigo em destaque',
             'allow_comments': 'Permitir comentários',
             'meta_title': 'Meta Título',
@@ -108,7 +111,6 @@ class ArticleForm(forms.ModelForm):
             'featured_image_alt': 'Texto alternativo para acessibilidade',
             'category': 'Categoria principal do artigo',
             'tags': 'Segure Ctrl/Cmd para selecionar múltiplas tags',
-            'status': 'Status de publicação do artigo',
             'is_featured': 'Marque para destacar o artigo na página inicial',
             'allow_comments': 'Permitir que usuários comentem no artigo',
             'meta_title': 'Título para mecanismos de busca (máximo 60 caracteres)',
@@ -131,10 +133,11 @@ class ArticleForm(forms.ModelForm):
         self.fields['excerpt'].required = True
         self.fields['content'].required = True
         
-        # Configurar valores padrão
-        if not self.instance.pk:  # Novo artigo
-            self.fields['status'].initial = 'draft'
-            self.fields['allow_comments'].initial = True
+        # Inicializar o checkbox conforme o status do artigo
+        if self.instance.pk:
+            self.fields['is_published'].initial = (self.instance.status == 'published')
+        else:
+            self.fields['is_published'].initial = False
 
     def clean_title(self):
         """Validação personalizada para o título"""
@@ -196,6 +199,12 @@ class ArticleForm(forms.ModelForm):
     def save(self, commit=True):
         """Sobrescrever save para adicionar lógica personalizada"""
         article = super().save(commit=False)
+        
+        # Define o status conforme o checkbox
+        if self.cleaned_data.get('is_published'):
+            article.status = 'published'
+        else:
+            article.status = 'draft'
         
         # Se não há meta_title, usar o título
         if not article.meta_title:
@@ -378,10 +387,13 @@ class CommentForm(forms.ModelForm):
 
 class ReplyForm(CommentForm):
     """Formulário para respostas a comentários"""
-
+    website_url = forms.CharField(
+        required=False,
+        widget=forms.HiddenInput(),
+        label='Website URL (deixe em branco)'
+    )
     class Meta(CommentForm.Meta):
         fields = ['name', 'email', 'content']  # Remover website das respostas
-
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'form-control form-control-sm',
@@ -396,11 +408,40 @@ class ReplyForm(CommentForm):
             }),
             'content': forms.Textarea(attrs={
                 'class': 'form-control form-control-sm',
-                'placeholder': 'Escreva sua resposta... *',
+                'placeholder': 'Sua resposta... *',
                 'rows': 3,
                 'required': True
             }),
         }
+    def clean_website_url(self):
+        website_url = self.cleaned_data.get('website_url')
+        if website_url:
+            raise ValidationError('Spam detectado.')
+        return website_url
+    def clean_website(self):
+        website = self.cleaned_data.get('website')
+        if website:
+            import re
+            # Verifica se é uma URL válida
+            from django.core.validators import URLValidator
+            from django.core.exceptions import ValidationError as DjangoValidationError
+            validator = URLValidator()
+            try:
+                validator(website)
+            except DjangoValidationError:
+                raise ValidationError('URL do website inválida.')
+            # Bloqueia domínios suspeitos
+            suspicious_domains = [
+                'tempmail.org', '10minutemail.com', 'guerrillamail.com',
+                'mailinator.com', 'throwaway.email', 'bit.ly', 'tinyurl.com', 'goo.gl'
+            ]
+            for domain in suspicious_domains:
+                if domain in website:
+                    raise ValidationError('Domínio de website não permitido.')
+            # Bloqueia URLs com javascript ou dados
+            if re.match(r'^(javascript:|data:)', website, re.IGNORECASE):
+                raise ValidationError('URL de website não permitida.')
+        return website
 
 
 class CommentModerationForm(forms.ModelForm):

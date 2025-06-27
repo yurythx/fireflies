@@ -1,20 +1,21 @@
 {% extends "base.html" %}
 {% load static %}
+{% load i18n %}
 
 {% block title %}Comentários - {{ article.title }}{% endblock %}
 
 {% block extra_css %}
 <style>
 .comment-item {
-    border-left: 3px solid #e9ecef;
+    border-left: 3px solid var(--border-color);
     padding-left: 1rem;
     margin-bottom: 1.5rem;
 }
 
 .comment-item.reply {
     margin-left: 2rem;
-    border-left-color: #6c757d;
-    background-color: #f8f9fa;
+    border-left-color: var(--secondary-color);
+    background-color: var(--bg-secondary);
     padding: 1rem;
     border-radius: 0.375rem;
 }
@@ -28,12 +29,12 @@
 
 .comment-author {
     font-weight: 600;
-    color: #495057;
+    color: var(--text-color);
 }
 
 .comment-date {
     font-size: 0.875rem;
-    color: #6c757d;
+    color: var(--text-muted);
 }
 
 .comment-content {
@@ -51,9 +52,9 @@
     display: none;
     margin-top: 1rem;
     padding: 1rem;
-    background-color: #f8f9fa;
+    background-color: var(--bg-secondary);
     border-radius: 0.375rem;
-    border: 1px solid #dee2e6;
+    border: 1px solid var(--border-color);
 }
 
 .reply-form.show {
@@ -61,7 +62,8 @@
 }
 
 .comment-form {
-    background-color: #fff;
+    background-color: var(--bg-color);
+    color: var(--text-color);
     padding: 2rem;
     border-radius: 0.5rem;
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
@@ -78,7 +80,7 @@
 }
 
 .comment-count {
-    color: #6c757d;
+    color: var(--text-muted);
     font-size: 1.1rem;
     margin-bottom: 1.5rem;
 }
@@ -86,7 +88,7 @@
 .no-comments {
     text-align: center;
     padding: 3rem 1rem;
-    color: #6c757d;
+    color: var(--text-muted);
 }
 
 .loading {
@@ -97,11 +99,23 @@
 .alert-comment {
     margin-bottom: 1rem;
 }
+
+.comment-count, .no-comments, .form-text {
+    color: var(--text-muted);
+}
+
+.fade-in-feedback {
+    animation: fadeIn 0.7s;
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="container mt-4" role="main">
     <div class="row">
         <div class="col-lg-8 mx-auto">
             <!-- Breadcrumb -->
@@ -137,13 +151,13 @@
 
             <!-- Formulário de comentário -->
             {% if article.allow_comments %}
-            <div class="comment-form">
+            <div class="comment-form" aria-label="Formulário de comentário" role="form">
                 <h4 class="mb-3">
                     <i class="fas fa-edit"></i>
-                    Deixe seu comentário
+                    {% trans "Deixe seu comentário" %}
                 </h4>
                 
-                <form method="post" action="{% url 'articles:add_comment' article.slug %}" id="comment-form">
+                <form method="post" action="{% url 'articles:add_comment' article.slug %}" id="comment-form" aria-label="Formulário de comentário" role="form">
                     {% csrf_token %}
                     
                     <div class="row">
@@ -193,7 +207,7 @@
                         </small>
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-paper-plane"></i>
-                            Enviar Comentário
+                            {% trans "Enviar Comentário" %}
                         </button>
                     </div>
                 </form>
@@ -376,6 +390,14 @@
                     </div>
                 {% endif %}
             </div>
+
+            {% if messages %}
+                <div class="fade-in-feedback">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-comment">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>

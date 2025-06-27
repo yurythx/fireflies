@@ -4,6 +4,8 @@ from django.core.validators import MinLengthValidator
 from django.core.exceptions import ValidationError
 import json
 import os
+from django.db.models.signals import post_migrate
+from django.dispatch import receiver
 
 User = get_user_model()
 
@@ -366,3 +368,11 @@ class AppModuleConfiguration(models.Model):
                         'status': 'active',
                     }
                 )
+
+@receiver(post_migrate)
+def ensure_core_modules(sender, **kwargs):
+    """Garante que os módulos principais e todos os apps locais estejam sempre inicializados após migrações."""
+    from apps.config.models.app_module_config import AppModuleConfiguration
+    from apps.config.services.module_service import ModuleService
+    AppModuleConfiguration.initialize_core_modules()
+    ModuleService().sync_with_installed_apps()

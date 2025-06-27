@@ -10,13 +10,12 @@
 
 /* Corpo do editor */
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    font-size: 14px;
-    line-height: 1.6;
-    color: #333;
-    background-color: #fff;
-    margin: 20px;
-    padding: 0;
+    font-family: 'Roboto', Arial, sans-serif;
+    font-size: 15px;
+    color: #222;
+    background: #fff;
+    line-height: 1.7;
+    margin: 16px;
 }
 
 /* Títulos */
@@ -25,6 +24,7 @@ h1, h2, h3, h4, h5, h6 {
     line-height: 1.2;
     margin-top: 0;
     margin-bottom: 0.5em;
+    color: #111;
 }
 
 h1 { font-size: 2em; }
@@ -77,6 +77,7 @@ code {
     border-radius: 3px;
     font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
     font-size: 0.9em;
+    color: #222;
 }
 
 pre {
@@ -85,6 +86,7 @@ pre {
     border-radius: 5px;
     overflow-x: auto;
     margin: 1em 0;
+    color: #222;
 }
 
 pre code {
@@ -103,6 +105,8 @@ table td, table th {
     border: 1px solid #ddd;
     padding: 8px;
     text-align: left;
+    background-color: #fff;
+    color: #222;
 }
 
 table th {
@@ -190,4 +194,18 @@ s, del {
     table td, table th {
         padding: 4px;
     }
+}
+
+@media (prefers-color-scheme: dark) {
+  body { background: #181a1b !important; color: #e8e6e3 !important; }
+  h1, h2, h3, h4, h5, h6 { color: #fff; }
+  a { color: #8ab4f8; }
+  a:hover { color: #4f8cff; }
+  blockquote { background: #23272b; border-left-color: #8ab4f8; }
+  code, pre { background: #23272b; color: #e8e6e3; }
+  table th { background: #23272b; color: #fff; }
+  table td { background: #181a1b; color: #e8e6e3; }
+  strong, b { color: #fff; }
+  em, i { color: #e8e6e3; }
+  s, del { color: #b0b0b0; }
 }

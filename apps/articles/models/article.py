@@ -7,8 +7,15 @@ from django.utils import timezone
 
 User = get_user_model()
 
+class ArticleQuerySet(models.QuerySet):
+    def published(self):
+        return self.filter(status='published', published_at__lte=models.functions.Now())
+
 class Article(models.Model):
-    """Modelo para artigos"""
+    """
+    Modelo para artigos do blog.
+    Inclui campos para SEO, status, imagem destacada, legenda, analytics, etc.
+    """
     
     STATUS_CHOICES = [
         ('draft', 'Rascunho'),
@@ -43,6 +50,12 @@ class Article(models.Model):
         upload_to='articles/images/',
         blank=True,
         help_text='Imagem principal do artigo'
+    )
+    image_caption = models.CharField(
+        'legenda da imagem',
+        max_length=255,
+        blank=True,
+        help_text='Legenda opcional para a imagem destacada'
     )
     featured_image_alt = models.CharField(
         'texto alternativo da imagem',
@@ -157,6 +170,8 @@ class Article(models.Model):
         default=0,
         help_text='Tempo estimado de leitura em minutos'
     )
+
+    objects = ArticleQuerySet.as_manager()
 
     class Meta:
         verbose_name = 'artigo'

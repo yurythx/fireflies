@@ -46,8 +46,8 @@
                         <!-- Author -->
                         {% if article.author %}
                             <div class="d-flex align-items-center me-4">
-                                {% if article.author.profile_picture %}
-                                    <img src="{{ article.author.profile_picture.url }}" 
+                                {% if article.author.avatar %}
+                                    <img src="{{ article.author.avatar.url }}" 
                                          class="rounded-circle me-2" width="32" height="32" alt="{{ article.author.get_full_name }}">
                                 {% else %}
                                     <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center me-2" 
@@ -71,10 +71,10 @@
                             </small>
                         {% endif %}
                         
-                        {% if article.views_count %}
+                        {% if article.view_count %}
                             <small class="ms-3">
                                 <i class="fas fa-eye me-1"></i>
-                                {{ article.views_count }} visualizações
+                                {{ article.view_count }} visualizações
                             </small>
                         {% endif %}
                         
@@ -87,7 +87,7 @@
                     </div>
 
                     <!-- Admin Actions -->
-                    {% if user.is_authenticated and user.is_staff or user.is_superuser %}
+                    {% if user.is_authenticated and (user.is_staff or user.is_superuser) %}
                     <div class="alert alert-info d-flex justify-content-between align-items-center">
                         <div>
                             <i class="fas fa-tools me-2"></i>
@@ -111,11 +111,13 @@
                 {% if article.featured_image %}
                     <div class="mb-4">
                         <img src="{{ article.featured_image.url }}" class="img-fluid rounded" alt="{{ article.title }}">
+                        {#
                         {% if article.image_caption %}
                             <figcaption class="text-secondary text-center mt-2">
                                 <small>{{ article.image_caption }}</small>
                             </figcaption>
                         {% endif %}
+                        #}
                     </div>
                 {% endif %}
 
@@ -137,28 +139,6 @@
                                 </div>
                             {% endif %}
                         </div>
-                        
-                        <div class="col-md-6 text-md-end">
-                            <!-- Share Buttons -->
-                            <div class="btn-group" role="group" aria-label="Compartilhar">
-                                <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" 
-                                   target="_blank" class="btn btn-outline-primary btn-sm">
-                                    <i class="fab fa-facebook-f"></i>
-                                </a>
-                                <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ article.title }}" 
-                                   target="_blank" class="btn btn-outline-info btn-sm">
-                                    <i class="fab fa-twitter"></i>
-                                </a>
-                                <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri }}" 
-                                   target="_blank" class="btn btn-outline-primary btn-sm">
-                                    <i class="fab fa-linkedin-in"></i>
-                                </a>
-                                <a href="whatsapp://send?text={{ article.title }} {{ request.build_absolute_uri }}" 
-                                   class="btn btn-outline-success btn-sm">
-                                    <i class="fab fa-whatsapp"></i>
-                                </a>
-                            </div>
-                        </div>
                     </div>
                 </footer>
             </article>
@@ -169,8 +149,8 @@
                     <div class="card-body card-django">
                         <div class="row align-items-center">
                             <div class="col-auto">
-                                {% if article.author.profile_picture %}
-                                    <img src="{{ article.author.profile_picture.url }}"
+                                {% if article.author.avatar %}
+                                    <img src="{{ article.author.avatar.url }}"
                                          class="rounded-circle avatar-lg" alt="{{ article.author.get_full_name|default:article.author.username }}">
                                 {% else %}
                                     <div class="bg-secondary rounded-circle icon-container-lg text-secondary">

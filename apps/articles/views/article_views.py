@@ -219,9 +219,9 @@ class ArticleCreateView(AdminRequiredMixin, CreateView):
     def form_valid(self, form):
         """Processa formulário válido"""
         form.instance.author = self.request.user
-        
-        # Usa o service injetado para criar o artigo
-        article = self.article_service.create_article(form.cleaned_data, self.request.user)
+        data = form.cleaned_data.copy()
+        data.pop('is_published', None)  # Remove o campo que não existe no model
+        article = self.article_service.create_article(data, self.request.user)
         
         if article:
             messages.success(self.request, '✅ Artigo criado com sucesso!')
@@ -250,8 +250,10 @@ class ArticleUpdateView(AdminRequiredMixin, UpdateView):
     
     def form_valid(self, form):
         """Processa formulário válido"""
+        data = form.cleaned_data.copy()
+        data.pop('is_published', None)  # Remove o campo que não existe no model
         # Usa o service injetado para atualizar o artigo
-        success = self.article_service.update_article(self.get_object().id, form.cleaned_data, self.request.user)
+        success = self.article_service.update_article(self.get_object().id, data, self.request.user)
         
         if success:
             messages.success(self.request, '✅ Artigo atualizado com sucesso!')
