@@ -634,14 +634,14 @@ SHOW_SQL_QUERIES = os.environ.get('SHOW_SQL_QUERIES', 'False').lower() == 'true'
 # Configurações específicas para produção
 if ENVIRONMENT == 'production':
     # Força HTTPS em produção
-    SECURE_SSL_REDIRECT = True
+    SECURE_SSL_REDIRECT = False
     SECURE_HSTS_SECONDS = 31536000  # 1 ano
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+    SECURE_HSTS_PRELOAD = False
 
     # Cookies seguros em produção
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
 
     # Log level mais restritivo em produção
     if not os.environ.get('LOG_LEVEL'):

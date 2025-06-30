@@ -1,8 +1,25 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.core.validators import EmailValidator
+from django.utils import timezone
 
 User = get_user_model()
+
+class CommentManager(models.Manager):
+    def get_replies(self, comment):
+        return self.filter(parent=comment, is_approved=True).order_by('created_at')
+
+    def approve(self, comment):
+        comment.is_approved = True
+        comment.approved_at = timezone.now()
+        comment.save()
+        return comment
+
+    def mark_as_spam(self, comment):
+        comment.is_spam = True
+        comment.is_approved = False
+        comment.save()
+        return comment
 
 class Comment(models.Model):
     """Modelo para comentários de artigos"""
@@ -97,6 +114,8 @@ class Comment(models.Model):
         help_text='Data e hora da aprovação'
     )
 
+    objects = CommentManager()
+
     class Meta:
         verbose_name = 'comentário'
         verbose_name_plural = 'comentários'
@@ -120,21 +139,13 @@ class Comment(models.Model):
         super().save(*args, **kwargs)
 
     def get_replies(self):
-        """Retorna respostas aprovadas para este comentário"""
-        return self.replies.filter(is_approved=True).order_by('created_at')
+        return Comment.objects.get_replies(self)
 
     def approve(self):
-        """Aprova o comentário"""
-        from django.utils import timezone
-        self.is_approved = True
-        self.approved_at = timezone.now()
-        self.save()
+        return Comment.objects.approve(self)
 
     def mark_as_spam(self):
-        """Marca comentário como spam"""
-        self.is_spam = True
-        self.is_approved = False
-        self.save()
+        return Comment.objects.mark_as_spam(self)
 
     @property
     def is_reply(self):

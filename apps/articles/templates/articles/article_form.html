@@ -34,6 +34,13 @@
                 <div class="card-body">
                     <form method="post" enctype="multipart/form-data" novalidate>
                         {% csrf_token %}
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                         
                         <div class="row">
                             <!-- Coluna Principal -->
@@ -188,7 +195,7 @@
                                         <div class="mb-3">
                                             <div class="form-check">
                                                 {{ form.is_published }}
-                                                <label for="{{ form.is_published.id_for_label }}" class="form-check-label fw-bold">
+                                                <label class="form-check-label" for="{{ form.is_published.id_for_label }}">
                                                     <i class="fas fa-check-circle me-1"></i>{{ form.is_published.label }}
                                                 </label>
                                             </div>

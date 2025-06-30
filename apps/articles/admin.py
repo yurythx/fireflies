@@ -1,5 +1,7 @@
 from django.contrib import admin
 from apps.articles.models import Article, Category, Tag, Comment
+from django.contrib.admin import SimpleListFilter
+import re
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -26,11 +28,43 @@ class TagAdmin(admin.ModelAdmin):
         return obj.get_article_count()
     article_count.short_description = 'Artigos'
 
+class SemImagemDestacadaFilter(SimpleListFilter):
+    title = 'Sem Imagem Destacada'
+    parameter_name = 'sem_imagem_destacada'
+    def lookups(self, request, model_admin):
+        return (
+            ('sim', 'Sim'),
+            ('nao', 'Não'),
+        )
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value == 'sim':
+            return queryset.filter(featured_image='') | queryset.filter(featured_image__isnull=True)
+        if value == 'nao':
+            return queryset.exclude(featured_image='').exclude(featured_image__isnull=True)
+        return queryset
+
+class ContemLinkFilter(SimpleListFilter):
+    title = 'Contém Link'
+    parameter_name = 'contem_link'
+    def lookups(self, request, model_admin):
+        return (
+            ('sim', 'Sim'),
+            ('nao', 'Não'),
+        )
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value == 'sim':
+            return queryset.filter(content__regex=r'http[s]?://')
+        if value == 'nao':
+            return queryset.exclude(content__regex=r'http[s]?://')
+        return queryset
+
 @admin.register(Article)
 class ArticleAdmin(admin.ModelAdmin):
     """Admin para artigos"""
     list_display = ['title', 'author', 'category', 'status', 'is_featured', 'view_count', 'published_at']
-    list_filter = ['status', 'is_featured', 'category', 'created_at', 'published_at']
+    list_filter = ['status', 'is_featured', 'category', 'created_at', 'published_at', SemImagemDestacadaFilter]
     search_fields = ['title', 'excerpt', 'content']
     prepopulated_fields = {'slug': ('title',)}
     readonly_fields = ['view_count', 'reading_time', 'created_at', 'updated_at']
@@ -64,6 +98,11 @@ class ArticleAdmin(admin.ModelAdmin):
             obj.author = request.user
         super().save_model(request, obj, form, change)
 
+    def sem_imagem_destacada(self, obj):
+        return not bool(obj.featured_image)
+    sem_imagem_destacada.boolean = True
+    sem_imagem_destacada.short_description = 'Sem Imagem Destacada'
+
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
     """Admin para comentários"""
@@ -74,7 +113,8 @@ class CommentAdmin(admin.ModelAdmin):
     list_filter = [
         'is_approved', 'is_spam', 'created_at', 'article__category',
         ('user', admin.RelatedOnlyFieldListFilter),
-        ('parent', admin.RelatedOnlyFieldListFilter)
+        ('parent', admin.RelatedOnlyFieldListFilter),
+        ContemLinkFilter,
     ]
     search_fields = ['name', 'email', 'content', 'article__title']
     readonly_fields = [
@@ -200,6 +240,9 @@ class CommentAdmin(admin.ModelAdmin):
         updated = queryset.update(is_spam=False)
         self.message_user(request, f'{updated} comentário(s) desmarcado(s) como spam.')
     mark_as_not_spam.short_description = "✅ Não é spam"
+
+    def apenas_spam(self, request, queryset):
+        return queryset.filter(is_spam=True)
 
     class Media:
         js = ('admin/js/comment_admin.js',)

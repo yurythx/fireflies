@@ -5,6 +5,7 @@ from django.utils.html import strip_tags
 import re
 
 from tinymce.widgets import TinyMCE
+from core.security import InputSanitizer
 
 from apps.articles.models.article import Article
 from apps.articles.models.category import Category
@@ -199,25 +200,24 @@ class ArticleForm(forms.ModelForm):
     def save(self, commit=True):
         """Sobrescrever save para adicionar lógica personalizada"""
         article = super().save(commit=False)
-        
+        from django.utils import timezone
         # Define o status conforme o checkbox
         if self.cleaned_data.get('is_published'):
             article.status = 'published'
+            if not article.published_at:
+                article.published_at = timezone.now()
         else:
             article.status = 'draft'
-        
+            article.published_at = None
         # Se não há meta_title, usar o título
         if not article.meta_title:
             article.meta_title = article.title[:60]
-        
         # Se não há meta_description, usar o excerpt
         if not article.meta_description:
             article.meta_description = article.excerpt[:160]
-        
         if commit:
             article.save()
             self.save_m2m()  # Salvar tags
-        
         return article
 
 
@@ -259,15 +259,9 @@ class CommentForm(forms.ModelForm):
             }),
         }
 
-        labels = {
-            'name': 'Nome',
-            'email': 'Email',
-            'website': 'Website',
-            'content': 'Comentário',
-        }
+ 
 
         help_texts = {
-            'name': 'Como você gostaria de ser identificado',
             'email': 'Seu email não será publicado',
             'website': 'URL do seu site ou blog (opcional)',
             'content': 'Compartilhe sua opinião, dúvida ou sugestão',
@@ -300,8 +294,9 @@ class CommentForm(forms.ModelForm):
         """Validação do nome"""
         name = self.cleaned_data.get('name')
         if name:
-            # Remover tags HTML
+            # Remover tags HTML e sanitizar
             name = strip_tags(name).strip()
+            name = InputSanitizer.sanitize_html(name)
 
             # Verificar se não é muito curto
             if len(name) < 2:
@@ -336,23 +331,24 @@ class CommentForm(forms.ModelForm):
         """Validação do conteúdo"""
         content = self.cleaned_data.get('content')
         if content:
-            # Remover tags HTML perigosas
+            # Remover tags HTML perigosas e sanitizar
             content = strip_tags(content).strip()
+            content = InputSanitizer.sanitize_html(content)
 
             # Verificar tamanho mínimo
-            if len(content) < 10:
-                raise ValidationError('O comentário deve ter pelo menos 10 caracteres.')
+            if len(content) < 5:
+                raise ValidationError('O comentário deve ter pelo menos 5 caracteres.')
 
             # Verificar tamanho máximo
             if len(content) > 2000:
                 raise ValidationError('O comentário não pode ter mais de 2000 caracteres.')
 
-            # Verificar spam patterns
+            # Verificar spam patterns (menos restritivo)
             spam_patterns = [
-                r'http[s]?://[^\s]+\.[^\s]+',  # URLs
+                r'http[s]?://[^\\s]+\.[^\\s]+',  # URLs
                 r'\b(viagra|casino|poker|loan|credit)\b',  # Palavras spam
-                r'[A-Z]{8,}',  # Muito texto em maiúscula
-                r'(.)\1{6,}',  # Caracteres repetidos
+                r'[A-Z]{12,}',  # Muito texto em maiúscula (mais permissivo)
+                # Removido: caracteres repetidos
             ]
 
             for pattern in spam_patterns:
@@ -422,7 +418,6 @@ class ReplyForm(CommentForm):
         website = self.cleaned_data.get('website')
         if website:
             import re
-            # Verifica se é uma URL válida
             from django.core.validators import URLValidator
             from django.core.exceptions import ValidationError as DjangoValidationError
             validator = URLValidator()
@@ -441,6 +436,8 @@ class ReplyForm(CommentForm):
             # Bloqueia URLs com javascript ou dados
             if re.match(r'^(javascript:|data:)', website, re.IGNORECASE):
                 raise ValidationError('URL de website não permitida.')
+            # Sanitiza a URL
+            website = InputSanitizer.sanitize_html(website)
         return website
 
 

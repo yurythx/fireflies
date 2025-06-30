@@ -18,6 +18,8 @@ from apps.articles.views.comment_views import (
     moderate_comments,
     moderate_comment_action,
     comment_stats,
+    load_more_comments,
+    load_replies,
 )
 
 
@@ -33,15 +35,17 @@ urlpatterns = [
     path('<slug:slug>/editar/', ArticleUpdateView.as_view(), name='article_update'),
     path('<slug:slug>/deletar/', ArticleDeleteView.as_view(), name='article_delete'),
 
+    # Moderação de comentários (staff apenas) - deve vir antes dos slugs
+    path('admin/comentarios/', moderate_comments, name='moderate_comments'),
+    path('admin/comentarios/<int:comment_id>/moderar/', moderate_comment_action, name='moderate_comment_action'),
+    path('admin/comentarios/stats/', comment_stats, name='comment_stats'),
+
     # Comentários
     path('<slug:slug>/comentarios/', comment_list, name='comment_list'),
     path('<slug:slug>/comentar/', add_comment, name='add_comment'),
     path('<slug:slug>/comentarios/<int:comment_id>/responder/', add_reply, name='add_reply'),
-
-    # Moderação de comentários (staff apenas)
-    path('admin/comentarios/', moderate_comments, name='moderate_comments'),
-    path('admin/comentarios/<int:comment_id>/moderar/', moderate_comment_action, name='moderate_comment_action'),
-    path('admin/comentarios/stats/', comment_stats, name='comment_stats'),
+    path('comentarios/', load_more_comments, name='load_more_comments'),
+    path('comentarios/<int:comment_id>/replies/', load_replies, name='load_replies'),
 
     # Artigos - Detalhes (deve vir por último para não conflitar)
     path('<slug:slug>/', ArticleDetailView.as_view(), name='article_detail'),

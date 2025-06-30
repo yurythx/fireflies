@@ -82,14 +82,29 @@
                     {% endif %}
                     <!-- Reply Form -->
                     {% if article.allow_comments and comment.can_be_replied %}
-                    <div class="reply-form-container" id="reply-form-{{ comment.id }}" style="display: none;">
+                    <div class="reply-form-container" id="reply-form-{{ comment.id }}" style="display: {% if reply_form and reply_parent_id == comment.id %}block{% else %}none{% endif %};">
                         <div class="card bg-light">
                             <div class="card-body">
                                 <h6 class="card-title">
                                     <i class="fas fa-reply"></i> Responder a {{ comment.author_name }}
                                 </h6>
-                                <form method="post" action="{% url 'articles:add_reply' article.slug comment.id %}" class="reply-form">
+                                <div id="reply-feedback-{{ comment.id }}" aria-live="polite"></div>
+                                <form method="post" action="{% url 'articles:add_reply' article.slug comment.id %}" class="reply-form" data-comment-id="{{ comment.id }}">
                                     {% csrf_token %}
+                                    {% if reply_form and reply_parent_id == comment.id %}
+                                        {% if reply_form.errors or reply_form.non_field_errors %}
+                                            <div class="alert alert-danger">
+                                                {% for field in reply_form %}
+                                                    {% for error in field.errors %}
+                                                        <div><strong>{{ field.label }}:</strong> {{ error }}</div>
+                                                    {% endfor %}
+                                                {% endfor %}
+                                                {% for error in reply_form.non_field_errors %}
+                                                    <div>{{ error }}</div>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    {% endif %}
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="form-floating mb-2">
@@ -99,19 +114,19 @@
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-floating mb-2">
-                                                <input type="email" class="form-control form-control-sm" name="email" placeholder="Seu email" required {% if user.is_authenticated %}value="{{ user.email }}" readonly{% endif %}>
+                                                <input type="email" class="form-control form-control-sm" name="email" placeholder="Seu email" required {% if user.is_authenticated %}value="{{ user.email }}" readonly{% endif %} aria-label="Email">
                                                 <label>Email *</label>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="form-floating mb-3">
-                                        <textarea class="form-control form-control-sm" name="content" placeholder="Sua resposta..." rows="3" required></textarea>
+                                        <textarea class="form-control form-control-sm" name="content" placeholder="Sua resposta..." rows="3" required aria-label="Resposta"></textarea>
                                         <label>Resposta *</label>
                                     </div>
                                     <input type="hidden" name="website_url" value="">
                                     <div class="d-flex justify-content-end gap-2">
-                                        <button type="button" class="btn btn-secondary btn-sm" onclick="toggleReplyForm({{ comment.id }})">Cancelar</button>
-                                        <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-paper-plane"></i> Enviar Resposta</button>
+                                        <button type="button" class="btn btn-secondary btn-sm" onclick="toggleReplyForm({{ comment.id }})" aria-label="Cancelar resposta">Cancelar</button>
+                                        <button type="submit" class="btn btn-primary btn-sm" aria-label="Enviar resposta"><i class="fas fa-paper-plane"></i> Enviar Resposta</button>
                                     </div>
                                 </form>
                             </div>
@@ -358,3 +373,22 @@ function showMessage(type, message) {
     }, 5000);
 }
 </script>
+
+<div class="comment" id="comment-{{ comment.id }}">
+    <div class="comment-header">
+        <strong>{{ comment.name }}</strong>
+        <span class="text-muted small">{{ comment.created_at|date:"d/m/Y H:i" }}</span>
+    </div>
+    <div class="comment-body">{{ comment.content|linebreaksbr }}</div>
+    <div class="comment-actions">
+        {% if comment.can_reply %}
+            <button class="btn btn-link btn-sm reply-btn" data-comment-id="{{ comment.id }}">Responder</button>
+        {% endif %}
+    </div>
+    <div id="replies-for-{{ comment.id }}">
+        {% if comment.children.exists %}
+            <button class="btn btn-outline-secondary btn-sm btn-load-replies" data-comment-id="{{ comment.id }}">Ver respostas ({{ comment.children.count }})</button>
+        {% endif %}
+    </div>
+    <div id="reply-feedback-{{ comment.id }}"></div>
+</div>

@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
-from django.views.generic import CreateView, UpdateView, DeleteView
+from django.views.generic import CreateView, UpdateView, DeleteView, ListView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib import messages
 from django.urls import reverse_lazy, reverse
@@ -16,78 +16,51 @@ from apps.articles.models.category import Category
 from apps.articles.models.tag import Tag
 from apps.articles.forms import ArticleForm
 from core.factories import service_factory
+from apps.common.mixins import ModuleEnabledRequiredMixin
 
-class ArticleListView(View):
-    """View para listar artigos"""
+class ArticleListView(ModuleEnabledRequiredMixin, ListView):
+    module_name = 'apps.articles'
+    model = Article
     template_name = 'articles/article_list.html'
-    
-    def __init__(self, article_service=None):
-        super().__init__()
-        self.article_service = article_service or service_factory.create_article_service()
-    
-    def get(self, request):
-        """Lista artigos com paginação"""
-        # Obtém artigos publicados usando o service injetado
-        articles = self.article_service.get_published_articles()
-        
-        # Paginação
-        paginator = Paginator(articles, 12)  # 12 artigos por página
-        page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
-        
-        # Obtém artigos em destaque para sidebar usando o service injetado
-        featured_articles = self.article_service.get_featured_articles(limit=3)
-        
-        context = {
-            'page_obj': page_obj,
-            'articles': page_obj.object_list,
-            'featured_articles': featured_articles,
-            'meta_title': 'Artigos',
-            'meta_description': 'Todos os artigos do blog',
-        }
-        
-        return render(request, self.template_name, context)
+    context_object_name = 'articles'
+    paginate_by = 12
 
+    def get_queryset(self):
+        service = service_factory.create_article_service()
+        return service.get_published_articles()
 
-class ArticleDetailView(View):
-    """View para exibir detalhes de um artigo"""
-    
-    def __init__(self, article_service=None):
-        super().__init__()
-        self.article_service = article_service or service_factory.create_article_service()
-    
-    def get(self, request, slug):
-        from django.http import HttpResponse
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        service = service_factory.create_article_service()
+        context['featured_articles'] = service.get_featured_articles(limit=3)
+        context['meta_title'] = 'Artigos'
+        context['meta_description'] = 'Todos os artigos do blog'
+        return context
 
-        try:
-            # Busca o artigo usando o service injetado
-            article = self.article_service.get_article_by_slug(slug)
+class ArticleDetailView(ModuleEnabledRequiredMixin, DetailView):
+    module_name = 'apps.articles'
+    model = Article
+    template_name = 'articles/article_detail.html'
+    context_object_name = 'article'
+    slug_field = 'slug'
+    slug_url_arg = 'slug'
 
-            # Incrementa contador de visualizações usando o service injetado
-            self.article_service.increment_article_views(article.id)
+    def get_object(self, queryset=None):
+        service = service_factory.create_article_service()
+        return service.get_article_by_slug(self.kwargs['slug'])
 
-            # Obtém artigos relacionados usando o service injetado
-            related_articles = self.article_service.get_related_articles(article, limit=3)
-
-            # Obter comentários aprovados (mantém lógica, pois depende do model)
-            comments = article.comments.filter(is_approved=True, parent__isnull=True).order_by('-created_at')[:5]
-
-            context = {
-                'article': article,
-                'related_articles': related_articles,
-                'comments': comments,
-                'comment_count': article.comments.filter(is_approved=True).count(),
-                'meta_title': article.seo_title or article.title,
-                'meta_description': article.seo_description or article.excerpt,
-                'meta_keywords': getattr(article, 'meta_keywords', '') or '',
-            }
-
-            return render(request, 'articles/article_detail.html', context)
-
-        except Exception as e:
-            if hasattr(e, 'status_code') and e.status_code == 404:
-                return HttpResponse("<h1>Artigo não encontrado</h1>", status=404)
-            return HttpResponse(f"<h1>Erro: {e}</h1>", status=500)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        service = service_factory.create_article_service()
+        article = self.object
+        service.increment_article_views(article.id)
+        context['related_articles'] = service.get_related_articles(article, limit=3)
+        context['comments'] = article.comments.filter(is_approved=True, parent__isnull=True).order_by('-created_at')[:5]
+        context['comment_count'] = article.comments.filter(is_approved=True).count()
+        context['meta_title'] = article.seo_title or article.title
+        context['meta_description'] = article.seo_description or article.excerpt
+        context['meta_keywords'] = getattr(article, 'meta_keywords', '') or ''
+        return context
 
 
 def test_article_view(request, slug):
@@ -212,23 +185,13 @@ class ArticleCreateView(AdminRequiredMixin, CreateView):
     template_name = 'articles/article_form.html'
     success_url = reverse_lazy('articles:article_list')
     
-    def __init__(self, article_service=None):
-        super().__init__()
-        self.article_service = article_service or service_factory.create_article_service()
-    
     def form_valid(self, form):
-        """Processa formulário válido"""
+        print('DEBUG: Entrou no form_valid da ArticleCreateView')
         form.instance.author = self.request.user
-        data = form.cleaned_data.copy()
-        data.pop('is_published', None)  # Remove o campo que não existe no model
-        article = self.article_service.create_article(data, self.request.user)
-        
-        if article:
-            messages.success(self.request, '✅ Artigo criado com sucesso!')
-            return redirect('articles:article_detail', slug=article.slug)
-        else:
-            messages.error(self.request, '❌ Ocorreu um erro ao criar o artigo. Tente novamente.')
-            return self.form_invalid(form)
+        article = form.save()
+        print(f'DEBUG: Artigo salvo? ID: {getattr(article, "id", None)} | Slug: {getattr(article, "slug", None)}')
+        messages.success(self.request, '✅ Artigo criado com sucesso!')
+        return redirect('articles:article_detail', slug=article.slug)
     
     def get_context_data(self, **kwargs):
         """Adiciona dados extras ao contexto"""
