@@ -1,9 +1,14 @@
 {% load static %}
+{% load config_extras %}
 <!DOCTYPE html>
 <html lang="pt-br" class="h-100">
 <head>
     {% include 'includes/_head.html' %}
     <title>{% block config_title %}Configurações{% endblock %} - FireFlies Admin</title>
+    
+    <!-- Config Admin CSS -->
+    <link href="{% static 'css/config-admin.css' %}" rel="stylesheet">
+    
     {% block extra_css %}{% endblock %}
 </head>
 <body class="d-flex flex-column h-100">
@@ -24,6 +29,11 @@
                 <!-- Mobile Toggle -->
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Sidebar Toggle for Mobile -->
+                <button class="navbar-toggler d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar" aria-controls="sidebar" aria-expanded="false" aria-label="Toggle sidebar">
+                    <i class="fas fa-bars"></i>
                 </button>
 
                 <!-- Navigation Links -->
@@ -112,19 +122,30 @@
     <main id="main-content" class="flex-shrink-0">
         <div class="container-fluid">
             <div class="row">
-                <!-- Sidebar (apenas para admin/config) -->
-                {# Este include é específico do admin. Todos os outros includes globais (head, nav, footer, toasts, breadcrumbs) estão centralizados em apps/pages/templates/includes/. #}
-                {% include 'config/includes/sidebar.html' %}
-
-                <!-- Main content area -->
-                <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                    {% block config_content %}
-                    <!-- Content goes here -->
-                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                        <h1 class="h2">Painel de Configurações</h1>
+                <!-- Sidebar fixo à esquerda, sempre visível em md+ -->
+                <div class="offcanvas-md offcanvas-start" tabindex="-1" id="sidebar" aria-labelledby="sidebarLabel">
+                    <div class="offcanvas-header d-md-none">
+                        <h5 class="offcanvas-title" id="sidebarLabel">Menu de Configurações</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#sidebar" aria-label="Close"></button>
                     </div>
-                    <p class="lead">Sistema de administração do FireFlies</p>
-                    {% endblock %}
+                    <div class="offcanvas-body p-0">
+                        {% include 'config/includes/sidebar.html' %}
+                    </div>
+                </div>
+
+                <!-- Conteúdo principal alinhado à direita do sidebar -->
+                <main class="col-12 col-md-9 ms-sm-auto col-lg-10 px-md-4 offset-md-3 offset-lg-2" id="config-main-content">
+                    <div class="config-content">
+                        {% block config_content %}
+                        <!-- Content goes here -->
+                        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                            <h1 class="h2 config-page-title">
+                                <i class="fas fa-cog me-2 text-django-green"></i>Painel de Configurações
+                            </h1>
+                        </div>
+                        <p class="lead">Sistema de administração do FireFlies</p>
+                        {% endblock %}
+                    </div>
                 </main>
             </div>
         </div>
@@ -142,6 +163,9 @@
     <!-- Django Theme Toggle -->
     <script src="{% static 'js/theme-toggle.js' %}"></script>
 
+    <!-- Config Admin JavaScript -->
+    <script src="{% static 'js/config-admin.js' %}"></script>
+
     <!-- Image Optimizer -->
     <script src="{% static 'js/image-optimizer.js' %}"></script>
 
@@ -154,652 +178,6 @@
     <!-- Custom JS -->
     <script src="{% static 'js/main.js' %}"></script>
 
-    <!-- Config specific styles -->
-    <style>
-    /* Sidebar Django-style */
-    .sidebar {
-        position: fixed;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        z-index: 100;
-        padding: 48px 0 0;
-        background-color: var(--bs-light, #f8f9fa);
-        border-right: 1px solid var(--bs-border-color, #dee2e6);
-        box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
-        font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        overflow-y: auto;
-        overflow-x: hidden;
-    }
-
-    .sidebar-sticky {
-        position: relative;
-        top: 0;
-        height: calc(100vh - 48px);
-        padding-top: .5rem;
-        overflow-x: hidden;
-        overflow-y: auto;
-    }
-
-    /* Sidebar navigation links */
-    .sidebar .nav-link {
-        font-weight: 500;
-        color: var(--bs-gray-700, #495057);
-        padding: 0.75rem 1rem;
-        border-radius: 0.5rem;
-        margin: 0.125rem 0.5rem;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        text-decoration: none;
-        font-size: 0.9rem;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .sidebar .nav-link:hover {
-        color: var(--django-green, #0C4B33);
-        background-color: rgba(12, 75, 51, 0.08);
-        text-decoration: none;
-        transform: translateX(4px);
-    }
-
-    /* Active state using Django green */
-    .sidebar .nav-link.active {
-        color: #ffffff;
-        background-color: var(--django-green, #0C4B33);
-        font-weight: 600;
-        box-shadow: 0 2px 8px rgba(12, 75, 51, 0.3);
-        border-left: 4px solid #44B78B;
-    }
-
-    /* Icon alignment and spacing */
-    .sidebar .nav-link i {
-        width: 20px;
-        height: 20px;
-        text-align: center;
-        margin-right: 0.75rem;
-        font-size: 0.9rem;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        position: relative;
-        z-index: 2;
-    }
-
-    /* Ensure text is properly aligned */
-    .sidebar .nav-link span {
-        position: relative;
-        z-index: 2;
-    }
-
-    /* Sidebar headings */
-    .sidebar-heading {
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        font-weight: 600;
-        letter-spacing: 0.05em;
-        color: var(--bs-gray-600, #6c757d);
-        font-family: 'Roboto', sans-serif;
-        margin-bottom: 0.5rem;
-    }
-
-    /* Sidebar heading badges */
-    .sidebar-heading .badge {
-        font-size: 0.65rem;
-        font-weight: 500;
-        padding: 0.25rem 0.5rem;
-        border-radius: 0.375rem;
-    }
-
-    .sidebar-heading .bg-django-green {
-        background-color: var(--django-green, #0C4B33) !important;
-        color: white;
-    }
-
-    .sidebar-section {
-        margin-bottom: 2rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    }
-
-    .sidebar-section:last-child {
-        border-bottom: none;
-        margin-bottom: 1rem;
-    }
-
-    /* First section (Dashboard) special styling */
-    .sidebar-section:first-child {
-        border-bottom: 2px solid var(--django-green, #0C4B33);
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-    }
-
-    .sidebar-section:first-child .nav-link {
-        font-weight: 600;
-        font-size: 1rem;
-        padding: 1rem;
-        background: linear-gradient(135deg, var(--django-green, #0C4B33), #44B78B);
-        color: white !important;
-        border-radius: 0.75rem;
-        margin: 0.5rem;
-        box-shadow: 0 4px 12px rgba(12, 75, 51, 0.3);
-    }
-
-    .sidebar-section:first-child .nav-link:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(12, 75, 51, 0.4);
-    }
-
-    /* Dark theme support */
-    [data-theme="dark"] .sidebar {
-        background-color: var(--bs-dark, #212529);
-        border-right-color: var(--bs-gray-700, #495057);
-        box-shadow: 2px 0 12px rgba(0, 0, 0, 0.4);
-    }
-
-    [data-theme="dark"] .sidebar .nav-link {
-        color: var(--bs-gray-200, #e9ecef);
-    }
-
-    [data-theme="dark"] .sidebar .nav-link:hover {
-        color: var(--django-green-light, #44B78B);
-        background-color: rgba(68, 183, 139, 0.12);
-        transform: translateX(4px);
-    }
-
-    /* Active state in dark mode - better contrast */
-    [data-theme="dark"] .sidebar .nav-link.active {
-        background-color: var(--django-green, #0C4B33);
-        color: #ffffff !important;
-        font-weight: 600;
-        box-shadow: 0 3px 12px rgba(12, 75, 51, 0.6);
-        border-left: 4px solid var(--django-green-light, #44B78B);
-    }
-
-    [data-theme="dark"] .sidebar-heading {
-        color: var(--bs-gray-400, #adb5bd);
-    }
-
-    [data-theme="dark"] .sidebar-heading .bg-django-green {
-        background-color: var(--django-green-light, #44B78B) !important;
-        color: #000000;
-    }
-
-    /* Mobile responsiveness */
-    @media (max-width: 767.98px) {
-        .sidebar {
-            top: 5rem;
-        }
-    }
-
-    /* Main content adjustments */
-    main.col-md-9 {
-        margin-left: 0;
-    }
-
-    @media (min-width: 768px) {
-        main.col-md-9 {
-            margin-left: 16.66666667%;
-        }
-    }
-
-    @media (min-width: 992px) {
-        main.col-lg-10 {
-            margin-left: 16.66666667%;
-        }
-    }
-
-    /* Improved spacing and typography */
-    .sidebar .nav-link span {
-        line-height: 1.2;
-    }
-
-    /* Focus states for accessibility */
-    .sidebar .nav-link:focus {
-        outline: 2px solid var(--django-green, #0C4B33);
-        outline-offset: 2px;
-        box-shadow: 0 0 0 4px rgba(12, 75, 51, 0.2);
-    }
-
-    [data-theme="dark"] .sidebar .nav-link:focus {
-        outline-color: var(--django-green-light, #44B78B);
-        outline-width: 2px;
-        outline-offset: 2px;
-        box-shadow: 0 0 0 4px rgba(68, 183, 139, 0.3);
-    }
-
-    /* Additional dark theme improvements */
-    [data-theme="dark"] .sidebar .nav-link.active:hover {
-        background-color: var(--django-green-light, #44B78B);
-        color: #000000 !important;
-        transform: translateX(6px);
-        border-left: 4px solid #ffffff;
-        box-shadow: 0 4px 16px rgba(68, 183, 139, 0.4);
-    }
-
-    /* Dark theme section dividers */
-    [data-theme="dark"] .sidebar-section {
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        padding-bottom: 1rem;
-    }
-
-    [data-theme="dark"] .sidebar-section:last-child {
-        border-bottom: none;
-    }
-
-    [data-theme="dark"] .sidebar-section:first-child {
-        border-bottom: 2px solid var(--django-green-light, #44B78B);
-    }
-
-    [data-theme="dark"] .sidebar-section:first-child .nav-link {
-        background: linear-gradient(135deg, var(--django-green, #0C4B33), var(--django-green-light, #44B78B));
-        color: white !important;
-    }
-
-    [data-theme="dark"] .sidebar-section:first-child .nav-link:hover {
-        background: linear-gradient(135deg, var(--django-green-light, #44B78B), #5BC995);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(68, 183, 139, 0.5);
-    }
-
-    /* Scrollbar styling */
-    .sidebar::-webkit-scrollbar {
-        width: 6px;
-    }
-
-    .sidebar::-webkit-scrollbar-track {
-        background: var(--bs-light, #f8f9fa);
-    }
-
-    .sidebar::-webkit-scrollbar-thumb {
-        background: rgba(12, 75, 51, 0.3);
-        border-radius: 3px;
-    }
-
-    .sidebar::-webkit-scrollbar-thumb:hover {
-        background: rgba(12, 75, 51, 0.5);
-    }
-
-    /* Dark theme scrollbar */
-    [data-theme="dark"] .sidebar::-webkit-scrollbar-track {
-        background: var(--bs-dark, #212529);
-    }
-
-    [data-theme="dark"] .sidebar::-webkit-scrollbar-thumb {
-        background: rgba(68, 183, 139, 0.4);
-        border-radius: 3px;
-    }
-
-    [data-theme="dark"] .sidebar::-webkit-scrollbar-thumb:hover {
-        background: rgba(68, 183, 139, 0.6);
-    }
-
-    /* Config Page Transitions */
-    .config-content {
-        opacity: 1;
-        transform: translateY(0);
-        transition: opacity 0.4s ease, transform 0.4s ease;
-    }
-
-    .config-content.loaded {
-        opacity: 1;
-        transform: translateY(0);
-    }
-
-    /* Sidebar navigation transitions */
-    .sidebar .nav-link::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
-        transition: left 0.6s ease;
-        z-index: 1;
-    }
-
-    .sidebar .nav-link:hover::before {
-        left: 100%;
-    }
-
-    /* Dark theme shimmer effect */
-    [data-theme="dark"] .sidebar .nav-link::before {
-        background: linear-gradient(90deg, transparent, rgba(68, 183, 139, 0.2), transparent);
-    }
-
-    /* Content area transitions */
-    .config-main-content {
-        transition: all 0.3s ease;
-    }
-
-    .config-main-content.page-transition {
-        opacity: 0.7;
-        transform: translateX(10px);
-    }
-
-    /* Card entrance animations */
-    .config-card {
-        opacity: 1;
-        transform: translateY(0);
-        transition: opacity 0.5s ease, transform 0.5s ease;
-    }
-
-    .config-card.animate-in {
-        opacity: 1;
-        transform: translateY(0);
-    }
-
-    /* Staggered card animations */
-    .config-card:nth-child(1) { transition-delay: 0.1s; }
-    .config-card:nth-child(2) { transition-delay: 0.2s; }
-    .config-card:nth-child(3) { transition-delay: 0.3s; }
-    .config-card:nth-child(4) { transition-delay: 0.4s; }
-
-    /* Loading state for config pages */
-    .config-loading {
-        position: relative;
-        overflow: hidden;
-    }
-
-    .config-loading::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(12, 75, 51, 0.1), transparent);
-        animation: configShimmer 1.5s infinite;
-    }
-
-    @keyframes configShimmer {
-        0% { left: -100%; }
-        100% { left: 100%; }
-    }
-
-    /* Smooth transitions for form elements */
-    .config-form .form-control,
-    .config-form .form-select,
-    .config-form .btn {
-        transition: all 0.3s ease;
-    }
-
-    .config-form .form-control:focus,
-    .config-form .form-select:focus {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(12, 75, 51, 0.15);
-    }
-
-    /* Button hover effects in config */
-    .config-btn {
-        position: relative;
-        overflow: hidden;
-        transition: all 0.3s ease;
-    }
-
-    .config-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(12, 75, 51, 0.25);
-    }
-
-    .config-btn::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 0;
-        height: 0;
-        background: rgba(255, 255, 255, 0.3);
-        border-radius: 50%;
-        transform: translate(-50%, -50%);
-        transition: width 0.3s ease, height 0.3s ease;
-    }
-
-    .config-btn:active::after {
-        width: 300px;
-        height: 300px;
-    }
-
-    /* Dark theme adjustments for transitions */
-    [data-theme="dark"] .config-loading::before {
-        background: linear-gradient(90deg, transparent, rgba(68, 183, 139, 0.1), transparent);
-    }
-
-    [data-theme="dark"] .config-form .form-control:focus,
-    [data-theme="dark"] .config-form .form-select:focus {
-        box-shadow: 0 4px 12px rgba(68, 183, 139, 0.25);
-    }
-
-    [data-theme="dark"] .config-btn:hover {
-        box-shadow: 0 6px 20px rgba(68, 183, 139, 0.35);
-    }
-    </style>
-
-    <!-- Config specific scripts -->
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initialize config page transitions
-        initConfigTransitions();
-
-        // Auto-close alerts after 5 seconds
-        const alerts = document.querySelectorAll('.alert:not(.alert-danger)');
-        alerts.forEach(function(alert) {
-            setTimeout(function() {
-                const bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
-            }, 5000);
-        });
-
-        // Add tooltips to buttons
-        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
-        });
-
-        // Sidebar mobile toggle
-        const sidebarToggle = document.querySelector('[data-bs-target="#sidebar"]');
-        if (sidebarToggle) {
-            sidebarToggle.addEventListener('click', function() {
-                document.querySelector('#sidebar').classList.toggle('show');
-            });
-        }
-
-        // Animate content on load
-        animateConfigContent();
-    });
-
-    function initConfigTransitions() {
-        // Smooth transitions for sidebar navigation
-        const sidebarLinks = document.querySelectorAll('.sidebar .nav-link');
-        sidebarLinks.forEach(link => {
-            link.addEventListener('click', function(e) {
-                // Don't prevent default, but add transition effect
-                const mainContent = document.querySelector('.config-main-content');
-                if (mainContent) {
-                    mainContent.classList.add('page-transition');
-
-                    // Remove transition class after navigation
-                    setTimeout(() => {
-                        mainContent.classList.remove('page-transition');
-                    }, 300);
-                }
-            });
-        });
-
-        // Add loading states to forms
-        const forms = document.querySelectorAll('.config-form');
-        forms.forEach(form => {
-            form.addEventListener('submit', function() {
-                const submitBtn = form.querySelector('button[type="submit"]');
-                if (submitBtn) {
-                    submitBtn.classList.add('config-loading');
-                    submitBtn.disabled = true;
-
-                    const originalText = submitBtn.innerHTML;
-                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processando...';
-
-                    // Reset after 5 seconds if still loading
-                    setTimeout(() => {
-                        submitBtn.classList.remove('config-loading');
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = originalText;
-                    }, 5000);
-                }
-            });
-        });
-
-        // Enhanced button interactions
-        const configBtns = document.querySelectorAll('.btn');
-        configBtns.forEach(btn => {
-            btn.classList.add('config-btn');
-
-            btn.addEventListener('mouseenter', function() {
-                this.style.transform = 'translateY(-2px)';
-            });
-
-            btn.addEventListener('mouseleave', function() {
-                this.style.transform = 'translateY(0)';
-            });
-        });
-    }
-
-    function animateConfigContent() {
-        // Animate main content
-        const content = document.querySelector('.config-content, main');
-        if (content) {
-            content.classList.add('config-content');
-            setTimeout(() => {
-                content.classList.add('loaded');
-            }, 100);
-        }
-
-        // Animate cards with stagger effect
-        const cards = document.querySelectorAll('.card');
-        cards.forEach((card, index) => {
-            card.classList.add('config-card');
-            setTimeout(() => {
-                card.classList.add('animate-in');
-            }, 150 + (index * 100));
-        });
-
-        // Animate statistics cards
-        const statCards = document.querySelectorAll('.border-left-primary, .border-left-success, .border-left-warning, .border-left-info');
-        statCards.forEach((card, index) => {
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(20px)';
-            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-
-            setTimeout(() => {
-                card.style.opacity = '1';
-                card.style.transform = 'translateY(0)';
-            }, 200 + (index * 150));
-        });
-
-        // Animate table rows
-        const tableRows = document.querySelectorAll('table tbody tr');
-        tableRows.forEach((row, index) => {
-            row.style.opacity = '0';
-            row.style.transform = 'translateX(-20px)';
-            row.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
-
-            setTimeout(() => {
-                row.style.opacity = '1';
-                row.style.transform = 'translateX(0)';
-            }, 300 + (index * 50));
-        });
-    }
-
-    // Page transition handler for config navigation
-    function handleConfigNavigation(url) {
-        const mainContent = document.querySelector('main');
-        if (mainContent) {
-            // Add exit animation
-            mainContent.style.opacity = '0.7';
-            mainContent.style.transform = 'translateY(10px)';
-
-            setTimeout(() => {
-                window.location.href = url;
-            }, 200);
-        } else {
-            window.location.href = url;
-        }
-    }
-
-    // Enhanced form interactions
-    document.addEventListener('DOMContentLoaded', function() {
-        // Form field focus animations
-        const formControls = document.querySelectorAll('.form-control, .form-select');
-        formControls.forEach(control => {
-            control.addEventListener('focus', function() {
-                this.parentElement.classList.add('focused');
-                this.style.transform = 'translateY(-2px)';
-            });
-
-            control.addEventListener('blur', function() {
-                this.parentElement.classList.remove('focused');
-                this.style.transform = 'translateY(0)';
-            });
-        });
-
-        // Button ripple effect
-        document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('btn') || e.target.closest('.btn')) {
-                createRippleEffect(e);
-            }
-        });
-    });
-
-    function createRippleEffect(e) {
-        const button = e.target.classList.contains('btn') ? e.target : e.target.closest('.btn');
-        if (!button) return;
-
-        const rect = button.getBoundingClientRect();
-        const size = Math.max(rect.width, rect.height);
-        const x = e.clientX - rect.left - size / 2;
-        const y = e.clientY - rect.top - size / 2;
-
-        const ripple = document.createElement('span');
-        ripple.style.cssText = `
-            position: absolute;
-            width: ${size}px;
-            height: ${size}px;
-            left: ${x}px;
-            top: ${y}px;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            transform: scale(0);
-            animation: ripple 0.6s linear;
-            pointer-events: none;
-            z-index: 1;
-        `;
-
-        button.style.position = 'relative';
-        button.style.overflow = 'hidden';
-        button.appendChild(ripple);
-
-        setTimeout(() => {
-            ripple.remove();
-        }, 600);
-    }
-
-    // Add ripple animation CSS
-    const rippleStyle = document.createElement('style');
-    rippleStyle.textContent = `
-        @keyframes ripple {
-            to {
-                transform: scale(4);
-                opacity: 0;
-            }
-        }
-    `;
-    document.head.appendChild(rippleStyle);
-    </script>
-
-    <!-- Extra JavaScript -->
     {% block extra_js %}{% endblock %}
-
 </body>
 </html>

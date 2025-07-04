@@ -10,7 +10,10 @@ User = get_user_model()
 logger = logging.getLogger(__name__)
 
 class UserManagementService(IUserManagementService):
-    """Serviço para gerenciamento de usuários"""
+    """
+    Serviço para gerenciamento de usuários.
+    Fornece métodos para criar, atualizar, deletar, buscar e listar usuários, com logging de auditoria.
+    """
     
     def __init__(self, user_repository: IUserRepository, audit_service: IAuditLogService):
         self.user_repository = user_repository

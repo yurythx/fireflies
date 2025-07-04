@@ -1,4 +1,7 @@
-from django.views import View
+from django.views.generic.edit import FormView
+from django.views.generic.base import RedirectView
+from django.urls import reverse_lazy
+from django.contrib.auth.mixins import AccessMixin
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout
 from django.contrib import messages
@@ -8,10 +11,11 @@ from django.views.decorators.csrf import csrf_protect
 from apps.accounts.forms.authentication import FlexibleLoginForm
 
 @method_decorator([csrf_protect, never_cache], name='dispatch')
-class LoginView(View):
+class LoginView(FormView):
     """View para login de usuários com suporte a email e username"""
     template_name = 'accounts/login.html'
     form_class = FlexibleLoginForm
+    success_url = reverse_lazy('pages:home')
 
     def get(self, request):
         """Exibe o formulário de login"""
@@ -33,41 +37,27 @@ class LoginView(View):
         form = self.form_class(request=request)
         return render(request, self.template_name, {'form': form})
 
-    def post(self, request):
-        """Processa o login com formulário flexível"""
-        form = self.form_class(request=request, data=request.POST)
+    def form_valid(self, form):
+        user = form.get_user()
+        login(self.request, user)
+        remember_me = form.cleaned_data.get('remember_me', False)
+        if remember_me:
+            self.request.session.set_expiry(1209600)
+        else:
+            self.request.session.set_expiry(0)
+        greeting = self.get_greeting()
+        name = user.get_full_name() or user.first_name or user.username
+        messages.success(
+            self.request,
+            f'🎉 {greeting}, {name}! Login realizado com sucesso.'
+        )
+        next_url = self.request.GET.get('next')
+        if next_url:
+            self.success_url = next_url
+        return super().form_valid(form)
 
-        if form.is_valid():
-            user = form.get_user()
-
-            # Verificar "lembrar de mim"
-            remember_me = form.cleaned_data.get('remember_me', False)
-            if remember_me:
-                request.session.set_expiry(1209600)  # 2 semanas
-            else:
-                request.session.set_expiry(0)  # Fechar ao fechar navegador
-
-            # Fazer login
-            login(request, user)
-
-            # Mensagem personalizada baseada no horário
-            greeting = self.get_greeting()
-            name = user.get_full_name() or user.first_name or user.username
-
-            messages.success(
-                request,
-                f'🎉 {greeting}, {name}! Login realizado com sucesso.'
-            )
-
-            # Redirecionar para página solicitada ou home
-            next_url = request.GET.get('next')
-            if next_url:
-                return redirect(next_url)
-            else:
-                return redirect('pages:home')
-
-        # Se formulário inválido, renderizar com erros
-        return render(request, self.template_name, {'form': form})
+    def form_invalid(self, form):
+        return self.render_to_response(self.get_context_data(form=form))
 
     def get_greeting(self):
         """Retorna saudação baseada no horário"""
@@ -81,16 +71,17 @@ class LoginView(View):
         else:
             return "Boa noite"
 
-class LogoutView(View):
+class LogoutView(AccessMixin, RedirectView):
     """View para logout de usuários"""
+    url = reverse_lazy('pages:home')
 
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         """Processa o logout"""
         if request.user.is_authenticated:
             logout(request)
             messages.success(request, 'Você foi desconectado com sucesso.')
-        return redirect('pages:home')
+        return super().get(request, *args, **kwargs)
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         """Processa o logout via POST"""
-        return self.get(request)
+        return self.get(request, *args, **kwargs)

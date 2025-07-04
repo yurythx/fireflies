@@ -89,20 +89,43 @@ document.addEventListener('DOMContentLoaded', function() {
         loginField.focus();
     }
 
-    // Elementos do formulário
-    const passwordField = document.querySelector('input[name="password"]');
-    const form = document.querySelector('form');
-
     // Feedback visual no envio do formulário
+    const form = document.querySelector('form');
     if (form) {
         form.addEventListener('submit', function(e) {
-            const submitBtn = this.querySelector('button[type="submit"]');
+            const submitBtn = this.querySelector('input[type="submit"], button[type="submit"]');
             if (submitBtn) {
+                const originalText = submitBtn.value || submitBtn.innerHTML;
+                submitBtn.value = 'Entrando...';
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Entrando...';
                 submitBtn.disabled = true;
+                submitBtn.classList.add('disabled');
+                
+                // Restaurar texto original em caso de erro
+                setTimeout(function() {
+                    if (submitBtn.disabled) {
+                        submitBtn.value = originalText;
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('disabled');
+                    }
+                }, 10000); // 10 segundos timeout
             }
         });
     }
+
+    // Melhorar acessibilidade dos campos
+    const inputs = document.querySelectorAll('input[type="text"], input[type="email"], input[type="password"]');
+    inputs.forEach(function(input) {
+        input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const form = this.closest('form');
+                if (form) {
+                    form.submit();
+                }
+            }
+        });
+    });
 });
 </script>
 {% endblock %}

@@ -115,13 +115,46 @@ ALLOWED_HOSTS = get_allowed_hosts()
 
 # Application definition
 
-# Local apps
+# Apps essenciais (nunca podem ser desativados)
+CORE_APPS = ['apps.accounts', 'apps.config', 'apps.pages']
+
+# Apps locais
 LOCAL_APPS = [
     'apps.accounts',
     'apps.config',
     'apps.pages',
     'apps.articles',
+    # Adicione outros módulos aqui
 ]
+
+def get_active_local_apps():
+    """
+    Retorna a lista de apps locais ativos, usando o banco se possível,
+    senão variável de ambiente ACTIVE_MODULES. Garante que os essenciais
+    sempre estejam presentes.
+    """
+    try:
+        from apps.config.models.app_module_config import AppModuleConfiguration
+        # Busca módulos habilitados e ativos
+        active_apps = list(
+            'apps.' + m.app_name
+            for m in AppModuleConfiguration.get_enabled_modules()
+            if 'apps.' + m.app_name in LOCAL_APPS or m.app_name in [a.replace('apps.', '') for a in LOCAL_APPS]
+        )
+    except Exception:
+        # Fallback: usa variável de ambiente
+        active_modules = os.environ.get('ACTIVE_MODULES', 'accounts,config,pages,articles').split(',')
+        active_apps = ['apps.' + m for m in active_modules if 'apps.' + m in LOCAL_APPS]
+
+    # Garante que os essenciais sempre estão presentes
+    for core in CORE_APPS:
+        if core not in active_apps:
+            active_apps.append(core)
+    # Remove duplicatas e mantém ordem
+    return [app for i, app in enumerate(active_apps) if app not in active_apps[:i]]
+
+# Use a função para definir os apps locais ativos
+ACTIVE_LOCAL_APPS = get_active_local_apps()
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -130,14 +163,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
-    # Third party apps
     'crispy_forms',
     'crispy_bootstrap5',
     'tinymce',
-
-    # Local apps
-    *LOCAL_APPS,
+    # Apps locais ativos
+    *ACTIVE_LOCAL_APPS,
 ]
 
 MIDDLEWARE = [

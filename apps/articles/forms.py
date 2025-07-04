@@ -259,7 +259,12 @@ class CommentForm(forms.ModelForm):
             }),
         }
 
- 
+        labels = {
+            'name': 'Nome',
+            'email': 'Email',
+            'website': 'Website',
+            'content': 'Comentário',
+        }
 
         help_texts = {
             'email': 'Seu email não será publicado',

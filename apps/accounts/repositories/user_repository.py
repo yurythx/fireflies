@@ -49,3 +49,11 @@ class DjangoUserRepository(IUserRepository):
             setattr(user, field, value)
         user.save()
         return user
+    
+    def exists_by_email(self, email: str) -> bool:
+        """Verifica se existe um usuário com o email fornecido"""
+        return User.objects.filter(email__iexact=email).exists()
+
+    def exists_by_username(self, username: str) -> bool:
+        """Verifica se existe um usuário com o username fornecido"""
+        return User.objects.filter(username__iexact=username).exists()

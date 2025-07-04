@@ -1,5 +1,6 @@
 {% extends 'config/base_config.html' %}
 {% load crispy_forms_tags %}
+{% load config_extras %}
 
 {% block title %}Informações do Banco de Dados - {{ block.super }}{% endblock %}
 
@@ -205,6 +206,26 @@
                     Para alterar a configuração, use o <a href="{% url 'config:setup_wizard' %}" class="alert-link">Wizard de Setup</a>.
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<div class="container my-4">
+    <h1 class="h3 mb-4 text-sans text-body">
+        <i class="fas fa-database me-2 text-django-green"></i>Configurações de Banco de Dados
+    </h1>
+    <div class="card-django border-0 shadow-sm mb-4">
+        <div class="card-body p-0">
+            {% with headers=[
+                {'label': 'Nome'},
+                {'label': 'Engine'},
+                {'label': 'Banco'},
+                {'label': 'Status'}
+            ] %}
+            {% with rows=db_configs|map:'db_config_row' %}
+                {% include 'config/includes/_table.html' with headers=headers rows=rows caption='Tabela de configurações de banco de dados' %}
+            {% endwith %}
+            {% endwith %}
         </div>
     </div>
 </div>

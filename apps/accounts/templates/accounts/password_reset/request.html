@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load crispy_forms_tags %}
 
 {% block title %}Redefinir Senha - {{ block.super }}{% endblock %}
 
@@ -57,20 +58,7 @@
                     <!-- Formulário de Reset -->
                     <form method="post" class="needs-validation form-django" novalidate>
                         {% csrf_token %}
-
-                        <div class="mb-3">
-                            <label for="email" class="form-label text-sans">E-mail</label>
-                            <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="fas fa-envelope text-django-green"></i>
-                                </span>
-                                <input type="email" class="form-control" id="email" name="email"
-                                       placeholder="Digite seu e-mail" autocomplete="email" required>
-                                <div class="invalid-feedback">
-                                    Por favor, digite um e-mail válido.
-                                </div>
-                            </div>
-                        </div>
+                        {{ form|crispy }}
 
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-warning btn-lg text-sans">
@@ -116,7 +104,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Auto-focus no campo de email
-    const emailField = document.getElementById('email');
+    const emailField = document.getElementById('id_email');
     if (emailField) {
         emailField.focus();
     }

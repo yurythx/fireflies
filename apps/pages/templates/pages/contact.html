@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load crispy_forms_tags %}
 
 {% block title %}Contato - FireFlies{% endblock %}
 
@@ -26,45 +27,12 @@
                     
                     <form method="post" class="needs-validation" novalidate>
                         {% csrf_token %}
+                        {{ form|crispy }}
                         
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label for="name" class="form-label text-sans text-body">Nome *</label>
-                                <input type="text" class="form-control form-control-enhanced" id="name" name="name" required>
-                                <div class="invalid-feedback">
-                                    Por favor, informe seu nome.
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-6">
-                                <label for="email" class="form-label text-sans text-body">Email *</label>
-                                <input type="email" class="form-control form-control-enhanced" id="email" name="email" required>
-                                <div class="invalid-feedback">
-                                    Por favor, informe um email válido.
-                                </div>
-                            </div>
-                            
-                            <div class="col-12">
-                                <label for="subject" class="form-label text-sans text-body">Assunto *</label>
-                                <input type="text" class="form-control form-control-enhanced" id="subject" name="subject" required>
-                                <div class="invalid-feedback">
-                                    Por favor, informe o assunto.
-                                </div>
-                            </div>
-                            
-                            <div class="col-12">
-                                <label for="message" class="form-label text-sans text-body">Mensagem *</label>
-                                <textarea class="form-control form-control-enhanced" id="message" name="message" rows="5" required></textarea>
-                                <div class="invalid-feedback">
-                                    Por favor, escreva sua mensagem.
-                                </div>
-                            </div>
-                            
-                            <div class="col-12">
-                                <button type="submit" class="btn btn-primary btn-lg">
-                                    <i class="fas fa-paper-plane me-2"></i>Enviar Mensagem
-                                </button>
-                            </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-paper-plane me-2"></i>Enviar Mensagem
+                            </button>
                         </div>
                     </form>
                 </div>

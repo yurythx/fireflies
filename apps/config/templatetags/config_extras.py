@@ -1,6 +1,8 @@
 from django import template
 import json
 import pprint as pp
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 
 register = template.Library()
 
@@ -167,3 +169,112 @@ def get_config_stats():
             'active_modules': 0,
             'total_modules': 0,
         }
+
+
+@register.filter
+def log_row(log):
+    """Transforma um log em uma lista de células HTML seguras para _table.html"""
+    return [
+        format_html('<span class="text-monospace">{}</span>', log.created_at.strftime('%d/%m/%Y %H:%M:%S')),
+        log.user.email,
+        log.get_action_display(),
+        log.target_user.email if log.target_user else '-',
+        mark_safe(log.description[:80]),
+        log.ip_address or '-',
+    ]
+
+
+@register.filter
+def user_row(user):
+    """Transforma um usuário em uma lista de células HTML seguras para _table.html"""
+    from django.utils.html import format_html
+    return [
+        format_html('<span class="text-monospace">{}</span>', user.date_joined.strftime('%d/%m/%Y %H:%M:%S')),
+        user.email,
+        user.get_full_name() or '-',
+        user.username,
+        'Ativo' if user.is_active else 'Inativo',
+        'Staff' if user.is_staff else 'Usuário',
+    ]
+
+
+@register.filter
+def module_row(module):
+    """Transforma um módulo em uma lista de células HTML seguras para _table.html"""
+    from django.utils.html import format_html
+    return [
+        module.display_name,
+        module.app_name,
+        module.get_module_type_display(),
+        format_html('<span class="badge {}">{}</span>', 'bg-success' if module.is_enabled else 'bg-secondary', 'Habilitado' if module.is_enabled else 'Desabilitado'),
+        module.status,
+        module.menu_order,
+    ]
+
+
+@register.filter
+def group_row(group):
+    """Transforma um grupo em uma lista de células HTML seguras para _table.html"""
+    return [
+        group.name,
+        group.user_set.count(),
+        ', '.join([perm.codename for perm in group.permissions.all()]) or '-',
+    ]
+
+
+@register.filter
+def permission_row(perm):
+    """Transforma uma permissão em uma lista de células HTML seguras para _table.html"""
+    return [
+        perm.name,
+        perm.codename,
+        perm.content_type.app_label,
+        perm.content_type.model,
+    ]
+
+
+@register.filter
+def config_row(config):
+    """Transforma um objeto de configuração em uma lista de células HTML seguras para _table.html (exemplo para AppModuleConfiguration)"""
+    if hasattr(config, 'display_name'):
+        return [
+            getattr(config, 'display_name', '-'),
+            getattr(config, 'app_name', '-'),
+            getattr(config, 'status', '-'),
+            getattr(config, 'menu_order', '-'),
+        ]
+    return [str(config)]
+
+
+@register.filter
+def email_config_row(config):
+    """Transforma um EmailConfiguration em uma lista de células HTML seguras para _table.html"""
+    return [
+        getattr(config, 'display_name', '-'),
+        getattr(config, 'email_host', '-'),
+        getattr(config, 'default_from_email', '-'),
+        getattr(config, 'status', '-'),
+    ]
+
+
+@register.filter
+def db_config_row(config):
+    """Transforma um DatabaseConfiguration em uma lista de células HTML seguras para _table.html"""
+    return [
+        getattr(config, 'display_name', '-'),
+        getattr(config, 'engine', '-'),
+        getattr(config, 'name', '-'),
+        getattr(config, 'status', '-'),
+    ]
+
+
+@register.filter
+def env_backup_row(backup):
+    """Transforma um dict de backup de .env em uma lista de células HTML seguras para _table.html"""
+    from django.utils.html import format_html
+    import datetime
+    return [
+        backup.get('name', '-'),
+        format_html('{} bytes', backup.get('size', 0)),
+        datetime.datetime.fromtimestamp(backup.get('modified', 0)).strftime('%d/%m/%Y %H:%M:%S'),
+    ]

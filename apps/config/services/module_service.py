@@ -12,7 +12,10 @@ logger = logging.getLogger(__name__)
 
 
 class ModuleService(IModuleService):
-    """Serviço para gerenciamento de módulos do sistema"""
+    """
+    Serviço para gerenciamento de módulos do sistema.
+    Permite criar, atualizar, habilitar, desabilitar e consultar módulos, além de validar dependências.
+    """
     
     def __init__(self):
         self.core_apps = AppModuleConfiguration.CORE_APPS
@@ -37,11 +40,19 @@ class ModuleService(IModuleService):
         return self.get_available_modules().filter(show_in_menu=True)
     
     def get_module_by_name(self, app_name: str) -> Optional[AppModuleConfiguration]:
-        """Busca módulo por nome"""
+        """Busca módulo por nome, tolerante a prefixo 'apps.'"""
         try:
             return AppModuleConfiguration.objects.get(app_name=app_name)
         except AppModuleConfiguration.DoesNotExist:
-            return None
+            # Tenta sem o prefixo 'apps.' se houver
+            if app_name.startswith('apps.'):
+                alt_name = app_name.split('.', 1)[1]
+            else:
+                alt_name = f'apps.{app_name}'
+            try:
+                return AppModuleConfiguration.objects.get(app_name=alt_name)
+            except AppModuleConfiguration.DoesNotExist:
+                return None
     
     def is_module_enabled(self, app_name: str) -> bool:
         """Verifica se um módulo está habilitado"""
@@ -220,26 +231,28 @@ class ModuleService(IModuleService):
         return getattr(settings, 'LOCAL_APPS', [])
     
     def sync_with_installed_apps(self, user: User = None) -> Dict:
-        """Sincroniza módulos com apps instalados"""
+        """Sincroniza módulos com apps instalados, padronizando nomes SEM o prefixo 'apps.'"""
         try:
             installed_apps = self.get_installed_apps_list()
+            # Extrai nomes sem o prefixo 'apps.'
+            installed_app_names = [app.split('.')[-1] for app in installed_apps]
             existing_modules = {m.app_name for m in self.get_all_modules()}
-            
+
             new_modules = []
             updated_modules = []
-            
-            for app_name in installed_apps:
+
+            for app_path in installed_apps:
+                app_name = app_path.split('.')[-1]  # sempre sem prefixo
                 if app_name not in existing_modules:
                     # Cria novo módulo
                     module_data = {
                         'app_name': app_name,
-                        'display_name': app_name.replace('apps.', '').title(),
+                        'display_name': app_name.title(),
                         'description': f'Módulo {app_name}',
                         'is_enabled': app_name in self.core_apps,
                         'is_core': app_name in self.core_apps,
                         'status': 'active' if app_name in self.core_apps else 'inactive'
                     }
-                    
                     new_module = self.create_module(module_data, user)
                     if new_module:
                         new_modules.append(new_module.app_name)
@@ -252,7 +265,7 @@ class ModuleService(IModuleService):
                         module.status = 'active'
                         module.save()
                         updated_modules.append(app_name)
-            
+
             return {
                 'success': True,
                 'new_modules': new_modules,
@@ -260,7 +273,7 @@ class ModuleService(IModuleService):
                 'total_installed': len(installed_apps),
                 'total_modules': len(self.get_all_modules())
             }
-            
+
         except Exception as e:
             logger.error(f"Erro ao sincronizar módulos: {str(e)}")
             return {

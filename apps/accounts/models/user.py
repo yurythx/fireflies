@@ -110,7 +110,7 @@ class User(AbstractUser):
 
     def get_absolute_url(self):
         """Retorna a URL para acessar a página de perfil do usuário"""
-        return reverse('accounts:user_profile', kwargs={'slug': self.slug})
+        return reverse('accounts:profile_with_slug', kwargs={'slug': self.slug})
 
     def get_full_name(self):
         """Retorna o nome completo do usuário"""

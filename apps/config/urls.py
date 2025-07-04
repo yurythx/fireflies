@@ -1,9 +1,9 @@
 from django.urls import path
+from django.shortcuts import redirect
 from apps.config.views import (
     ConfigDashboardView,
     UserListView,
     UserCreateView,
-    UserDetailView,
     UserUpdateView,
     UserDeleteView,
     SystemConfigView,
@@ -16,20 +16,39 @@ from apps.config.views.email_views import (
     EmailTestView,
     EmailTemplatesView,
     EmailStatsView,
-    send_test_email_ajax,
-    test_email_connection_ajax,
+    TestEmailConnectionView,
+    SendTestEmailAjaxView,
+    TestEmailConnectionAjaxView,
 )
 from apps.config.views.module_views import (
     ModuleListView,
     ModuleDetailView,
     ModuleUpdateView,
-    ModuleToggleView,
     ModuleStatsAPIView,
     ModuleDependencyCheckView,
+    ModuleEnableView,
+    ModuleDisableView,
+    ModuleTestView,
+    ModuleDeleteView
 )
 from apps.config.views.database_views import (
-    database_info,
-    database_connection_test_ajax,
+    DatabaseInfoView,
+    DatabaseConnectionTestAjaxView,
+)
+from apps.config.views.user_views import (
+    UserListView, UserCreateView, UserUpdateView, UserDeleteView,
+    UserActivateView, UserDeactivateView,
+    UserPermissionAssignView, UserPermissionRemoveView,
+    UserGroupAssignView, UserGroupRemoveView
+)
+from apps.config.views.system_config_views import (
+    SystemConfigView, SystemLogListView
+)
+from apps.config.views.groups import (
+    GroupListView, GroupCreateView, GroupUpdateView, GroupDeleteView, GroupDetailView
+)
+from apps.config.views.users import (
+    UserListView, UserCreateView, UserUpdateView, UserDeleteView
 )
 
 
@@ -51,9 +70,14 @@ urlpatterns = [
     # Usuários
     path('usuarios/', UserListView.as_view(), name='user_list'),
     path('usuarios/criar/', UserCreateView.as_view(), name='user_create'),
-    path('usuarios/<slug:slug>/', UserDetailView.as_view(), name='user_detail'),
     path('usuarios/<slug:slug>/editar/', UserUpdateView.as_view(), name='user_update'),
+    path('usuarios/<slug:slug>/ativar/', UserActivateView.as_view(), name='user_activate'),
+    path('usuarios/<slug:slug>/desativar/', UserDeactivateView.as_view(), name='user_deactivate'),
     path('usuarios/<slug:slug>/deletar/', UserDeleteView.as_view(), name='user_delete'),
+    path('users/<slug:slug>/permission/assign/', UserPermissionAssignView.as_view(), name='user_permission_assign'),
+    path('users/<slug:slug>/permission/remove/', UserPermissionRemoveView.as_view(), name='user_permission_remove'),
+    path('users/<slug:slug>/group/assign/', UserGroupAssignView.as_view(), name='user_group_assign'),
+    path('users/<slug:slug>/group/remove/', UserGroupRemoveView.as_view(), name='user_group_remove'),
     
     # Grupos (TODO)
     # path('grupos/', GroupListView.as_view(), name='group_list'),
@@ -69,25 +93,27 @@ urlpatterns = [
     path('email/estatisticas/', EmailStatsView.as_view(), name='email_stats'),
 
     # AJAX Email
-    path('ajax/test-email-connection/', test_email_connection_ajax, name='test_email_connection'),
-    path('ajax/send-test-email/', send_test_email_ajax, name='send_test_email_ajax'),
+    path('ajax/test-email-connection/', TestEmailConnectionAjaxView.as_view(), name='test_email_connection'),
+    path('ajax/send-test-email/', SendTestEmailAjaxView.as_view(), name='send_test_email_ajax'),
 
     # Configurações do Sistema
     path('sistema/', SystemConfigView.as_view(), name='system_config'),
 
-    # Módulos do Sistema
-    path('modulos/', ModuleListView.as_view(), name='module_list'),
-    path('modulos/<str:app_name>/', ModuleDetailView.as_view(), name='module_detail'),
-    path('modulos/<str:app_name>/editar/', ModuleUpdateView.as_view(), name='module_update'),
-    path('modulos/<str:app_name>/toggle/', ModuleToggleView.as_view(), name='module_toggle'),
+    # Módulos do Sistema (usando AppModuleConfiguration)
+    path('modules/', ModuleListView.as_view(), name='module_list'),
+    path('modules/<str:app_name>/', ModuleDetailView.as_view(), name='module_detail'),
+    path('modules/<str:app_name>/update/', ModuleUpdateView.as_view(), name='module_update'),
+    path('modules/<str:app_name>/enable/', ModuleEnableView.as_view(), name='module_enable'),
+    path('modules/<str:app_name>/disable/', ModuleDisableView.as_view(), name='module_disable'),
+    path('modules/<str:app_name>/delete/', ModuleDeleteView.as_view(), name='module_delete'),
 
     # APIs dos Módulos
     path('api/modulos/stats/', ModuleStatsAPIView.as_view(), name='module_stats_api'),
     path('api/modulos/<str:app_name>/dependencies/', ModuleDependencyCheckView.as_view(), name='module_dependency_check'),
 
     # Banco de Dados (somente informações)
-    path('banco-dados/', database_info, name='database_info'),
-    path('ajax/test-database-connection/', database_connection_test_ajax, name='database_connection_test'),
+    path('banco-dados/', DatabaseInfoView.as_view(), name='database_info'),
+    path('ajax/test-database-connection/', DatabaseConnectionTestAjaxView.as_view(), name='database_connection_test'),
 
     # Backup & Manutenção (TODO)
     path('backup/', SystemConfigView.as_view(), name='backup_config'),
@@ -97,4 +123,22 @@ urlpatterns = [
     # Logs de Auditoria (TODO)
     # path('logs/', AuditLogListView.as_view(), name='audit_log_list'),
     # path('logs/usuario/<int:user_id>/', UserAuditLogView.as_view(), name='user_audit_logs'),
+    path('system/logs/', SystemLogListView.as_view(), name='system_logs'),
+
+    # Grupos
+    path('groups/', GroupListView.as_view(), name='group_list'),
+    path('groups/create/', GroupCreateView.as_view(), name='group_create'),
+    path('groups/<slug:slug>/', GroupDetailView.as_view(), name='group_detail'),
+    path('groups/<slug:slug>/update/', GroupUpdateView.as_view(), name='group_update'),
+    path('groups/<slug:slug>/delete/', GroupDeleteView.as_view(), name='group_delete'),
+
+    # Usuários (rotas alternativas)
+    # path('users/', UserListView.as_view(), name='user_list'),
+    # path('users/create/', UserCreateView.as_view(), name='user_create'),
+    # path('users/<int:pk>/', UserDetailView.as_view(), name='user_detail'),
+    # path('users/<int:pk>/update/', UserUpdateView.as_view(), name='user_update'),
+    # path('users/<int:pk>/delete/', UserDeleteView.as_view(), name='user_delete'),
+    
+    # Moderação de Comentários (redireciona para articles)
+    path('comentarios/', lambda request: redirect('articles:moderate_comments'), name='comment_moderation'),
 ]

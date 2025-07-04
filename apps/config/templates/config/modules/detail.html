@@ -207,20 +207,12 @@
                 </div>
                 <div class="card-body profile-card-body">
                     {% if not module.is_core %}
-                        <form method="post" action="{% url 'config:module_toggle' module.app_name %}">
+                        <form method="post" action="{% if module.is_enabled %}{% url 'config:module_disable' module.app_name %}{% else %}{% url 'config:module_enable' module.app_name %}{% endif %}">
                             {% csrf_token %}
-                            {% if module.is_enabled %}
-                                <input type="hidden" name="action" value="disable">
-                                <button type="submit" class="btn btn-danger btn-sm w-100 mb-2"
-                                        onclick="return confirm('Desabilitar o módulo {{ module.display_name }}?')">
-                                    <i class="fas fa-power-off me-2"></i>Desabilitar Módulo
-                                </button>
-                            {% else %}
-                                <input type="hidden" name="action" value="enable">
-                                <button type="submit" class="btn btn-success btn-sm w-100 mb-2">
-                                    <i class="fas fa-power-off me-2"></i>Habilitar Módulo
-                                </button>
-                            {% endif %}
+                            <button type="submit" class="btn {% if module.is_enabled %}btn-danger{% else %}btn-success{% endif %} btn-sm w-100 mb-2"
+                                    onclick="return confirm('{% if module.is_enabled %}Desabilitar{% else %}Habilitar{% endif %} o módulo {{ module.display_name }}?')">
+                                <i class="fas fa-power-off me-2"></i>{% if module.is_enabled %}Desabilitar{% else %}Habilitar{% endif %} Módulo
+                            </button>
                         </form>
                     {% else %}
                         <div class="alert alert-warning">

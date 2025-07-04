@@ -53,11 +53,7 @@
                 <span><i class="fas fa-comments me-2"></i>Comentários</span>
             </h6>
             <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link" href="/artigos/admin/comentarios/" title="Moderar comentários do site" aria-label="Moderação de Comentários">
-                        <i class="fas fa-shield-alt me-2" aria-hidden="true"></i>Moderação de Comentários
-                    </a>
-                </li>
+                {% sidebar_item 'comment_moderation' 'fas fa-shield-alt' 'Moderação de Comentários' 'Moderar comentários do site' %}
             </ul>
         </div>
         {% endif %}

@@ -15,7 +15,7 @@
                     <p class="text-secondary mb-0 text-body">Confirmação de exclusão permanente</p>
                 </div>
                 <div>
-                    <a href="{% url 'config:user_detail' user_detail.id %}" class="btn btn-outline-secondary">
+                    <a href="{% url 'config:user_list' %}" class="btn btn-outline-secondary">
                         <i class="fas fa-arrow-left me-1"></i>Voltar
                     </a>
                 </div>
@@ -40,6 +40,12 @@
                         <p class="mb-0 text-body">
                             Você está prestes a <strong>deletar permanentemente</strong> o usuário abaixo.
                             Esta ação <strong>não pode ser desfeita</strong>.
+                        </p>
+                        <hr>
+                        <p class="mb-0 text-body">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Recomendação:</strong> Considere <strong>desativar</strong> o usuário em vez de deletá-lo. 
+                            Usuários desativados não podem acessar o sistema, mas seus dados são preservados.
                         </p>
                     </div>
 
@@ -98,9 +104,17 @@
 
                         <div class="d-flex justify-content-between">
                             <div>
-                                <a href="{% url 'config:user_detail' user_detail.id %}" class="btn btn-secondary">
+                                <a href="{% url 'config:user_list' %}" class="btn btn-secondary">
                                     <i class="fas fa-times me-1"></i>Cancelar
                                 </a>
+                                {% if user_detail.is_active %}
+                                <form method="post" action="{% url 'config:user_deactivate' user_detail.slug %}" class="d-inline ms-2" onsubmit="return confirm('Tem certeza que deseja desativar este usuário?')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-warning">
+                                        <i class="fas fa-pause me-1"></i>Desativar
+                                    </button>
+                                </form>
+                                {% endif %}
                             </div>
                             <div>
                                 <button type="submit" class="btn btn-danger" id="deleteButton" disabled>

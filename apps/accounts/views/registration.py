@@ -1,6 +1,6 @@
 from django.views import View
 from django.shortcuts import render, redirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.decorators import method_decorator
@@ -10,6 +10,7 @@ from apps.accounts.services.registration_service import RegistrationService
 from apps.accounts.repositories.user_repository import DjangoUserRepository
 from apps.accounts.repositories.verification_repository import DjangoVerificationRepository
 from apps.accounts.notifications.email_notification import EmailNotificationService
+from django.views.generic.edit import FormView
 
 # Importação condicional do django-ratelimit
 try:
@@ -24,68 +25,54 @@ except ImportError:
             return func
         return decorator
 
-class RegistrationView(View):
-    """View para registro de novos usuários"""
+class RegistrationView(FormView):
     template_name = 'accounts/register.html'
     form_class = RegistrationForm
-    
-    def get(self, request):
-        """Exibe o formulário de registro"""
+    success_url = reverse_lazy('accounts:verification')
+
+    def form_valid(self, form):
+        service = RegistrationService(
+            user_repository=DjangoUserRepository(),
+            verification_repository=DjangoVerificationRepository(),
+            notification_service=EmailNotificationService()
+        )
+        try:
+            user = service.register_user(
+                email=form.cleaned_data['email'],
+                password=form.cleaned_data['password1'],
+                first_name=form.cleaned_data['first_name'],
+                last_name=form.cleaned_data['last_name'],
+                username=form.cleaned_data['username']
+            )
+            self.request.session['registration_email'] = user.email
+            messages.success(
+                self.request,
+                f'Olá {user.first_name}! Código de verificação enviado para {user.email}. '
+                'Verifique sua caixa de entrada e spam.'
+            )
+            return super().form_valid(form)
+        except ValueError as e:
+            error_msg = f'❌ Erro de validação: {str(e)}'
+            messages.error(self.request, error_msg)
+            form.add_error(None, str(e))
+            return self.form_invalid(form)
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f'Erro no registro: {str(e)}', exc_info=True)
+            if 'email' in str(e).lower() or 'smtp' in str(e).lower() or 'template' in str(e).lower():
+                error_msg = '📧 Erro ao enviar email de verificação. Verifique as configurações de email.'
+            else:
+                error_msg = f'🔧 Erro interno: {str(e)}. Tente novamente em alguns instantes.'
+            messages.error(self.request, error_msg)
+            form.add_error(None, 'Ocorreu um erro durante o registro. Tente novamente.')
+            return self.form_invalid(form)
+
+    def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             messages.info(request, 'Você já está logado.')
             return redirect('pages:home')
-            
-        form = self.form_class()
-        return render(request, self.template_name, {'form': form})
-    
-    def post(self, request):
-        """Processa o formulário de registro"""
-        form = self.form_class(request.POST)
-        
-        if form.is_valid():
-            service = RegistrationService(
-                user_repository=DjangoUserRepository(),
-                verification_repository=DjangoVerificationRepository(),
-                notification_service=EmailNotificationService()
-            )
-            
-            try:
-                user = service.register_user(
-                    email=form.cleaned_data['email'],
-                    password=form.cleaned_data['password1'],
-                    first_name=form.cleaned_data['first_name'],
-                    last_name=form.cleaned_data['last_name'],
-                    username=form.cleaned_data['username']
-                )
-
-                # Armazena email na sessão para a próxima etapa
-                request.session['registration_email'] = user.email
-                messages.success(
-                    request,
-                    f'Olá {user.first_name}! Código de verificação enviado para {user.email}. '
-                    'Verifique sua caixa de entrada e spam.'
-                )
-                return redirect('accounts:verification')
-
-            except ValueError as e:
-                error_msg = f'❌ Erro de validação: {str(e)}'
-                messages.error(request, error_msg)
-                form.add_error(None, str(e))
-            except Exception as e:
-                import logging
-                logger = logging.getLogger(__name__)
-                logger.error(f'Erro no registro: {str(e)}', exc_info=True)
-
-                # Verifica se é erro de email
-                if 'email' in str(e).lower() or 'smtp' in str(e).lower() or 'template' in str(e).lower():
-                    error_msg = '📧 Erro ao enviar email de verificação. Verifique as configurações de email.'
-                else:
-                    error_msg = f'🔧 Erro interno: {str(e)}. Tente novamente em alguns instantes.'
-
-                messages.error(request, error_msg)
-                form.add_error(None, 'Ocorreu um erro durante o registro. Tente novamente.')
-        
-        return render(request, self.template_name, {'form': form})
+        return super().get(request, *args, **kwargs)
 
 @method_decorator(ratelimit(key='ip', rate='10/h', method='POST', block=True), name='post')
 class VerificationView(View):

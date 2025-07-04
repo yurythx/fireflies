@@ -20,7 +20,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.views.static import serve
 from .health_check import health_check, readiness_check, liveness_check
-from apps.config.views.setup_views import setup_redirect
+from apps.config.views.setup_wizard_view import setup_redirect
 
 # Importar views de erro personalizadas
 from apps.accounts.middleware import handle_403_error, handle_404_error

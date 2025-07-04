@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load crispy_forms_tags %}
 
 {% block title %}Confirmar Nova Senha - {{ block.super }}{% endblock %}
 
@@ -56,7 +57,7 @@
                     {% endif %}
 
                     <!-- Formulário de Confirmação -->
-                    <form method="post" class="needs-validation form-django" novalidate>
+                    <form method="post" class="needs-validation form-django" novalidate style="display: block;">
                         {% csrf_token %}
                         <input type="hidden" name="email" value="{{ email }}">
 
@@ -81,42 +82,56 @@
                         </div>
 
                         <!-- Nova Senha -->
-                        <div class="mb-3">
-                            <label for="new_password" class="form-label text-sans">Nova Senha</label>
+                        <div class="mb-3" style="display: block !important;">
+                            <label for="new_password" class="form-label text-sans">
+                                <i class="fas fa-lock me-1"></i>Nova Senha
+                            </label>
                             <div class="input-group">
                                 <span class="input-group-text">
                                     <i class="fas fa-lock text-django-green"></i>
                                 </span>
                                 <input type="password" class="form-control" id="new_password" name="new_password"
-                                       placeholder="Digite sua nova senha" autocomplete="new-password" required>
+                                       placeholder="Digite sua nova senha" autocomplete="new-password" 
+                                       minlength="8" required>
                                 <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('new_password')">
                                     <i class="fas fa-eye" id="new_password_icon"></i>
                                 </button>
-                                <div class="invalid-feedback">
-                                    Senha deve ter pelo menos 8 caracteres.
-                                </div>
+                            </div>
+                            <div class="form-text">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Mínimo de 8 caracteres
+                            </div>
+                            <div class="invalid-feedback">
+                                Senha deve ter pelo menos 8 caracteres.
                             </div>
                         </div>
 
                         <!-- Confirmar Senha -->
-                        <div class="mb-3">
-                            <label for="confirm_password" class="form-label text-sans">Confirmar Nova Senha</label>
+                        <div class="mb-3" style="display: block !important;">
+                            <label for="confirm_password" class="form-label text-sans">
+                                <i class="fas fa-lock me-1"></i>Confirmar Nova Senha
+                            </label>
                             <div class="input-group">
                                 <span class="input-group-text">
                                     <i class="fas fa-lock text-django-green"></i>
                                 </span>
                                 <input type="password" class="form-control" id="confirm_password" name="confirm_password"
-                                       placeholder="Confirme sua nova senha" autocomplete="new-password" required>
+                                       placeholder="Confirme sua nova senha" autocomplete="new-password" 
+                                       minlength="8" required>
                                 <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('confirm_password')">
                                     <i class="fas fa-eye" id="confirm_password_icon"></i>
                                 </button>
-                                <div class="invalid-feedback">
-                                    As senhas devem coincidir.
-                                </div>
+                            </div>
+                            <div class="form-text">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Digite a mesma senha novamente
+                            </div>
+                            <div class="invalid-feedback">
+                                As senhas devem coincidir.
                             </div>
                         </div>
 
-                        <div class="d-grid gap-2">
+                        <div class="d-grid gap-2 mt-4">
                             <button type="submit" class="btn btn-success btn-lg text-sans">
                                 <i class="fas fa-check me-2"></i>Redefinir Senha
                             </button>

@@ -9,6 +9,10 @@ from django.db import connection
 from django.conf import settings
 import os
 from pathlib import Path
+from django.views.generic import TemplateView, View
+from django.utils.decorators import method_decorator
+from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
+from django.views.decorators.csrf import csrf_exempt
 
 
 def is_admin_user(user):
@@ -16,33 +20,39 @@ def is_admin_user(user):
     return user.is_authenticated and user.is_staff
 
 
-@login_required
-@user_passes_test(is_admin_user)
-def database_info(request):
-    """Página de informações do banco de dados (somente leitura)"""
-    
-    # Obter informações do banco atual
-    db_info = get_database_info()
-    
-    # Obter informações do arquivo .env
-    env_info = get_env_database_info()
-    
-    # Testar conexão
-    connection_status = test_database_connection()
-    
-    context = {
-        'page_title': 'Informações do Banco de Dados',
-        'page_description': 'Status e configurações atuais do banco de dados',
-        'db_info': db_info,
-        'env_info': env_info,
-        'connection_status': connection_status,
-        'breadcrumbs': [
-            {'name': 'Configurações', 'url': '/config/'},
-            {'name': 'Banco de Dados', 'url': None}
-        ]
-    }
-    
-    return render(request, 'config/database/info.html', context)
+class DatabaseInfoView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
+    template_name = 'config/database/info.html'
+
+    def test_func(self):
+        return is_admin_user(self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'page_title': 'Informações do Banco de Dados',
+            'page_description': 'Status e configurações atuais do banco de dados',
+            'db_info': get_database_info(),
+            'env_info': get_env_database_info(),
+            'connection_status': test_database_connection(),
+            'breadcrumbs': [
+                {'name': 'Configurações', 'url': '/config/'},
+                {'name': 'Banco de Dados', 'url': None}
+            ]
+        })
+        return context
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class DatabaseConnectionTestAjaxView(LoginRequiredMixin, UserPassesTestMixin, View):
+    def test_func(self):
+        return is_admin_user(self.request.user)
+
+    def post(self, request, *args, **kwargs):
+        status = test_database_connection()
+        return JsonResponse(status)
+
+    def get(self, request, *args, **kwargs):
+        return JsonResponse({'error': 'Método não permitido'}, status=405)
 
 
 def get_database_info():
@@ -154,15 +164,4 @@ def test_database_connection():
             'status': 'error',
             'message': f'Erro na conexão: {str(e)}',
             'details': {}
-        }
-
-
-@login_required
-@user_passes_test(is_admin_user)
-def database_connection_test_ajax(request):
-    """Teste de conexão via AJAX"""
-    if request.method == 'POST':
-        status = test_database_connection()
-        return JsonResponse(status)
-    
-    return JsonResponse({'error': 'Método não permitido'}, status=405) 
+        } 

@@ -5,13 +5,15 @@ Views para gerenciamento de configurações de email.
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import TemplateView, FormView
+from django.views.generic import TemplateView, FormView, View
 from django.core.mail import send_mail
 from django.conf import settings
 from django.http import JsonResponse
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
 from apps.config.mixins import ConfigPermissionMixin
 from apps.config.forms import EmailConfigForm, EmailTestForm
@@ -177,90 +179,77 @@ class EmailStatsView(ConfigPermissionMixin, TemplateView):
         return context
 
 
-def test_email_connection(request):
-    """AJAX endpoint para testar conexão de email."""
-    if not request.user.is_authenticated or not request.user.is_staff:
-        return JsonResponse({'error': 'Acesso negado'}, status=403)
-    
-    try:
-        from django.core.mail import get_connection
-        
-        # Testar conexão
-        connection = get_connection()
-        connection.open()
-        connection.close()
-        
-        return JsonResponse({
-            'success': True,
-            'message': 'Conexão com servidor de email estabelecida com sucesso!'
-        })
-        
-    except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'message': f'Erro na conexão: {str(e)}'
-        })
-
-
-def send_test_email_ajax(request):
-    """AJAX endpoint para envio de email de teste."""
-    if not request.user.is_authenticated or not request.user.is_staff:
-        return JsonResponse({'error': 'Acesso negado'}, status=403)
-    
-    if request.method != 'POST':
-        return JsonResponse({'error': 'Método não permitido'}, status=405)
-    
-    try:
-        recipient = request.POST.get('recipient')
-        
-        # Validar email
-        if not recipient:
-            return JsonResponse({'error': 'Email do destinatário é obrigatório'})
-        
-        validate_email(recipient)
-        
-        # Enviar email
-        send_mail(
-            subject='Teste de Email - Havoc Admin',
-            message=f'Este é um email de teste enviado em {timezone.now().strftime("%d/%m/%Y às %H:%M")}.\n\nSe você recebeu este email, a configuração está funcionando corretamente!',
-            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@havoc.com'),
-            recipient_list=[recipient],
-            fail_silently=False,
-        )
-        
-        return JsonResponse({
-            'success': True,
-            'message': f'Email de teste enviado com sucesso para {recipient}!'
-        })
-        
-    except ValidationError:
-        return JsonResponse({'error': 'Email inválido'})
-    except Exception as e:
-        logger.error(f'Erro ao enviar email de teste: {e}', exc_info=True)
-        return JsonResponse({'error': f'Erro ao enviar email: {str(e)}'})
-
-
-def test_email_connection_ajax(request):
-    """AJAX endpoint para testar conexão de email usando serviço dinâmico."""
-    if not request.user.is_authenticated or not request.user.is_staff:
-        return JsonResponse({'error': 'Acesso negado'}, status=403)
-
-    if request.method != 'POST':
+@method_decorator(csrf_exempt, name='dispatch')
+class TestEmailConnectionView(View):
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_authenticated or not request.user.is_staff:
+            return JsonResponse({'error': 'Acesso negado'}, status=403)
+        try:
+            from django.core.mail import get_connection
+            connection = get_connection()
+            connection.open()
+            connection.close()
+            return JsonResponse({
+                'success': True,
+                'message': 'Conexão com servidor de email estabelecida com sucesso!'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Erro na conexão: {str(e)}'
+            })
+    def get(self, request, *args, **kwargs):
         return JsonResponse({'error': 'Método não permitido'}, status=405)
 
-    try:
-        # Usa o serviço dinâmico para testar a conexão
-        email_service = DynamicEmailConfigService()
-        success, message = email_service.test_connection()
 
-        return JsonResponse({
-            'success': success,
-            'message': message
-        })
+@method_decorator(csrf_exempt, name='dispatch')
+class SendTestEmailAjaxView(View):
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_authenticated or not request.user.is_staff:
+            return JsonResponse({'error': 'Acesso negado'}, status=403)
+        try:
+            recipient = request.POST.get('recipient')
+            if not recipient:
+                return JsonResponse({'error': 'Email do destinatário é obrigatório'})
+            validate_email(recipient)
+            send_mail(
+                subject='Teste de Email - Havoc Admin',
+                message=f'Este é um email de teste enviado em {timezone.now().strftime("%d/%m/%Y às %H:%M")}.'
+                        '\n\nSe você recebeu este email, a configuração está funcionando corretamente!',
+                from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@havoc.com'),
+                recipient_list=[recipient],
+                fail_silently=False,
+            )
+            return JsonResponse({
+                'success': True,
+                'message': f'Email de teste enviado com sucesso para {recipient}!'
+            })
+        except ValidationError:
+            return JsonResponse({'error': 'Email inválido'})
+        except Exception as e:
+            logger.error(f'Erro ao enviar email de teste: {e}', exc_info=True)
+            return JsonResponse({'error': f'Erro ao enviar email: {str(e)}'})
+    def get(self, request, *args, **kwargs):
+        return JsonResponse({'error': 'Método não permitido'}, status=405)
 
-    except Exception as e:
-        logger.error(f'Erro ao testar conexão de email: {e}', exc_info=True)
-        return JsonResponse({
-            'success': False,
-            'message': f'Erro inesperado: {str(e)}'
-        })
+
+@method_decorator(csrf_exempt, name='dispatch')
+class TestEmailConnectionAjaxView(View):
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_authenticated or not request.user.is_staff:
+            return JsonResponse({'error': 'Acesso negado'}, status=403)
+        try:
+            email_service = DynamicEmailConfigService()
+            success, message = email_service.test_connection()
+            return JsonResponse({
+                'success': success,
+                'message': message
+            })
+        except Exception as e:
+            logger.error(f'Erro ao testar conexão de email: {e}', exc_info=True)
+            return JsonResponse({
+                'success': False,
+                'message': f'Erro inesperado: {str(e)}'
+            })
+    def get(self, request, *args, **kwargs):
+        return JsonResponse({'error': 'Método não permitido'}, status=405)

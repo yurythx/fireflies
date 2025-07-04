@@ -4,7 +4,8 @@ from django.contrib.auth import get_user_model
 from django.utils.html import format_html
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from apps.config.models import SystemConfiguration, UserActivityLog, DatabaseConfiguration
+from apps.config.models import SystemConfiguration, UserActivityLog, DatabaseConfiguration, AppModuleConfiguration
+from apps.config.models.user_activity_log import UserActivityLog
 
 User = get_user_model()
 
@@ -37,23 +38,14 @@ class SystemConfigurationAdmin(admin.ModelAdmin):
 @admin.register(UserActivityLog)
 class UserActivityLogAdmin(admin.ModelAdmin):
     """Admin para logs de atividade"""
-    list_display = ('user', 'action', 'target_user', 'description', 'ip_address', 'created_at')
-    list_filter = ('action', 'created_at')
-    search_fields = ('user__email', 'target_user__email', 'description', 'ip_address')
-    readonly_fields = ('created_at',)
-    ordering = ('-created_at',)
-
+    list_display = ('user', 'action', 'timestamp', 'details')
+    readonly_fields = ('user', 'action', 'timestamp', 'details')
+    ordering = ('-timestamp',)
+    list_filter = ('user', 'action', 'timestamp')
+    search_fields = ('user__email', 'action', 'details')
     fieldsets = (
         (None, {
-            'fields': ('user', 'action', 'target_user', 'description')
-        }),
-        ('Detalhes Técnicos', {
-            'fields': ('ip_address', 'user_agent', 'extra_data'),
-            'classes': ('collapse',)
-        }),
-        ('Metadados', {
-            'fields': ('created_at',),
-            'classes': ('collapse',)
+            'fields': ('user', 'action', 'timestamp', 'details')
         }),
     )
 
@@ -250,3 +242,27 @@ class CustomUserAdmin(BaseUserAdmin):
 # Re-registra o modelo User com o admin customizado
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
+
+@admin.register(AppModuleConfiguration)
+class AppModuleConfigurationAdmin(admin.ModelAdmin):
+    list_display = (
+        'display_name', 'app_name', 'module_type', 'status', 'is_enabled', 'is_core', 'menu_order', 'show_in_menu'
+    )
+    list_filter = ('module_type', 'status', 'is_enabled', 'is_core', 'show_in_menu')
+    search_fields = ('display_name', 'app_name', 'description')
+    readonly_fields = ('created_at', 'updated_at', 'created_by', 'updated_by')
+    ordering = ('menu_order', 'display_name')
+    fieldsets = (
+        (None, {
+            'fields': (
+                'display_name', 'app_name', 'description', 'module_type', 'status', 'is_enabled', 'is_core',
+                'url_pattern', 'menu_icon', 'menu_order', 'show_in_menu',
+                'dependencies', 'required_permissions', 'module_settings',
+                'version', 'author', 'documentation_url'
+            )
+        }),
+        ('Metadados', {
+            'fields': ('created_at', 'updated_at', 'created_by', 'updated_by'),
+            'classes': ('collapse',)
+        }),
+    )

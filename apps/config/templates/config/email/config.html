@@ -1,554 +1,302 @@
-{% extends 'config/base_config.html' %}
-{% load crispy_forms_tags %}
+{% extends 'config/base_config_page.html' %}
+{% load static %}
+{% load config_extras %}
 
-{% block config_title %}Configurações de Email{% endblock %}
+{% block config_title %}Configuração de Email{% endblock %}
+{% block page_icon %}<i class="fas fa-envelope me-2"></i>{% endblock %}
+{% block page_title %}Configuração de Email{% endblock %}
 
-{% block config_content %}
-<!-- Header -->
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2 text-sans text-body">
-        <i class="fas fa-envelope me-2 text-django-green"></i>Configurações de Email
-    </h1>
-    <div class="btn-toolbar mb-2 mb-md-0">
-        <div class="btn-group me-2">
-            <button type="button" class="btn btn-sm btn-outline-info" id="testConnectionBtn">
-                <i class="fas fa-plug me-1"></i>Testar Conexão
-            </button>
-            <button type="button" class="btn btn-sm btn-outline-success" id="sendTestEmailBtn">
-                <i class="fas fa-paper-plane me-1"></i>Enviar Teste
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Status Atual -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card shadow">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">
-                    <i class="fas fa-info-circle me-2"></i>Status Atual da Configuração
-                </h6>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-8">
-                        <div class="mb-3">
-                            <strong>Backend Atual:</strong>
-                            <span class="ms-2">{{ backend_info.name|default:"Não configurado" }}</span>
-                        </div>
-                        <div class="mb-3">
-                            <strong>Descrição:</strong>
-                            <span class="ms-2 text-muted">{{ backend_info.description|default:"N/A" }}</span>
-                        </div>
-                        {% if current_backend == 'django.core.mail.backends.smtp.EmailBackend' %}
-                        <div class="mb-3">
-                            <strong>Servidor SMTP:</strong>
-                            <span class="ms-2">{{ form.email_host.value|default:"Não configurado" }}</span>
-                        </div>
-                        <div class="mb-3">
-                            <strong>Porta:</strong>
-                            <span class="ms-2">{{ form.email_port.value|default:"N/A" }}</span>
-                        </div>
-                        {% endif %}
-                    </div>
-                    <div class="col-md-4">
-                        <div id="connectionResult" class="mb-3"></div>
-                        <div id="testEmailResult" class="mb-3"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Formulário de Configuração -->
+{% block page_content %}
 <div class="row">
-    <div class="col-md-8">
-        <div class="card shadow">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">
-                    <i class="fas fa-cog me-2"></i>Configurações de Email
-                </h6>
+    <!-- Configuração Principal -->
+    <div class="col-12 col-lg-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-cog me-2"></i>Configurações do Servidor
+                </h5>
             </div>
             <div class="card-body">
-                <form method="post" id="emailConfigForm">
+                <form method="post" class="config-form">
                     {% csrf_token %}
-
-                    <!-- Campo de Backend (Modo de Operação) -->
-                    <div class="mb-4">
-                        {{ form.email_backend|as_crispy_field }}
-                        <div id="backend-info-container"></div>
-                    </div>
-
-                    <!-- Campos SMTP (mostrados apenas quando SMTP está selecionado) -->
-                    <div id="smtp-fields" style="display: none;">
-                        <div class="row">
-                            <div class="col-md-6">
-                                {{ form.email_host|as_crispy_field }}
-                                {{ form.email_port|as_crispy_field }}
-                                {{ form.email_host_user|as_crispy_field }}
-                            </div>
-                            <div class="col-md-6">
-                                {{ form.email_host_password|as_crispy_field }}
-                                {{ form.default_from_email|as_crispy_field }}
-                                <div class="mb-3">
-                                    <div class="form-check">
-                                        {{ form.email_use_tls }}
-                                        <label class="form-check-label" for="{{ form.email_use_tls.id_for_label }}">
-                                            {{ form.email_use_tls.label }}
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        {{ form.email_use_ssl }}
-                                        <label class="form-check-label" for="{{ form.email_use_ssl.id_for_label }}">
-                                            {{ form.email_use_ssl.label }}
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Outros campos sempre visíveis -->
+                    
                     <div class="row">
-                        <div class="col-md-6">
-                            {{ form.email_timeout|as_crispy_field }}
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.email_host.id_for_label }}" class="form-label">
+                                <i class="fas fa-server me-1"></i>Servidor SMTP
+                            </label>
+                            {{ form.email_host }}
+                            {% if form.email_host.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.email_host.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
                         </div>
-                        <div class="col-md-6">
-                            <!-- Campo para email padrão quando não é SMTP -->
-                            <div id="non-smtp-email" style="display: none;">
-                                {{ form.default_from_email|as_crispy_field }}
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.email_port.id_for_label }}" class="form-label">
+                                <i class="fas fa-network-wired me-1"></i>Porta
+                            </label>
+                            {{ form.email_port }}
+                            {% if form.email_port.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.email_port.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.email_host_user.id_for_label }}" class="form-label">
+                                <i class="fas fa-user me-1"></i>Usuário
+                            </label>
+                            {{ form.email_host_user }}
+                            {% if form.email_host_user.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.email_host_user.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.email_host_password.id_for_label }}" class="form-label">
+                                <i class="fas fa-lock me-1"></i>Senha
+                            </label>
+                            <div class="input-group">
+                                {{ form.email_host_password }}
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            {% if form.email_host_password.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.email_host_password.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.email_use_tls.id_for_label }}" class="form-label">
+                                <i class="fas fa-shield-alt me-1"></i>Usar TLS
+                            </label>
+                            <div class="form-check form-switch">
+                                {{ form.email_use_tls }}
+                                <label class="form-check-label" for="{{ form.email_use_tls.id_for_label }}">
+                                    Ativar conexão segura (TLS)
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.email_use_ssl.id_for_label }}" class="form-label">
+                                <i class="fas fa-lock me-1"></i>Usar SSL
+                            </label>
+                            <div class="form-check form-switch">
+                                {{ form.email_use_ssl }}
+                                <label class="form-check-label" for="{{ form.email_use_ssl.id_for_label }}">
+                                    Ativar conexão SSL
+                                </label>
                             </div>
                         </div>
                     </div>
 
-                    <div class="d-flex gap-2 mt-4">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.default_from_email.id_for_label }}" class="form-label">
+                                <i class="fas fa-at me-1"></i>Email Padrão
+                            </label>
+                            {{ form.default_from_email }}
+                            {% if form.default_from_email.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.default_from_email.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.server_email.id_for_label }}" class="form-label">
+                                <i class="fas fa-server me-1"></i>Email do Servidor
+                            </label>
+                            {{ form.server_email }}
+                            {% if form.server_email.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.server_email.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-2"></i>Salvar e Aplicar
+                            <i class="fas fa-save me-2"></i>Salvar Configurações
                         </button>
-                        <button type="button" class="btn btn-outline-info" id="testFormBtn">
-                            <i class="fas fa-vial me-2"></i>Testar Configuração
-                        </button>
-                        <button type="button" class="btn btn-outline-secondary" onclick="location.reload()">
-                            <i class="fas fa-undo me-2"></i>Cancelar
-                        </button>
+                        <a href="{% url 'config:email_test' %}" class="btn btn-outline-info">
+                            <i class="fas fa-paper-plane me-2"></i>Testar Configuração
+                        </a>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <div class="col-md-4">
-        <div class="card shadow">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-success">
-                    <i class="fas fa-rocket me-2"></i>Configurações Rápidas
+    <!-- Sidebar com informações e ações rápidas -->
+    <div class="col-12 col-lg-4">
+        <!-- Status da Configuração -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-info-circle me-2"></i>Status da Configuração
                 </h6>
             </div>
             <div class="card-body">
-                <div class="d-grid gap-2 mb-4">
-                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="setGmailConfig()">
-                        <i class="fab fa-google me-2"></i>Gmail
-                    </button>
-                    <button type="button" class="btn btn-outline-info btn-sm" onclick="setOutlookConfig()">
-                        <i class="fab fa-microsoft me-2"></i>Outlook
-                    </button>
-                    <button type="button" class="btn btn-outline-purple btn-sm" onclick="setYahooConfig()">
-                        <i class="fab fa-yahoo me-2"></i>Yahoo
-                    </button>
-                    <button type="button" class="btn btn-outline-success btn-sm" onclick="setSendGridConfig()">
-                        <i class="fas fa-paper-plane me-2"></i>SendGrid
-                    </button>
-                </div>
+                {% if email_config %}
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="avatar-sm me-3">
+                            <div class="bg-success rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                <i class="fas fa-check text-white"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="fw-bold">Configuração Ativa</div>
+                            <small class="text-muted">Servidor: {{ email_config.email_host }}</small>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <div class="border-end">
+                                    <div class="h5 mb-0 text-primary">{{ email_config.email_port }}</div>
+                                    <small class="text-muted">Porta</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="h5 mb-0 text-success">
+                                    {% if email_config.email_use_tls or email_config.email_use_ssl %}
+                                        <i class="fas fa-lock"></i>
+                                    {% else %}
+                                        <i class="fas fa-unlock"></i>
+                                    {% endif %}
+                                </div>
+                                <small class="text-muted">Segurança</small>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted">
+                        <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                        <p>Nenhuma configuração encontrada</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
 
-                <hr>
-
-                <h6 class="mb-3">
-                    <i class="fas fa-cog me-2"></i>Modos de Operação
+        <!-- Ações Rápidas -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-bolt me-2"></i>Ações Rápidas
                 </h6>
+            </div>
+            <div class="card-body">
                 <div class="d-grid gap-2">
-                    <button type="button" class="btn btn-outline-warning btn-sm" onclick="setDevelopmentMode()">
-                        <i class="fas fa-code me-2"></i>Desenvolvimento
-                    </button>
-                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="setDisabledMode()">
-                        <i class="fas fa-ban me-2"></i>Desabilitar
-                    </button>
+                    <a href="{% url 'config:email_test' %}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-paper-plane me-2"></i>Testar Email
+                    </a>
+                    <a href="{% url 'config:email_stats' %}" class="btn btn-outline-info btn-sm">
+                        <i class="fas fa-chart-bar me-2"></i>Ver Estatísticas
+                    </a>
+                    <a href="{% url 'config:email_templates' %}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-file-alt me-2"></i>Gerenciar Templates
+                    </a>
                 </div>
             </div>
         </div>
 
-        <!-- Modal para teste de email -->
-        <div class="card shadow mt-3">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-info">
-                    <i class="fas fa-paper-plane me-2"></i>Enviar Email de Teste
+        <!-- Dicas -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-lightbulb me-2"></i>Dicas
                 </h6>
             </div>
             <div class="card-body">
-                <div class="mb-3">
-                    <label for="testEmailRecipient" class="form-label">Email de destino:</label>
-                    <input type="email" class="form-control form-control-sm" id="testEmailRecipient"
-                           placeholder="seu@email.com" value="{{ user.email }}">
-                </div>
-                <button type="button" class="btn btn-outline-primary btn-sm w-100" id="sendTestEmailBtn2">
-                    <i class="fas fa-paper-plane me-1"></i>Enviar Teste
-                </button>
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        Use TLS para maior segurança
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        Teste sempre após alterações
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        Mantenha as credenciais seguras
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Documentação -->
-<div class="row mt-4">
-    <div class="col-12">
-        <div class="card shadow">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-info">
-                    <i class="fas fa-info-circle me-2"></i>Informações dos Provedores
-                </h6>
+<!-- Mensagens de feedback -->
+{% if messages %}
+    <div class="mt-4">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="mb-3">
-                            <strong><i class="fab fa-google me-2 text-danger"></i>Gmail:</strong>
-                            <small class="d-block">smtp.gmail.com:587 (TLS)</small>
-                            <small class="text-muted">Requer senha de app</small>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="mb-3">
-                            <strong><i class="fab fa-microsoft me-2 text-primary"></i>Outlook:</strong>
-                            <small class="d-block">smtp-mail.outlook.com:587 (TLS)</small>
-                            <small class="text-muted">Credenciais normais</small>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="mb-3">
-                            <strong><i class="fab fa-yahoo me-2 text-purple"></i>Yahoo:</strong>
-                            <small class="d-block">smtp.mail.yahoo.com:587 (TLS)</small>
-                            <small class="text-muted">Requer 2FA + senha de app</small>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="mb-3">
-                            <strong><i class="fas fa-paper-plane me-2 text-success"></i>SendGrid:</strong>
-                            <small class="d-block">smtp.sendgrid.net:587 (TLS)</small>
-                            <small class="text-muted">Usuário: "apikey"</small>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="alert alert-info mb-0">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <strong><i class="fas fa-lightbulb me-2"></i>Dicas Importantes:</strong>
-                            <ul class="mb-0 mt-2">
-                                <li><strong>Produção:</strong> Use SMTP para envio real</li>
-                                <li><strong>Desenvolvimento:</strong> Use Console para debug</li>
-                            </ul>
-                        </div>
-                        <div class="col-md-6">
-                            <strong><i class="fas fa-shield-alt me-2"></i>Segurança:</strong>
-                            <ul class="mb-0 mt-2">
-                                <li>Gmail: Ative 2FA e use senha de app</li>
-                                <li>Sempre teste antes de salvar</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        {% endfor %}
     </div>
-</div>
+{% endif %}
+{% endblock %}
 
+{% block extra_js %}
 <script>
-// Configurações pré-definidas
-const presetConfigs = {
-    'gmail': {
-        'email_host': 'smtp.gmail.com',
-        'email_port': 587,
-        'email_use_tls': true,
-        'email_use_ssl': false,
-        'instructions': 'Use sua senha de app do Gmail, não a senha normal.'
-    },
-    'outlook': {
-        'email_host': 'smtp-mail.outlook.com',
-        'email_port': 587,
-        'email_use_tls': true,
-        'email_use_ssl': false,
-        'instructions': 'Use sua conta Microsoft normal.'
-    },
-    'yahoo': {
-        'email_host': 'smtp.mail.yahoo.com',
-        'email_port': 587,
-        'email_use_tls': true,
-        'email_use_ssl': false,
-        'instructions': 'Ative a autenticação de dois fatores e use senha de app.'
-    },
-    'sendgrid': {
-        'email_host': 'smtp.sendgrid.net',
-        'email_port': 587,
-        'email_use_tls': true,
-        'email_use_ssl': false,
-        'instructions': 'Use "apikey" como usuário e sua API key como senha.'
-    }
-};
-
-function setGmailConfig() {
-    // Primeiro muda para SMTP
-    document.getElementById('id_email_backend').value = 'django.core.mail.backends.smtp.EmailBackend';
-    toggleEmailFields('django.core.mail.backends.smtp.EmailBackend');
-
-    // Depois aplica configurações do Gmail
-    applyPresetConfig('gmail');
-}
-
-function setOutlookConfig() {
-    document.getElementById('id_email_backend').value = 'django.core.mail.backends.smtp.EmailBackend';
-    toggleEmailFields('django.core.mail.backends.smtp.EmailBackend');
-    applyPresetConfig('outlook');
-}
-
-function setYahooConfig() {
-    document.getElementById('id_email_backend').value = 'django.core.mail.backends.smtp.EmailBackend';
-    toggleEmailFields('django.core.mail.backends.smtp.EmailBackend');
-    applyPresetConfig('yahoo');
-}
-
-function setSendGridConfig() {
-    document.getElementById('id_email_backend').value = 'django.core.mail.backends.smtp.EmailBackend';
-    toggleEmailFields('django.core.mail.backends.smtp.EmailBackend');
-    applyPresetConfig('sendgrid');
-}
-
-function applyPresetConfig(provider) {
-    const config = presetConfigs[provider];
-    if (!config) return;
-
-    document.getElementById('id_email_host').value = config.email_host;
-    document.getElementById('id_email_port').value = config.email_port;
-    document.getElementById('id_email_use_tls').checked = config.email_use_tls;
-    document.getElementById('id_email_use_ssl').checked = config.email_use_ssl;
-
-    // Mostra instruções específicas
-    showInstructions(config.instructions);
-}
-
-function showInstructions(text) {
-    const alertDiv = document.createElement('div');
-    alertDiv.className = 'alert alert-info alert-dismissible fade show mt-3';
-    alertDiv.innerHTML = `
-        <i class="fas fa-info-circle me-2"></i>
-        <strong>Dica:</strong> ${text}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
-
-    // Remove alertas anteriores
-    const existingAlerts = document.querySelectorAll('.alert-info');
-    existingAlerts.forEach(alert => alert.remove());
-
-    // Adiciona novo alerta
-    const form = document.querySelector('form');
-    form.insertBefore(alertDiv, form.firstChild);
-}
-
-// Controla visibilidade dos campos baseado no backend selecionado
-function toggleEmailFields(backend) {
-    const smtpFields = document.getElementById('smtp-fields');
-    const nonSmtpEmail = document.getElementById('non-smtp-email');
-    const isSmtp = backend === 'django.core.mail.backends.smtp.EmailBackend';
-
-    if (smtpFields) {
-        smtpFields.style.display = isSmtp ? 'block' : 'none';
-    }
-
-    if (nonSmtpEmail) {
-        nonSmtpEmail.style.display = isSmtp ? 'none' : 'block';
-    }
-
-    // Mostra informações sobre o backend selecionado
-    showBackendInfo(backend);
-}
-
-function showBackendInfo(backend) {
-    const backendInfo = {
-        'django.core.mail.backends.smtp.EmailBackend': {
-            'title': '🚀 Modo Produção (SMTP)',
-            'description': 'Envia emails através de servidor SMTP real. Requer configuração completa.',
-            'class': 'alert-primary'
-        },
-        'django.core.mail.backends.console.EmailBackend': {
-            'title': '🔧 Modo Desenvolvimento (Console)',
-            'description': 'Exibe emails no console/terminal. Ideal para desenvolvimento.',
-            'class': 'alert-warning'
-        },
-        'django.core.mail.backends.filebased.EmailBackend': {
-            'title': '📁 Modo Arquivo',
-            'description': 'Salva emails em arquivos locais. Útil para debug.',
-            'class': 'alert-info'
-        },
-        'django.core.mail.backends.locmem.EmailBackend': {
-            'title': '🧪 Modo Memória (Teste)',
-            'description': 'Armazena emails na memória. Usado em testes automatizados.',
-            'class': 'alert-secondary'
-        },
-        'django.core.mail.backends.dummy.EmailBackend': {
-            'title': '❌ Modo Desabilitado',
-            'description': 'Não envia emails. Use para desabilitar completamente.',
-            'class': 'alert-danger'
-        }
-    };
-
-    const info = backendInfo[backend] || {
-        'title': 'Backend Desconhecido',
-        'description': 'Backend não reconhecido.',
-        'class': 'alert-secondary'
-    };
-
-    // Remove alertas de backend anteriores
-    const existingBackendAlerts = document.querySelectorAll('.backend-info-alert');
-    existingBackendAlerts.forEach(alert => alert.remove());
-
-    // Cria novo alerta
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert ${info.class} backend-info-alert mt-3`;
-    alertDiv.innerHTML = `
-        <h6 class="mb-1">${info.title}</h6>
-        <small>${info.description}</small>
-    `;
-
-    // Adiciona no container de informações do backend
-    const backendContainer = document.getElementById('backend-info-container');
-    if (backendContainer) {
-        backendContainer.appendChild(alertDiv);
-    }
-}
-
-// Inicializa quando a página carrega
 document.addEventListener('DOMContentLoaded', function() {
-    const backendSelect = document.getElementById('id_email_backend');
-    if (backendSelect) {
-        toggleEmailFields(backendSelect.value);
-        backendSelect.addEventListener('change', function() {
-            toggleEmailFields(this.value);
+    // Toggle password visibility
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordField = document.getElementById('{{ form.email_host_password.id_for_label }}');
+    
+    if (togglePassword && passwordField) {
+        togglePassword.addEventListener('click', function() {
+            const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordField.setAttribute('type', type);
+            
+            const icon = this.querySelector('i');
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
         });
     }
-});
-
-// Funções para modos de operação
-function setDevelopmentMode() {
-    document.getElementById('id_email_backend').value = 'django.core.mail.backends.console.EmailBackend';
-    toggleEmailFields('django.core.mail.backends.console.EmailBackend');
-    showInstructions('Modo desenvolvimento ativado. Emails serão exibidos no console.');
-}
-
-function setDisabledMode() {
-    document.getElementById('id_email_backend').value = 'django.core.mail.backends.dummy.EmailBackend';
-    toggleEmailFields('django.core.mail.backends.dummy.EmailBackend');
-    showInstructions('Sistema de email desabilitado. Nenhum email será enviado.');
-}
-
-// Teste de conexão atual
-document.getElementById('testConnectionBtn').addEventListener('click', function() {
-    const button = this;
-    const result = document.getElementById('connectionResult');
-
-    button.disabled = true;
-    button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Testando...';
-
-    fetch('{% url "config:test_email_connection" %}', {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-            'Content-Type': 'application/json',
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            result.innerHTML = '<div class="alert alert-success alert-sm">' + data.message + '</div>';
-        } else {
-            result.innerHTML = '<div class="alert alert-danger alert-sm">' + data.message + '</div>';
-        }
-    })
-    .catch(error => {
-        result.innerHTML = '<div class="alert alert-danger alert-sm">Erro na conexão: ' + error + '</div>';
-    })
-    .finally(() => {
-        button.disabled = false;
-        button.innerHTML = '<i class="fas fa-plug me-1"></i>Testar Conexão';
-    });
-});
-
-// Teste de configuração do formulário
-document.getElementById('testFormBtn').addEventListener('click', function() {
-    const form = document.getElementById('emailConfigForm');
-    const formData = new FormData(form);
-    const button = this;
-
-    button.disabled = true;
-    button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Testando...';
-
-    // Aqui você pode implementar teste das configurações do formulário
-    // Por enquanto, vamos simular um teste
-    setTimeout(() => {
-        alert('Teste da configuração do formulário - funcionalidade em desenvolvimento');
-        button.disabled = false;
-        button.innerHTML = '<i class="fas fa-vial me-1"></i>Testar Configuração';
-    }, 1000);
-});
-
-// Envio de email de teste
-document.getElementById('sendTestEmailBtn2').addEventListener('click', function() {
-    const recipient = document.getElementById('testEmailRecipient').value;
-    const button = this;
-    const result = document.getElementById('testEmailResult');
-
-    if (!recipient) {
-        alert('Por favor, insira um email de destino');
-        return;
-    }
-
-    button.disabled = true;
-    button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Enviando...';
-
-    fetch('{% url "config:send_test_email_ajax" %}', {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: 'recipient=' + encodeURIComponent(recipient)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            result.innerHTML = '<div class="alert alert-success alert-sm">' + data.message + '</div>';
-        } else {
-            result.innerHTML = '<div class="alert alert-danger alert-sm">' + data.error + '</div>';
-        }
-    })
-    .catch(error => {
-        result.innerHTML = '<div class="alert alert-danger alert-sm">Erro: ' + error + '</div>';
-    })
-    .finally(() => {
-        button.disabled = false;
-        button.innerHTML = '<i class="fas fa-paper-plane me-1"></i>Enviar Teste';
-    });
-});
-
-// Validação de TLS/SSL
-document.getElementById('id_email_use_tls').addEventListener('change', function() {
-    if (this.checked) {
-        document.getElementById('id_email_use_ssl').checked = false;
-    }
-});
-
-document.getElementById('id_email_use_ssl').addEventListener('change', function() {
-    if (this.checked) {
-        document.getElementById('id_email_use_tls').checked = false;
+    
+    // Form validation feedback
+    const form = document.querySelector('.config-form');
+    if (form) {
+        form.addEventListener('submit', function() {
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Salvando...';
+                submitBtn.disabled = true;
+            }
+        });
     }
 });
 </script>

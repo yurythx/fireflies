@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.views.generic import DetailView, UpdateView
+from django.views.generic import DetailView, UpdateView, ListView, DeleteView
 from django.views import View
 from django.http import JsonResponse
 from apps.config.models.app_module_config import AppModuleConfiguration
@@ -9,160 +9,101 @@ from apps.config.services.module_service import ModuleService
 from apps.config.forms.module_forms import ModuleConfigurationForm
 
 
-class ModuleListView(LoginRequiredMixin, UserPassesTestMixin, View):
-    """Lista e gerencia todos os módulos do sistema com funcionalidades de teste integradas"""
+class ModuleListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    """
+    Lista todos os módulos do sistema.
+    Exibe módulos habilitados, desabilitados e estatísticas.
+    """
+    model = AppModuleConfiguration
     template_name = 'config/modules/list.html'
+    context_object_name = 'modules'
 
     def test_func(self):
         return self.request.user.is_staff
 
-    def get(self, request):
-        """Exibe página de gerenciamento de módulos com testes integrados"""
+    def get_queryset(self):
         module_service = ModuleService()
-
-        # Obtém todos os módulos
         all_modules = module_service.get_all_modules()
+        installed_apps = module_service.get_installed_apps_list()
+        # Padroniza nomes para comparar sem prefixo 'apps.'
+        installed_names = set([a.split('.')[-1] for a in installed_apps])
+        filtered = [m for m in all_modules if m.app_name.split('.')[-1] in installed_names]
+        return filtered
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        module_service = ModuleService()
+        page_modules = context.get('page_obj') or context.get('modules') or []
+        print("[DEBUG] page_modules:", page_modules)  # Depuração temporária
         enabled_modules = module_service.get_enabled_modules()
-        disabled_modules = [m for m in all_modules if not m.is_available]
-
-        # Testa URLs dos módulos
-        module_tests = []
-        for module in all_modules:
-            test_result = self._test_module_access(module)
-            module_tests.append({
+        disabled_modules = [m for m in page_modules if not m.is_available]
+        module_tests = [
+            {
                 'module': module,
-                'test_result': test_result
-            })
-
-        # Estatísticas
+                'test_result': self._simple_module_access_test(module)
+            }
+            for module in page_modules
+        ]
         module_stats = module_service.get_module_statistics()
-
-        context = {
-            'modules': all_modules,
+        def module_row(module):
+            return [
+                module.display_name,
+                module.app_name,
+                module.get_module_type_display() if hasattr(module, 'get_module_type_display') else getattr(module, 'type', ''),
+                'Ativo' if module.is_enabled else 'Inativo',
+                'Disponível' if module.is_available else 'Indisponível',
+                module.menu_order,
+            ]
+        def config_row(module):
+            return [
+                module.display_name,
+                module.app_name,
+                'Ativo' if module.is_enabled else 'Inativo',
+                module.menu_order,
+            ]
+        rows = [module_row(m) for m in page_modules]
+        config_rows = [config_row(m) for m in page_modules]
+        context.update({
             'enabled_modules': enabled_modules,
             'disabled_modules': disabled_modules,
             'module_tests': module_tests,
             'module_stats': module_stats,
+            'rows': rows,
+            'config_rows': config_rows,
             'page_title': 'Gerenciamento de Módulos',
             'page_description': 'Configure e teste os módulos do sistema',
-        }
+        })
+        return context
 
-        return render(request, self.template_name, context)
-
-    def post(self, request):
-        """Processa ações de gerenciamento e teste"""
-        action = request.POST.get('action')
-        module_name = request.POST.get('module_name')
-
-        if not action or not module_name:
-            messages.error(request, 'Ação ou módulo não especificado.')
-            return redirect('config:module_list')
-
-        module_service = ModuleService()
-
-        if action == 'toggle':
-            success = self._handle_toggle_module(module_service, module_name, request.user)
-        elif action == 'test_access':
-            success = self._handle_test_access(module_service, module_name)
-        elif action == 'enable':
-            success = module_service.enable_module(module_name, request.user)
-            if success:
-                messages.success(request, '✅ O módulo foi ativado com sucesso!')
-            else:
-                messages.error(request, f'❌ Não foi possível alterar o status do módulo. Tente novamente ou verifique os logs.')
-        elif action == 'disable':
-            success = module_service.disable_module(module_name, request.user)
-            if success:
-                messages.success(request, f'Módulo desabilitado com sucesso.')
-            else:
-                messages.error(request, f'Erro ao desabilitar módulo.')
-        else:
-            messages.error(request, 'Ação não reconhecida.')
-
-        return redirect('config:module_list')
-
-    def _handle_toggle_module(self, module_service, module_name, user):
-        """Alterna status do módulo"""
-        module = module_service.get_module_by_name(module_name)
-        if not module:
-            messages.error(self.request, f'Módulo {module_name} não encontrado.')
-            return False
-
-        if module.is_core:
-            messages.error(self.request, f'🔒 O módulo "{module.display_name}" é essencial e não pode ser desativado.')
-            return False
-
-        if module.is_enabled:
-            success = module_service.disable_module(module_name, user)
-            action = 'desabilitado'
-        else:
-            success = module_service.enable_module(module_name, user)
-            action = 'habilitado'
-
-        if success:
-            messages.success(self.request, f'Módulo {module.display_name} {action} com sucesso.')
-        else:
-            messages.error(self.request, f'Erro ao alterar status do módulo {module.display_name}.')
-
-        return success
-
-    def _handle_test_access(self, module_service, module_name):
-        """Testa acesso ao módulo"""
-        module = module_service.get_module_by_name(module_name)
-        if module:
-            test_result = self._test_module_access(module)
-            if test_result['accessible']:
-                messages.success(self.request, f'Módulo {module.display_name} está acessível.')
-            else:
-                messages.warning(self.request, f'Módulo {module.display_name} não está acessível: {test_result["reason"]}')
-            return True
-        else:
-            messages.error(self.request, f'Módulo {module_name} não encontrado.')
-            return False
-
-    def _test_module_access(self, module):
-        """Testa se um módulo está acessível"""
-        try:
-            # Verifica se está habilitado
-            if not module.is_available:
-                return {
-                    'accessible': False,
-                    'reason': 'Módulo desabilitado',
-                    'status': 'disabled'
-                }
-
-            # Verifica dependências
-            if module.dependencies:
-                module_service = ModuleService()
-                for dep in module.dependencies:
-                    dep_module = module_service.get_module_by_name(dep)
-                    if not dep_module or not dep_module.is_available:
-                        return {
-                            'accessible': False,
-                            'reason': f'Dependência {dep} não disponível',
-                            'status': 'dependency_error'
-                        }
-
-            # Verifica se a URL está configurada
-            if not module.url_pattern:
-                return {
-                    'accessible': True,
-                    'reason': 'Módulo sem URL específica',
-                    'status': 'no_url'
-                }
-
-            return {
-                'accessible': True,
-                'reason': 'Módulo totalmente funcional',
-                'status': 'ok'
-            }
-
-        except Exception as e:
+    def _simple_module_access_test(self, module):
+        """Testa se um módulo está acessível de forma simplificada"""
+        if not module.is_available:
             return {
                 'accessible': False,
-                'reason': f'Erro interno: {str(e)}',
-                'status': 'error'
+                'reason': 'Módulo desabilitado ou inativo',
+                'status': 'disabled'
             }
+        # Verifica dependências
+        if module.dependencies:
+            for dep_name in module.dependencies:
+                dep = AppModuleConfiguration.objects.filter(app_name=dep_name).first()
+                if not dep or not dep.is_available:
+                    return {
+                        'accessible': False,
+                        'reason': f'Dependência {dep_name} não disponível',
+                        'status': 'dependency_error'
+                    }
+        if not module.url_pattern:
+            return {
+                'accessible': True,
+                'reason': 'Módulo sem URL específica',
+                'status': 'no_url'
+            }
+        return {
+            'accessible': True,
+            'reason': 'Módulo totalmente funcional',
+            'status': 'ok'
+        }
 
 
 class ModuleDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
@@ -220,54 +161,6 @@ class ModuleUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return reverse('config:module_detail', kwargs={'app_name': self.object.app_name})
 
 
-class ModuleToggleView(LoginRequiredMixin, UserPassesTestMixin, View):
-    """Habilita/desabilita um módulo"""
-    
-    def test_func(self):
-        return self.request.user.is_staff
-    
-    def post(self, request, app_name):
-        module_service = ModuleService()
-        module = get_object_or_404(AppModuleConfiguration, app_name=app_name)
-        
-        # Não permite desabilitar módulos principais
-        if module.is_core and not module.is_enabled:
-            messages.error(
-                request,
-                f'🔒 O módulo "{module.display_name}" é essencial e não pode ser desativado.'
-            )
-            return redirect('config:module_list')
-        
-        action = request.POST.get('action')
-        success = False
-        
-        if action == 'enable':
-            success = module_service.enable_module(app_name, request.user)
-            action_text = 'habilitado'
-        elif action == 'disable':
-            success = module_service.disable_module(app_name, request.user)
-            action_text = 'desabilitado'
-        else:
-            messages.error(request, 'Ação inválida.')
-            return redirect('config:module_list')
-        
-        if success:
-            messages.success(
-                request,
-                f'Módulo "{module.display_name}" {action_text} com sucesso!'
-            )
-        else:
-            messages.error(
-                request,
-                f'Erro ao {action_text.replace("o", "ar")} o módulo "{module.display_name}".'
-            )
-        
-        return redirect('config:module_list')
-
-
-
-
-
 class ModuleStatsAPIView(LoginRequiredMixin, UserPassesTestMixin, View):
     """API para estatísticas dos módulos"""
     
@@ -305,3 +198,122 @@ class ModuleDependencyCheckView(LoginRequiredMixin, UserPassesTestMixin, View):
         dependencies_info = module_service.validate_module_dependencies(app_name)
 
         return JsonResponse(dependencies_info)
+
+
+class ModuleEnableView(LoginRequiredMixin, UserPassesTestMixin, View):
+    """Habilita um módulo"""
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def post(self, request, app_name):
+        module_service = ModuleService()
+        module = get_object_or_404(AppModuleConfiguration, app_name=app_name)
+        try:
+            success = module_service.enable_module(app_name, request.user)
+            if success:
+                messages.success(request, f'Módulo "{module.display_name}" habilitado com sucesso!')
+            else:
+                # Buscar motivo detalhado
+                module = module_service.get_module_by_name(app_name)
+                dep_info = module_service.validate_module_dependencies(app_name)
+                if dep_info.get('missing_dependencies') or dep_info.get('inactive_dependencies'):
+                    msg = f"Dependências não atendidas: "
+                    if dep_info.get('missing_dependencies'):
+                        msg += f"Ausentes: {', '.join(dep_info['missing_dependencies'])}. "
+                    if dep_info.get('inactive_dependencies'):
+                        msg += f"Inativas: {', '.join(dep_info['inactive_dependencies'])}. "
+                    messages.error(request, f'Erro ao habilitar o módulo "{module.display_name}": {msg}')
+                else:
+                    messages.error(request, f'Erro ao habilitar o módulo "{module.display_name}". Verifique os logs para mais detalhes.')
+        except Exception as e:
+            messages.error(request, f'Erro inesperado ao habilitar o módulo: {str(e)}')
+        return redirect('config:module_list')
+
+
+class ModuleDisableView(LoginRequiredMixin, UserPassesTestMixin, View):
+    """Desabilita um módulo"""
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def post(self, request, app_name):
+        module_service = ModuleService()
+        module = get_object_or_404(AppModuleConfiguration, app_name=app_name)
+        if module.is_core:
+            messages.error(request, f'🔒 O módulo "{module.display_name}" é essencial e não pode ser desativado.')
+            return redirect('config:module_list')
+        try:
+            success = module_service.disable_module(app_name, request.user)
+            if success:
+                messages.success(request, f'Módulo "{module.display_name}" desabilitado com sucesso!')
+            else:
+                dependentes = module.get_dependent_modules()
+                if dependentes.exists():
+                    dep_names = ', '.join([m.display_name for m in dependentes])
+                    messages.error(request, f'Erro ao desabilitar o módulo "{module.display_name}": outros módulos dependem dele: {dep_names}.')
+                else:
+                    messages.error(request, f'Erro ao desabilitar o módulo "{module.display_name}". Verifique os logs para mais detalhes.')
+        except Exception as e:
+            messages.error(request, f'Erro inesperado ao desabilitar o módulo: {str(e)}')
+        return redirect('config:module_list')
+
+
+class ModuleTestView(LoginRequiredMixin, UserPassesTestMixin, View):
+    """Testa acessibilidade de um módulo"""
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def post(self, request, app_name):
+        module = get_object_or_404(AppModuleConfiguration, app_name=app_name)
+        result = self._simple_module_access_test(module)
+        if result['accessible']:
+            messages.success(request, f'Módulo "{module.display_name}" está acessível.')
+        else:
+            messages.warning(request, f'Módulo "{module.display_name}" não está acessível: {result["reason"]}')
+        return redirect('config:module_list')
+
+    def _simple_module_access_test(self, module):
+        if not module.is_available:
+            return {
+                'accessible': False,
+                'reason': 'Módulo desabilitado ou inativo',
+                'status': 'disabled'
+            }
+        if module.dependencies:
+            for dep_name in module.dependencies:
+                dep = AppModuleConfiguration.objects.filter(app_name=dep_name).first()
+                if not dep or not dep.is_available:
+                    return {
+                        'accessible': False,
+                        'reason': f'Dependência {dep_name} não disponível',
+                        'status': 'dependency_error'
+                    }
+        if not module.url_pattern:
+            return {
+                'accessible': True,
+                'reason': 'Módulo sem URL específica',
+                'status': 'no_url'
+            }
+        return {
+            'accessible': True,
+            'reason': 'Módulo totalmente funcional',
+            'status': 'ok'
+        }
+
+
+class ModuleDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = AppModuleConfiguration
+    template_name = 'config/modules/delete.html'
+    slug_field = 'app_name'
+    slug_url_kwarg = 'app_name'
+    success_url = '/config/modules/'
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def delete(self, request, *args, **kwargs):
+        module = self.get_object()
+        if module.is_core:
+            messages.error(request, f'🔒 O módulo "{module.display_name}" é essencial e não pode ser deletado.')
+            return redirect('config:module_list')
+        messages.success(request, f'Módulo "{module.display_name}" deletado com sucesso!')
+        return super().delete(request, *args, **kwargs)

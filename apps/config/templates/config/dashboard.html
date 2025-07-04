@@ -1,131 +1,157 @@
-{% extends 'config/base_config.html' %}
+{% extends 'config/base_config_page.html' %}
+{% load config_extras %}
 
 {% block config_title %}Dashboard{% endblock %}
+{% block page_icon %}<i class="fas fa-tachometer-alt me-2"></i>{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
 
-{% block config_content %}
-<div class="config-content">
-    <!-- Header do Dashboard -->
-    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 class="h2 text-sans text-body">
-            <i class="fas fa-tachometer-alt me-2 text-django-green"></i>Dashboard de Configurações
-        </h1>
-        <div class="btn-toolbar mb-2 mb-md-0">
-            <div class="btn-group me-2">
-                <button type="button" class="btn btn-sm btn-outline-secondary config-btn" onclick="location.reload()">
-                    <i class="fas fa-sync-alt me-1"></i>Atualizar
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Estatísticas Principais -->
-    <div class="row mb-4">
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2 config-card">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total de Usuários
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_users|default:0 }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-users fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2 config-card">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Usuários Ativos
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ active_users|default:0 }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-user-check fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2 config-card">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Staff
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ staff_users|default:0 }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-user-tie fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2 config-card">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Artigos
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_articles|default:0 }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-newspaper fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-<!-- Estatísticas do Sistema -->
+{% block page_content %}
+<!-- Cards de Estatísticas -->
 <div class="row mb-4">
-    <div class="col-lg-6 mb-4">
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow-sm h-100 py-2 config-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            <i class="fas fa-users me-1"></i>Usuários
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.total_users }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-users fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow-sm h-100 py-2 config-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            <i class="fas fa-cubes me-1"></i>Módulos Ativos
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.active_modules }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-cubes fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow-sm h-100 py-2 config-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            <i class="fas fa-envelope me-1"></i>Emails Enviados
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.emails_sent|default:"0" }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-envelope fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow-sm h-100 py-2 config-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            <i class="fas fa-layer-group me-1"></i>Grupos
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.total_groups }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-layer-group fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Conteúdo Principal -->
+<div class="row">
+    <!-- Status do Sistema -->
+    <div class="col-lg-8 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="card-title mb-0">
                     <i class="fas fa-server me-2"></i>Status do Sistema
-                </h6>
+                </h5>
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-sm-6">
-                        <div class="mb-3">
-                            <div class="small text-muted">Versão Django</div>
-                            <div class="font-weight-bold">{{ django_version|default:"N/A" }}</div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="small text-muted">Banco de Dados</div>
-                            <div class="font-weight-bold">{{ database_engine|default:"N/A" }}</div>
+                    <div class="col-md-6 mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-sm me-3">
+                                <div class="bg-success rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                    <i class="fas fa-check text-white"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="fw-bold">Sistema Operacional</div>
+                                <small class="text-muted">{{ system_info.os|default:"Desconhecido" }}</small>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-sm-6">
-                        <div class="mb-3">
-                            <div class="small text-muted">Debug Mode</div>
-                            <span class="badge {% if debug_mode %}bg-warning{% else %}bg-success{% endif %}">
-                                {% if debug_mode %}Ativo{% else %}Inativo{% endif %}
-                            </span>
+                    
+                    <div class="col-md-6 mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-sm me-3">
+                                <div class="bg-info rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                    <i class="fas fa-code text-white"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="fw-bold">Versão Python</div>
+                                <small class="text-muted">{{ system_info.python_version|default:"Desconhecida" }}</small>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <div class="small text-muted">Cache</div>
-                            <span class="badge {% if cache_status %}bg-success{% else %}bg-danger{% endif %}">
-                                {% if cache_status %}Funcionando{% else %}Inativo{% endif %}
-                            </span>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-sm me-3">
+                                <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                    <i class="fas fa-database text-white"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="fw-bold">Banco de Dados</div>
+                                <small class="text-muted">{{ system_info.database|default:"Desconhecido" }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-sm me-3">
+                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                    <i class="fas fa-envelope text-white"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="fw-bold">Email</div>
+                                <small class="text-muted">
+                                    {% if email_config %}
+                                        <span class="text-success">Configurado</span>
+                                    {% else %}
+                                        <span class="text-danger">Não configurado</span>
+                                    {% endif %}
+                                </small>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -133,154 +159,116 @@
         </div>
     </div>
 
-    <div class="col-lg-6 mb-4">
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">
-                    <i class="fas fa-envelope me-2"></i>Status do Email
-                </h6>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-sm-6">
-                        <div class="mb-3">
-                            <div class="small text-muted">Servidor SMTP</div>
-                            <div class="font-weight-bold">{{ email_host|default:"Não configurado" }}</div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="small text-muted">Porta</div>
-                            <div class="font-weight-bold">{{ email_port|default:"N/A" }}</div>
-                        </div>
-                    </div>
-                    <div class="col-sm-6">
-                        <div class="mb-3">
-                            <div class="small text-muted">TLS/SSL</div>
-                            <span class="badge {% if email_use_tls %}bg-success{% else %}bg-secondary{% endif %}">
-                                {% if email_use_tls %}TLS Ativo{% else %}Inativo{% endif %}
-                            </span>
-                        </div>
-                        <div class="mb-3">
-                            <div class="small text-muted">Status</div>
-                            <span class="badge {% if email_configured %}bg-success{% else %}bg-warning{% endif %}">
-                                {% if email_configured %}Configurado{% else %}Pendente{% endif %}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <div class="mt-3">
-                    <a href="{% url 'config:email_config' %}" class="btn btn-sm btn-primary">
-                        <i class="fas fa-cog me-1"></i>Configurar Email
-                    </a>
-                    <a href="{% url 'config:email_test' %}" class="btn btn-sm btn-outline-primary">
-                        <i class="fas fa-paper-plane me-1"></i>Testar Email
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Ações Rápidas -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">
+    <!-- Ações Rápidas -->
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="card-title mb-0">
                     <i class="fas fa-bolt me-2"></i>Ações Rápidas
-                </h6>
+                </h5>
             </div>
             <div class="card-body">
-                <div class="row">
-                    <div class="col-md-3 mb-3">
-                        <a href="{% url 'config:user_create' %}" class="btn btn-primary btn-block w-100">
-                            <i class="fas fa-plus me-2"></i>Criar Usuário
-                        </a>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <a href="{% url 'config:user_list' %}" class="btn btn-outline-primary btn-block w-100">
-                            <i class="fas fa-users me-2"></i>Gerenciar Usuários
-                        </a>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <a href="{% url 'config:email_config' %}" class="btn btn-outline-success btn-block w-100">
-                            <i class="fas fa-envelope me-2"></i>Config. Email
-                        </a>
-                    </div>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'config:user_list' %}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-users me-2"></i>Gerenciar Usuários
+                    </a>
+                    <a href="{% url 'config:module_list' %}" class="btn btn-outline-success btn-sm">
+                        <i class="fas fa-cubes me-2"></i>Gerenciar Módulos
+                    </a>
+                    <a href="{% url 'config:email_config' %}" class="btn btn-outline-info btn-sm">
+                        <i class="fas fa-envelope me-2"></i>Configurar Email
+                    </a>
+                    <a href="{% url 'config:group_list' %}" class="btn btn-outline-warning btn-sm">
+                        <i class="fas fa-layer-group me-2"></i>Gerenciar Grupos
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Atividades Recentes -->
+<!-- Módulos Recentes -->
 <div class="row">
     <div class="col-12">
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">
-                    <i class="fas fa-clock me-2"></i>Atividades Recentes
-                </h6>
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-cubes me-2"></i>Módulos do Sistema
+                </h5>
             </div>
-            <div class="card-body">
-                {% if recent_activities %}
-                    <div class="table-responsive">
-                        <table class="table table-bordered" width="100%" cellspacing="0">
-                            <thead>
-                                <tr>
-                                    <th>Usuário</th>
-                                    <th>Ação</th>
-                                    <th>Descrição</th>
-                                    <th>Data</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for activity in recent_activities %}
-                                <tr>
-                                    <td>{{ activity.user.email }}</td>
-                                    <td>
-                                        <span class="badge bg-secondary">{{ activity.get_action_display }}</span>
-                                    </td>
-                                    <td>{{ activity.description|truncatechars:50 }}</td>
-                                    <td>{{ activity.created_at|date:"d/m/Y H:i" }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+            <div class="card-body p-0">
+                <div class="table-responsive d-none d-md-block">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col"><i class="fas fa-cube"></i> Módulo</th>
+                                <th scope="col"><i class="fas fa-align-left"></i> Descrição</th>
+                                <th scope="col"><i class="fas fa-toggle-on"></i> Status</th>
+                                <th scope="col"><i class="fas fa-cogs"></i> Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for module in recent_modules %}
+                            <tr{% if module.is_core %} class="table-success"{% endif %}>
+                                <td>
+                                    <span class="fw-bold">{{ module.display_name }}</span>
+                                    {% if module.is_core %}
+                                        <span class="badge bg-success ms-2" title="Módulo essencial"><i class="fas fa-star"></i> Core</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ module.description|default:'—' }}</td>
+                                <td>
+                                    {% if module.is_enabled %}
+                                        <span class="badge bg-success"><i class="fas fa-check-circle"></i> Ativo</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary"><i class="fas fa-times-circle"></i> Inativo</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'config:module_detail' module.app_name %}" class="btn btn-outline-info btn-sm" title="Detalhes">
+                                        <i class="fas fa-info-circle"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="4" class="text-center text-muted">Nenhum módulo encontrado.</td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Layout responsivo para mobile -->
+                <div class="d-block d-md-none">
+                    {% for module in recent_modules %}
+                    <div class="card mb-2 {% if module.is_core %}border-success{% endif %}">
+                        <div class="card-body py-2 px-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="fw-bold">{{ module.display_name }}</span>
+                                {% if module.is_core %}
+                                    <span class="badge bg-success ms-2" title="Módulo essencial"><i class="fas fa-star"></i> Core</span>
+                                {% endif %}
+                            </div>
+                            <div class="mb-1 small text-muted">{{ module.description|default:'—' }}</div>
+                            <div class="mb-2">
+                                {% if module.is_enabled %}
+                                    <span class="badge bg-success"><i class="fas fa-check-circle"></i> Ativo</span>
+                                {% else %}
+                                    <span class="badge bg-secondary"><i class="fas fa-times-circle"></i> Inativo</span>
+                                {% endif %}
+                            </div>
+                            <div class="text-center">
+                                <a href="{% url 'config:module_detail' module.app_name %}" class="btn btn-outline-info btn-sm" title="Detalhes">
+                                    <i class="fas fa-info-circle"></i> Ver Detalhes
+                                </a>
+                            </div>
+                        </div>
                     </div>
-                {% else %}
-                    <div class="text-center text-secondary py-4">
-                        <i class="fas fa-clock fa-3x mb-3 text-gray-300"></i>
-                        <p class="mb-0">Nenhuma atividade recente encontrada.</p>
-                        <small class="text-muted">As atividades dos usuários aparecerão aqui quando disponíveis.</small>
-                    </div>
-                {% endif %}
+                    {% empty %}
+                    <div class="text-center text-muted p-3">Nenhum módulo encontrado.</div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>
 </div>
-
-<style>
-.border-left-primary {
-    border-left: 0.25rem solid var(--bs-django-green) !important;
-}
-.border-left-success {
-    border-left: 0.25rem solid #1cc88a !important;
-}
-.border-left-warning {
-    border-left: 0.25rem solid #f6c23e !important;
-}
-.border-left-info {
-    border-left: 0.25rem solid var(--bs-django-green) !important;
-}
-.text-xs {
-    font-size: 0.7rem;
-}
-.text-gray-300 {
-    color: #dddfeb !important;
-}
-.text-gray-800 {
-    color: #5a5c69 !important;
-}
-</style>
-</div> <!-- End config-content -->
 {% endblock %}

@@ -57,10 +57,18 @@ class RegistrationService(IRegistrationService):
         self.notification_service.send_registration_confirmation(email, code)
         
         # Dispara evento para observers
-        event_dispatcher.notify('user_registered', {
-            'user': user,
-            'verification': code
-        })
+        from core.observers import Event
+        from datetime import datetime
+        event = Event(
+            name='user_registered',
+            data={
+                'user': user,
+                'verification': code
+            },
+            timestamp=datetime.now(),
+            source='registration_service'
+        )
+        event_dispatcher.dispatch(event)
         
         return user
     

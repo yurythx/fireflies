@@ -46,6 +46,24 @@ class IUserRepository(ABC):
         :return: Instância do usuário atualizado
         """
         pass
+    
+    @abstractmethod
+    def exists_by_email(self, email: str) -> bool:
+        """
+        Verifica se existe um usuário com o email fornecido
+        :param email: Email a ser verificado
+        :return: True se o usuário existir, False caso contrário
+        """
+        pass
+
+    @abstractmethod
+    def exists_by_username(self, username: str) -> bool:
+        """
+        Verifica se existe um usuário com o username fornecido
+        :param username: Username a ser verificado
+        :return: True se o usuário existir, False caso contrário
+        """
+        pass
 
 
 class IVerificationRepository(ABC):

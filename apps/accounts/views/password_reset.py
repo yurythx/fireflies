@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import get_user_model
+from django import forms
 from apps.accounts.services.password_service import PasswordService
 from apps.accounts.repositories.user_repository import DjangoUserRepository
 from apps.accounts.repositories.verification_repository import DjangoVerificationRepository
@@ -10,21 +11,36 @@ from apps.accounts.notifications.email_notification import EmailNotificationServ
 
 User = get_user_model()
 
+class PasswordResetForm(forms.Form):
+    """Formulário para solicitar redefinição de senha"""
+    email = forms.EmailField(
+        label='E-mail',
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Digite seu e-mail',
+            'autocomplete': 'email',
+            'autofocus': True
+        }),
+        help_text='Digite o e-mail associado à sua conta'
+    )
+
 class PasswordResetRequestView(View):
     """View para solicitar redefinição de senha"""
     template_name = 'accounts/password_reset/request.html'
 
     def get(self, request):
         """Exibe o formulário de solicitação"""
-        return render(request, self.template_name)
+        form = PasswordResetForm()
+        return render(request, self.template_name, {'form': form})
 
     def post(self, request):
         """Processa a solicitação de redefinição"""
-        email = request.POST.get('email')
-
-        if not email:
-            messages.error(request, 'Email é obrigatório.')
-            return render(request, self.template_name)
+        form = PasswordResetForm(request.POST)
+        
+        if not form.is_valid():
+            return render(request, self.template_name, {'form': form})
+        
+        email = form.cleaned_data['email']
 
         service = PasswordService(
             user_repository=DjangoUserRepository(),

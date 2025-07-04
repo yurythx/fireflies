@@ -1,629 +1,238 @@
-{% extends 'config/base_config.html' %}
+{% extends 'config/base_config_page.html' %}
+{% load config_extras %}
 
-{% block config_title %}Configurações do Sistema{% endblock %}
+{% block config_title %}Configuração do Sistema{% endblock %}
+{% block page_icon %}<i class="fas fa-cogs me-2"></i>{% endblock %}
+{% block page_title %}Configuração do Sistema{% endblock %}
 
-{% block breadcrumbs %}
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item">
-                <a href="{% url 'config:dashboard' %}">Dashboard</a>
-            </li>
-            <li class="breadcrumb-item active" aria-current="page">Configurações do Sistema</li>
-        </ol>
-    </nav>
-{% endblock %}
-
-{% block config_content %}
-<!-- Header -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h1 class="h2 mb-1">
-                    <i class="fas fa-cogs me-2 text-primary"></i>Configurações do Sistema
-                </h1>
-                <p class="text-muted mb-0">Gerencie configurações, monitore o sistema e visualize informações técnicas</p>
-            </div>
-            <div class="d-flex gap-2">
-                <div class="dropdown">
-                    <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                        <i class="fas fa-cogs me-1"></i>Configurações Avançadas
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{% url 'config:system_config' %}">
-                            <i class="fas fa-tachometer-alt me-2"></i>Visão Geral
-                        </a></li>
-                        <li><a class="dropdown-item" href="{% url 'config:email_config' %}">
-                            <i class="fas fa-envelope me-2"></i>Email SMTP
-                        </a></li>
-                        <li><a class="dropdown-item" href="{% url 'config:environment_variables' %}">
-                            <i class="fas fa-code me-2"></i>Variáveis de Ambiente
-                        </a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{% url 'config:module_list' %}">
-                            <i class="fas fa-puzzle-piece me-2"></i>Módulos do Sistema
-                        </a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Estatísticas Rápidas -->
-<div class="row g-3 mb-4">
-    <div class="col-md-3">
-        <div class="card border-0 bg-primary text-white h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-cogs fa-2x opacity-75"></i>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <div class="h4 mb-0">{{ stats.active_configs }}</div>
-                        <div class="small">Configurações Ativas</div>
-                        <div class="small opacity-75">{{ stats.total_configs }} total</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card border-0 bg-success text-white h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-users fa-2x opacity-75"></i>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <div class="h4 mb-0">{{ stats.active_users }}</div>
-                        <div class="small">Usuários Ativos</div>
-                        <div class="small opacity-75">{{ stats.total_users }} total</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card border-0 bg-warning text-white h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-chart-line fa-2x opacity-75"></i>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <div class="h4 mb-0">{{ stats.recent_logs }}</div>
-                        <div class="small">Logs Hoje</div>
-                        <div class="small opacity-75">{{ stats.total_logs }} total</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card border-0 bg-info text-white h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-server fa-2x opacity-75"></i>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <div class="h4 mb-0">{{ system_info.cpu_percent|floatformat:1 }}%</div>
-                        <div class="small">CPU em Uso</div>
-                        <div class="small opacity-75">{{ system_info.cpu_count }} cores</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Tabs de Informações -->
+{% block page_content %}
 <div class="row">
-    <div class="col-12">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-light border-0">
-                <ul class="nav nav-tabs card-header-tabs" id="systemTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="configs-tab" data-bs-toggle="tab" data-bs-target="#configs" type="button" role="tab">
-                            <i class="fas fa-cogs me-1"></i>Configurações
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="system-tab" data-bs-toggle="tab" data-bs-target="#system" type="button" role="tab">
-                            <i class="fas fa-server me-1"></i>Sistema
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="django-tab" data-bs-toggle="tab" data-bs-target="#django" type="button" role="tab">
-                            <i class="fab fa-python me-1"></i>Django
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="database-tab" data-bs-toggle="tab" data-bs-target="#database" type="button" role="tab">
-                            <i class="fas fa-database me-1"></i>Banco de Dados
-                        </button>
-                    </li>
-                </ul>
+    <!-- Configurações Principais -->
+    <div class="col-12 col-lg-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-cog me-2"></i>Configurações Gerais
+                </h5>
             </div>
             <div class="card-body">
-                <div class="tab-content" id="systemTabsContent">
-                    <!-- Tab Configurações -->
-                    <div class="tab-pane fade show active" id="configs" role="tabpanel">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="mb-0">Configurações Avançadas do Sistema</h5>
+                <form method="post" class="config-form">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.site_name.id_for_label }}" class="form-label">
+                                <i class="fas fa-globe me-1"></i>Nome do Site
+                            </label>
+                            {{ form.site_name }}
+                            {% if form.site_name.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.site_name.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
                         </div>
                         
-                        <!-- Cards de Configurações Rápidas -->
-                        <div class="row g-3 mb-4">
-                            <div class="col-md-6 col-lg-4">
-                                <div class="card h-100 border-0 bg-gradient" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                                    <div class="card-body text-white">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-shrink-0">
-                                                <i class="fas fa-database fa-2x opacity-75"></i>
-                                            </div>
-                                            <div class="flex-grow-1 ms-3">
-                                                <h6 class="mb-1">Banco de Dados</h6>
-                                                <p class="small mb-2 opacity-75">Configure conexões com diferentes bancos</p>
-                                                <a href="{% url 'config:system_config' %}" class="btn btn-light btn-sm">
-                                                    <i class="fas fa-cog me-1"></i>Configurar
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.site_description.id_for_label }}" class="form-label">
+                                <i class="fas fa-align-left me-1"></i>Descrição do Site
+                            </label>
+                            {{ form.site_description }}
+                            {% if form.site_description.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.site_description.errors %}
+                                        {{ error }}
+                                    {% endfor %}
                                 </div>
-                            </div>
-
-                            <div class="col-md-6 col-lg-4">
-                                <div class="card h-100 border-0 bg-gradient" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                                    <div class="card-body text-white">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-shrink-0">
-                                                <i class="fas fa-envelope fa-2x opacity-75"></i>
-                                            </div>
-                                            <div class="flex-grow-1 ms-3">
-                                                <h6 class="mb-1">Email SMTP</h6>
-                                                <p class="small mb-2 opacity-75">Configure servidor de email</p>
-                                                <a href="{% url 'config:email_config' %}" class="btn btn-light btn-sm">
-                                                    <i class="fas fa-envelope me-1"></i>Configurar
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6 col-lg-4">
-                                <div class="card h-100 border-0 bg-gradient" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                                    <div class="card-body text-white">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-shrink-0">
-                                                <i class="fas fa-code fa-2x opacity-75"></i>
-                                            </div>
-                                            <div class="flex-grow-1 ms-3">
-                                                <h6 class="mb-1">Variáveis de Ambiente</h6>
-                                                <p class="small mb-2 opacity-75">Gerencie configurações do Django e variáveis customizadas</p>
-                                                <a href="{% url 'config:environment_variables' %}" class="btn btn-light btn-sm">
-                                                    <i class="fas fa-code me-1"></i>Configurar
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Informações sobre Configurações Avançadas -->
-                        <div class="alert alert-info border-0 bg-light">
-                            <div class="d-flex align-items-start">
-                                <div class="flex-shrink-0">
-                                    <i class="fas fa-info-circle fa-2x text-primary"></i>
-                                </div>
-                                <div class="flex-grow-1 ms-3">
-                                    <h6 class="alert-heading mb-2">Configurações Avançadas do Sistema</h6>
-                                    <p class="mb-2">
-                                        Use os cards acima para configurar aspectos específicos do sistema:
-                                    </p>
-                                    <ul class="mb-0">
-                                        <li><strong>Banco de Dados:</strong> Configure conexões com PostgreSQL, MySQL, SQLite ou Oracle</li>
-                                        <li><strong>Email SMTP:</strong> Configure servidor de email para envio de mensagens</li>
-                                        <li><strong>Variáveis de Ambiente:</strong> Gerencie configurações do Django e variáveis customizadas</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tab Sistema -->
-                    <div class="tab-pane fade" id="system" role="tabpanel">
-                        <h5 class="mb-3">Informações do Sistema</h5>
-                        
-                        {% if system_info.error %}
-                            <div class="alert alert-warning">
-                                <i class="fas fa-exclamation-triangle me-1"></i>
-                                Erro ao obter informações do sistema: {{ system_info.error }}
-                            </div>
-                        {% else %}
-                            <div class="row g-3">
-                                <!-- Informações Básicas -->
-                                <div class="col-md-6">
-                                    <div class="card h-100">
-                                        <div class="card-header">
-                                            <h6 class="mb-0"><i class="fas fa-info-circle me-1"></i>Informações Básicas</h6>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="table-responsive">
-                                                <table class="table table-sm table-borderless">
-                                                    <tr>
-                                                        <td class="text-muted">Plataforma:</td>
-                                                        <td>{{ system_info.platform }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="text-muted">Arquitetura:</td>
-                                                        <td>{{ system_info.architecture }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="text-muted">Hostname:</td>
-                                                        <td>{{ system_info.hostname }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="text-muted">Python:</td>
-                                                        <td>{{ system_info.python_version }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="text-muted">Processador:</td>
-                                                        <td>{{ system_info.processor|truncatechars:30 }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="text-muted">Uptime:</td>
-                                                        <td>{{ system_info.uptime }}</td>
-                                                    </tr>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Recursos -->
-                                <div class="col-md-6">
-                                    <div class="card h-100">
-                                        <div class="card-header">
-                                            <h6 class="mb-0"><i class="fas fa-chart-bar me-1"></i>Recursos do Sistema</h6>
-                                        </div>
-                                        <div class="card-body">
-                                            <!-- CPU -->
-                                            <div class="mb-3">
-                                                <div class="d-flex justify-content-between">
-                                                    <span class="small">CPU ({{ system_info.cpu_count }} cores)</span>
-                                                    <span class="small">{{ system_info.cpu_percent }}%</span>
-                                                </div>
-                                                <div class="progress" style="height: 8px;">
-                                                    <div class="progress-bar {% if system_info.cpu_percent > 80 %}bg-danger{% elif system_info.cpu_percent > 60 %}bg-warning{% else %}bg-success{% endif %}" 
-                                                         style="width: {{ system_info.cpu_percent }}%"></div>
-                                                </div>
-                                            </div>
-
-                                            <!-- Memória -->
-                                            <div class="mb-3">
-                                                <div class="d-flex justify-content-between">
-                                                    <span class="small">Memória</span>
-                                                    <span class="small">{{ system_info.memory_used }} / {{ system_info.memory_total }} ({{ system_info.memory_percent }}%)</span>
-                                                </div>
-                                                <div class="progress" style="height: 8px;">
-                                                    <div class="progress-bar {% if system_info.memory_percent > 80 %}bg-danger{% elif system_info.memory_percent > 60 %}bg-warning{% else %}bg-success{% endif %}" 
-                                                         style="width: {{ system_info.memory_percent }}%"></div>
-                                                </div>
-                                            </div>
-
-                                            <!-- Disco -->
-                                            <div class="mb-3">
-                                                <div class="d-flex justify-content-between">
-                                                    <span class="small">Disco</span>
-                                                    <span class="small">{{ system_info.disk_used }} / {{ system_info.disk_total }} ({{ system_info.disk_percent|floatformat:1 }}%)</span>
-                                                </div>
-                                                <div class="progress" style="height: 8px;">
-                                                    <div class="progress-bar {% if system_info.disk_percent > 80 %}bg-danger{% elif system_info.disk_percent > 60 %}bg-warning{% else %}bg-success{% endif %}" 
-                                                         style="width: {{ system_info.disk_percent }}%"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Tab Django -->
-                    <div class="tab-pane fade" id="django" role="tabpanel">
-                        <h5 class="mb-3">Configurações do Django</h5>
-
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <div class="card h-100">
-                                    <div class="card-header">
-                                        <h6 class="mb-0"><i class="fab fa-python me-1"></i>Configurações Básicas</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="table-responsive">
-                                            <table class="table table-sm table-borderless">
-                                                <tr>
-                                                    <td class="text-muted">Versão Django:</td>
-                                                    <td>{{ django_info.version|default:"N/A" }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-muted">Modo Debug:</td>
-                                                    <td>
-                                                        {% if django_info.debug %}
-                                                            <span class="badge bg-warning">Ativo</span>
-                                                        {% else %}
-                                                            <span class="badge bg-success">Inativo</span>
-                                                        {% endif %}
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-muted">Secret Key:</td>
-                                                    <td>
-                                                        {% if django_info.secret_key_set %}
-                                                            <span class="badge bg-success">Configurada</span>
-                                                        {% else %}
-                                                            <span class="badge bg-danger">Não configurada</span>
-                                                        {% endif %}
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-muted">Timezone:</td>
-                                                    <td>{{ django_info.time_zone }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-muted">Idioma:</td>
-                                                    <td>{{ django_info.language_code }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-muted">Apps Instalados:</td>
-                                                    <td>{{ django_info.installed_apps_count }}</td>
-                                                </tr>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="card h-100">
-                                    <div class="card-header">
-                                        <h6 class="mb-0"><i class="fas fa-cog me-1"></i>Configurações Avançadas</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="table-responsive">
-                                            <table class="table table-sm table-borderless">
-                                                <tr>
-                                                    <td class="text-muted">Middlewares:</td>
-                                                    <td>{{ django_info.middleware_count }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-muted">Internacionalização:</td>
-                                                    <td>
-                                                        {% if django_info.use_i18n %}
-                                                            <span class="badge bg-success">Ativa</span>
-                                                        {% else %}
-                                                            <span class="badge bg-secondary">Inativa</span>
-                                                        {% endif %}
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-muted">Timezone Support:</td>
-                                                    <td>
-                                                        {% if django_info.use_tz %}
-                                                            <span class="badge bg-success">Ativo</span>
-                                                        {% else %}
-                                                            <span class="badge bg-secondary">Inativo</span>
-                                                        {% endif %}
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-muted">Static URL:</td>
-                                                    <td><code>{{ django_info.static_url }}</code></td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-muted">Media URL:</td>
-                                                    <td><code>{{ django_info.media_url }}</code></td>
-                                                </tr>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-12">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h6 class="mb-0"><i class="fas fa-shield-alt me-1"></i>Hosts Permitidos</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        {% if django_info.allowed_hosts %}
-                                            <div class="d-flex flex-wrap gap-2">
-                                                {% for host in django_info.allowed_hosts %}
-                                                    <span class="badge bg-primary">{{ host }}</span>
-                                                {% endfor %}
-                                            </div>
-                                        {% else %}
-                                            <span class="text-muted">Nenhum host configurado</span>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tab Banco de Dados -->
-                    <div class="tab-pane fade" id="database" role="tabpanel">
-                        <h5 class="mb-3">Informações do Banco de Dados</h5>
-
-                        {% if database_info.error %}
-                            <div class="alert alert-warning">
-                                <i class="fas fa-exclamation-triangle me-1"></i>
-                                Erro ao obter informações do banco: {{ database_info.error }}
-                            </div>
-                        {% endif %}
-
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <div class="card h-100">
-                                    <div class="card-header">
-                                        <h6 class="mb-0"><i class="fas fa-database me-1"></i>Informações de Conexão</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="table-responsive">
-                                            <table class="table table-sm table-borderless">
-                                                <tr>
-                                                    <td class="text-muted">Engine:</td>
-                                                    <td>{{ database_info.engine|title }}</td>
-                                                </tr>
-                                                {% if not database_info.error %}
-                                                <tr>
-                                                    <td class="text-muted">Versão:</td>
-                                                    <td>{{ database_info.version|truncatechars:50 }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-muted">Banco:</td>
-                                                    <td>{{ database_info.name }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-muted">Host:</td>
-                                                    <td>{{ database_info.host }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-muted">Porta:</td>
-                                                    <td>{{ database_info.port }}</td>
-                                                </tr>
-                                                {% endif %}
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {% if database_info.table_stats and not database_info.error %}
-                            <div class="col-md-6">
-                                <div class="card h-100">
-                                    <div class="card-header">
-                                        <h6 class="mb-0"><i class="fas fa-chart-bar me-1"></i>Estatísticas das Tabelas</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="table-responsive">
-                                            <table class="table table-sm">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Tabela</th>
-                                                        <th class="text-end">Inserções</th>
-                                                        <th class="text-end">Atualizações</th>
-                                                        <th class="text-end">Exclusões</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {% for stat in database_info.table_stats %}
-                                                    <tr>
-                                                        <td class="small">{{ stat.1|truncatechars:20 }}</td>
-                                                        <td class="text-end small">{{ stat.2|default:0 }}</td>
-                                                        <td class="text-end small">{{ stat.3|default:0 }}</td>
-                                                        <td class="text-end small">{{ stat.4|default:0 }}</td>
-                                                    </tr>
-                                                    {% endfor %}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                             {% endif %}
                         </div>
                     </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.debug_mode.id_for_label }}" class="form-label">
+                                <i class="fas fa-bug me-1"></i>Modo Debug
+                            </label>
+                            <div class="form-check form-switch">
+                                {{ form.debug_mode }}
+                                <label class="form-check-label" for="{{ form.debug_mode.id_for_label }}">
+                                    Ativar modo de desenvolvimento
+                                </label>
+                            </div>
+                            <small class="form-text text-muted">Mostra informações detalhadas de erro (desabilitar em produção)</small>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.maintenance_mode.id_for_label }}" class="form-label">
+                                <i class="fas fa-tools me-1"></i>Modo Manutenção
+                            </label>
+                            <div class="form-check form-switch">
+                                {{ form.maintenance_mode }}
+                                <label class="form-check-label" for="{{ form.maintenance_mode.id_for_label }}">
+                                    Ativar modo de manutenção
+                                </label>
+                            </div>
+                            <small class="form-text text-muted">Bloqueia acesso de usuários não-admin</small>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.timezone.id_for_label }}" class="form-label">
+                                <i class="fas fa-clock me-1"></i>Fuso Horário
+                            </label>
+                            {{ form.timezone }}
+                            {% if form.timezone.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.timezone.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.language.id_for_label }}" class="form-label">
+                                <i class="fas fa-language me-1"></i>Idioma
+                            </label>
+                            {{ form.language }}
+                            {% if form.language.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.language.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Salvar Configurações
+                        </button>
+                        <a href="{% url 'config:dashboard' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Voltar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar com informações e ações rápidas -->
+    <div class="col-12 col-lg-4">
+        <!-- Status do Sistema -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-info-circle me-2"></i>Status do Sistema
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="avatar-sm me-3">
+                            <div class="bg-success rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                <i class="fas fa-check text-white"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="fw-bold">Sistema Operacional</div>
+                            <small class="text-muted">{{ system_info.os|default:"Desconhecido" }}</small>
+                        </div>
+                    </div>
                 </div>
+                
+                <div class="mb-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="avatar-sm me-3">
+                            <div class="bg-info rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                <i class="fas fa-code text-white"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="fw-bold">Versão Python</div>
+                            <small class="text-muted">{{ system_info.python_version|default:"Desconhecida" }}</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="avatar-sm me-3">
+                            <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                <i class="fas fa-database text-white"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="fw-bold">Banco de Dados</div>
+                            <small class="text-muted">{{ system_info.database|default:"Desconhecido" }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ações Rápidas -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-bolt me-2"></i>Ações Rápidas
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'config:environment_variables' %}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-key me-2"></i>Variáveis de Ambiente
+                    </a>
+                    <a href="{% url 'config:database_info' %}" class="btn btn-outline-info btn-sm">
+                        <i class="fas fa-database me-2"></i>Informações do Banco
+                    </a>
+                    <a href="{% url 'config:system_logs' %}" class="btn btn-outline-warning btn-sm">
+                        <i class="fas fa-file-alt me-2"></i>Logs do Sistema
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dicas -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-lightbulb me-2"></i>Dicas
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        Desabilite o debug em produção
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        Configure o fuso horário correto
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        Use modo manutenção para atualizações
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
 </div>
 
-<style>
-.nav-tabs .nav-link {
-    border: none;
-    color: #6c757d;
-}
-
-.nav-tabs .nav-link.active {
-    background-color: transparent;
-    border-bottom: 2px solid var(--bs-primary);
-    color: var(--bs-primary);
-}
-
-.progress {
-    background-color: rgba(0, 0, 0, 0.1);
-}
-
-.card {
-    transition: transform 0.2s ease;
-}
-
-.card:hover {
-    transform: translateY(-2px);
-}
-
-.badge {
-    font-size: 0.75em;
-}
-
-.table-borderless td {
-    border: none;
-    padding: 0.25rem 0.5rem;
-}
-
-.config-category-card {
-    transition: all 0.3s ease;
-}
-
-.config-category-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-}
-</style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Auto-refresh system stats every 30 seconds
-    setInterval(function() {
-        // Update CPU, memory, etc. via AJAX if needed
-        updateSystemStats();
-    }, 30000);
-
-    function updateSystemStats() {
-        // Implementation for real-time updates
-        // This would make an AJAX call to get updated stats
-    }
-
-    // Initialize tooltips
-    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
-
-    // Save active tab in localStorage
-    const tabButtons = document.querySelectorAll('#systemTabs button[data-bs-toggle="tab"]');
-    tabButtons.forEach(button => {
-        button.addEventListener('shown.bs.tab', function(e) {
-            localStorage.setItem('activeSystemTab', e.target.id);
-        });
-    });
-
-    // Restore active tab from localStorage
-    const activeTab = localStorage.getItem('activeSystemTab');
-    if (activeTab) {
-        const tabButton = document.getElementById(activeTab);
-        if (tabButton) {
-            const tab = new bootstrap.Tab(tabButton);
-            tab.show();
-        }
-    }
-});
-</script>
+<!-- Mensagens de feedback -->
+{% if messages %}
+    <div class="mt-4">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
 {% endblock %}

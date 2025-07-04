@@ -6,6 +6,11 @@ import platform
 import psutil
 from datetime import datetime
 from apps.config.mixins import ConfigPermissionMixin, PermissionHelperMixin
+from apps.config.models.user_activity_log import UserActivityLog
+from django.core.paginator import Paginator
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+import csv
+from django.http import HttpResponse
 
 
 class SystemConfigView(ConfigPermissionMixin, PermissionHelperMixin, View):
@@ -138,7 +143,6 @@ class SystemConfigView(ConfigPermissionMixin, PermissionHelperMixin, View):
 
         # Logs de atividade (pode não existir ainda)
         try:
-            from apps.config.models import UserActivityLog
             stats['total_logs'] = UserActivityLog.objects.count()
             stats['recent_logs'] = UserActivityLog.objects.filter(
                 created_at__gte=datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
@@ -159,3 +163,59 @@ class SystemConfigView(ConfigPermissionMixin, PermissionHelperMixin, View):
 
 
 # Views do CRUD de configurações removidas - mantendo apenas configurações avançadas específicas
+
+class SystemLogListView(LoginRequiredMixin, UserPassesTestMixin, View):
+    template_name = 'config/system_logs.html'
+    paginate_by = 25
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get(self, request):
+        logs = UserActivityLog.objects.select_related('user', 'target_user').order_by('-created_at')
+        # Filtros
+        user_email = request.GET.get('user')
+        action = request.GET.get('action')
+        date = request.GET.get('date')
+        if user_email:
+            logs = logs.filter(user__email__icontains=user_email)
+        if action:
+            logs = logs.filter(action=action)
+        if date:
+            try:
+                date_obj = datetime.strptime(date, '%Y-%m-%d')
+                logs = logs.filter(created_at__date=date_obj.date())
+            except Exception:
+                pass
+        # Exportação CSV
+        if request.GET.get('export') == 'csv':
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="logs.csv"'
+            writer = csv.writer(response)
+            writer.writerow(['Data/Hora', 'Usuário', 'Ação', 'Alvo', 'Descrição', 'IP'])
+            for log in logs:
+                writer.writerow([
+                    log.created_at.strftime('%d/%m/%Y %H:%M:%S'),
+                    log.user.email,
+                    log.get_action_display(),
+                    log.target_user.email if log.target_user else '-',
+                    log.description,
+                    log.ip_address or '-',
+                ])
+            return response
+        paginator = Paginator(logs, self.paginate_by)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        # Opções de filtro
+        actions = UserActivityLog.ACTION_CHOICES
+        users = UserActivityLog.objects.values_list('user__email', flat=True).distinct()
+        context = {
+            'logs': page_obj.object_list,
+            'page_obj': page_obj,
+            'filter_user': user_email or '',
+            'filter_action': action or '',
+            'filter_date': date or '',
+            'actions': actions,
+            'users': users,
+        }
+        return render(request, self.template_name, context)

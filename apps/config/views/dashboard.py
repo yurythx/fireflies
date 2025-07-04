@@ -14,6 +14,7 @@ import os
 import django
 from datetime import datetime, timedelta
 from django.contrib import messages
+from django.urls import reverse
 
 User = get_user_model()
 
@@ -148,6 +149,20 @@ class ConfigDashboardView(ConfigPermissionMixin, PermissionHelperMixin, View):
         # Contagem de artigos
         total_articles = self.get_articles_count()
 
+        # Blocos de status para includes
+        status_system_items = [
+            {'label': 'Versão Django', 'value': django.get_version()},
+            {'label': 'Banco de Dados', 'value': database_metrics['engine'] if database_metrics else 'N/A'},
+            {'label': 'Debug Mode', 'value': 'Ativo' if settings.DEBUG else 'Inativo', 'badge_class': 'bg-warning' if settings.DEBUG else 'bg-success'},
+            {'label': 'Cache', 'value': 'Funcionando' if system_metrics.get('cache_status', True) else 'Inativo', 'badge_class': 'bg-success' if system_metrics.get('cache_status', True) else 'bg-danger'},
+        ]
+        status_email_items = [
+            {'label': 'Servidor SMTP', 'value': email_config.get('email_host', 'Não configurado')},
+            {'label': 'Porta', 'value': email_config.get('email_port', 'N/A')},
+            {'label': 'TLS/SSL', 'value': 'TLS Ativo' if email_config.get('email_use_tls') else 'Inativo', 'badge_class': 'bg-success' if email_config.get('email_use_tls') else 'bg-secondary'},
+            {'label': 'Status', 'value': 'Configurado' if email_config.get('email_configured') else 'Pendente', 'badge_class': 'bg-success' if email_config.get('email_configured') else 'bg-warning'},
+        ]
+
         context = {
             # Estatísticas de usuários
             'total_users': total_users,
@@ -163,13 +178,16 @@ class ConfigDashboardView(ConfigPermissionMixin, PermissionHelperMixin, View):
             'database_metrics': database_metrics,
             'django_version': django.get_version(),
             'debug_mode': settings.DEBUG,
-            'cache_status': True,  # Implementar verificação real do cache
+            'cache_status': system_metrics.get('cache_status', True),  # Implementar verificação real do cache
 
             # Configuração de email
             **email_config,
+            'status_system_items': status_system_items,
+            'status_email_items': status_email_items,
+            'quick_user_create_url': reverse('config:user_create'),
+            'quick_user_list_url': reverse('config:user_list'),
+            'quick_module_list_url': reverse('config:module_list'),
+            'quick_system_logs_url': reverse('config:system_logs'),
         }
-
-        messages.success(request, '✅ Ação realizada com sucesso!')
-        messages.error(request, '❌ Ocorreu um erro ao realizar a ação. Tente novamente.')
 
         return render(request, self.template_name, context)
