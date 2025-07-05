@@ -37,7 +37,7 @@ function animateFadeIn(element) {
 }
 function initializeTOC() {
     const headings = document.querySelectorAll('.article-content h1, .article-content h2, .article-content h3, .article-content h4');
-    const tocContainer = document.getElementById('table table-django-of-contents');
+    const tocContainer = document.getElementById('table-django-of-contents');
     if (!tocContainer) return;
     if (headings.length > 0) {
         let tocHTML = '<ul class="list-unstyled">';

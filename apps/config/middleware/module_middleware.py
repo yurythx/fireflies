@@ -123,7 +123,7 @@ class ModuleAccessMiddleware(MiddlewareMixin, IModuleAccessMiddleware):
         url_to_app_mapping = {
             'accounts': 'accounts',  # Corrigido: sem prefixo apps.
             'config': 'config',      # Corrigido: sem prefixo apps.
-            'artigos': 'apps.articles',
+            'artigos': 'articles',   # Corrigido: sem prefixo apps.
             'blog': 'blog',
             'shop': 'shop',
             'forum': 'forum',

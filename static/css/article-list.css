@@ -1,0 +1,433 @@
+/* Estilos específicos para a listagem de artigos inspirada no WordPress */
+
+.articles-list {
+    max-width: 100%;
+}
+
+.article-item {
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 2rem;
+    margin-bottom: 2rem;
+    transition: all 0.3s ease;
+}
+
+.article-item:hover {
+    background-color: #f8f9fa;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin: 0 -1rem 2rem -1rem;
+}
+
+.article-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.article-header {
+    margin-bottom: 1.5rem;
+}
+
+.article-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+}
+
+.article-title a {
+    text-decoration: none;
+    color: inherit;
+    transition: color 0.3s ease;
+}
+
+.article-title a:hover {
+    color: var(--bs-primary) !important;
+    text-decoration: none;
+}
+
+.featured-image {
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.featured-image {
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+    width: 100%;
+    height: 300px; /* Altura fixa para todas as imagens */
+    background-color: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0; /* Impede que a imagem seja redimensionada */
+}
+
+.featured-image::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, #f8f9fa 25%, transparent 25%), 
+                linear-gradient(-45deg, #f8f9fa 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #f8f9fa 75%), 
+                linear-gradient(-45deg, transparent 75%, #f8f9fa 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    opacity: 0.3;
+}
+
+.featured-image img {
+    transition: transform 0.3s ease;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    border-radius: 0.5rem;
+    flex-shrink: 0; /* Impede redimensionamento */
+    min-width: 100%; /* Força largura mínima */
+    min-height: 100%; /* Força altura mínima */
+}
+
+.featured-image:hover img {
+    transform: scale(1.02);
+}
+
+.image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(0,0,0,0.1), rgba(0,0,0,0));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 0.5rem;
+}
+
+.featured-image a {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    flex-shrink: 0;
+}
+
+.featured-image:hover .image-overlay {
+    opacity: 1;
+}
+
+.no-image-placeholder {
+    width: 100%;
+    height: 100%;
+    background-color: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    border-radius: 0.5rem;
+    color: #6c757d;
+    transition: all 0.3s ease;
+}
+
+.no-image-placeholder:hover {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+    color: #495057;
+}
+
+.category-links {
+    margin-bottom: 1rem;
+}
+
+.category-links .badge {
+    font-size: 0.85rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+}
+
+.category-links .badge a {
+    color: white;
+    text-decoration: none;
+    transition: opacity 0.3s ease;
+}
+
+.category-links .badge a:hover {
+    opacity: 0.8;
+    color: white;
+}
+
+.article-meta {
+    font-size: 0.9rem;
+    color: #6c757d;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+}
+
+.article-meta span {
+    display: flex;
+    align-items: center;
+}
+
+.article-meta i {
+    margin-right: 0.25rem;
+    opacity: 0.7;
+}
+
+.article-meta a {
+    color: #6c757d;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.article-meta a:hover {
+    color: var(--bs-primary) !important;
+    text-decoration: none;
+}
+
+.article-content {
+    margin-bottom: 1.5rem;
+}
+
+.article-excerpt {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    color: #495057;
+}
+
+.article-tags {
+    margin-bottom: 1.5rem;
+}
+
+.article-tags .badge {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.6rem;
+    margin-right: 0.5rem;
+    margin-bottom: 0.25rem;
+    border-radius: 0.375rem;
+}
+
+.article-tags .badge a {
+    color: white;
+    text-decoration: none;
+    transition: opacity 0.3s ease;
+}
+
+.article-tags .badge a:hover {
+    opacity: 0.8;
+    color: white;
+}
+
+.article-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    border-top: 1px solid #e9ecef;
+}
+
+.reading-info {
+    font-size: 0.85rem;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+}
+
+.reading-info i {
+    margin-right: 0.25rem;
+    opacity: 0.7;
+}
+
+.admin-actions {
+    background-color: #f8f9fa;
+    border-radius: 0.375rem;
+    padding: 0.75rem;
+    margin-top: 1rem;
+    border-top: 1px solid #e9ecef;
+}
+
+.admin-actions .btn {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .article-title {
+        font-size: 1.5rem;
+    }
+    
+    .article-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .article-meta > span {
+        margin-right: 0;
+    }
+    
+    .article-footer {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    
+    .article-item:hover {
+        padding: 0.5rem;
+        margin: 0 -0.5rem 2rem -0.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .article-title {
+        font-size: 1.5rem;
+    }
+    
+    .article-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .article-meta > span {
+        margin-right: 0;
+    }
+    
+    .article-footer {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    
+    .article-item:hover {
+        padding: 0.5rem;
+        margin: 0 -0.5rem 2rem -0.5rem;
+    }
+    
+    .featured-image {
+        height: 250px; /* Altura menor em tablets */
+    }
+}
+
+@media (max-width: 576px) {
+    .article-title {
+        font-size: 1.25rem;
+    }
+    
+    .article-excerpt {
+        font-size: 1rem;
+    }
+    
+    .featured-image {
+        height: 200px; /* Altura ainda menor em mobile */
+    }
+}
+
+/* Animações suaves */
+.article-item {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Melhorias para acessibilidade */
+.article-title a:focus {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 2px;
+    border-radius: 0.25rem;
+}
+
+.featured-image a:focus {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 2px;
+    border-radius: 0.5rem;
+}
+
+/* Estilos para o sidebar */
+.sidebar .card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.sidebar .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.sidebar .list-group-item {
+    transition: background-color 0.3s ease;
+}
+
+.sidebar .list-group-item:hover {
+    background-color: #f8f9fa;
+}
+
+/* Estilos para badges de contagem */
+.badge.rounded-pill {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+}
+
+/* Força tamanhos fixos para imagens - sobrescreve qualquer CSS externo */
+.article-item .featured-image,
+.article-item-simple .featured-image-simple {
+    width: 100% !important;
+    height: 300px !important;
+    max-width: 100% !important;
+    max-height: 300px !important;
+    min-width: 100% !important;
+    min-height: 300px !important;
+    flex-shrink: 0 !important;
+    flex-grow: 0 !important;
+}
+
+.article-item .featured-image img,
+.article-item-simple .featured-image-simple img {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    min-width: 100% !important;
+    min-height: 100% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    flex-shrink: 0 !important;
+    flex-grow: 0 !important;
+}
+
+/* Responsivo para imagens */
+@media (max-width: 768px) {
+    .article-item .featured-image,
+    .article-item-simple .featured-image-simple {
+        height: 250px !important;
+        min-height: 250px !important;
+        max-height: 250px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .article-item .featured-image {
+        height: 200px !important;
+        min-height: 200px !important;
+        max-height: 200px !important;
+    }
+    
+    .article-item-simple .featured-image-simple {
+        height: 100px !important;
+        min-height: 100px !important;
+        max-height: 100px !important;
+    }
+} 

@@ -1,4 +1,13 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/article-list.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/article-list.js' %}"></script>
+{% endblock %}
 
 {% block content %}
 <div class="container my-5">
@@ -19,87 +28,114 @@
             </div>
             
             {% if articles %}
-                <div class="row g-4 stagger-container">
+                <div class="articles-list">
                     {% for article in articles %}
-                    <div class="col-12 col-md-6 col-lg-4 scroll-reveal">
-                        <div class="card h-100 border-0 shadow-sm hover-lift">
-                            {% if article.featured_image %}
-                                <a href="{{ article.get_absolute_url }}" class="img-container img-container-16-9 d-block">
-                                    <img src="{{ article.featured_image.url }}"
-                                         class="img-optimized"
-                                         alt="{{ article.featured_image_alt|default:article.title }}"
-                                         loading="lazy"
-                                         onerror="this.style.display='none'">
-                                    <div class="img-overlay"></div>
-                                </a>
-                            {% endif %}
-                            <div class="card-body d-flex flex-column">
-                                <div class="mb-2">
-                                    {% if article.category %}
-                                        <span class="badge bg-primary">
-                                            {% if article.category.icon %}<i class="{{ article.category.icon }} me-1"></i>{% endif %}
+                    <article class="article-item mb-5">
+                        <header class="article-header">
+                            <div class="featured-image mb-3">
+                                {% if article.featured_image %}
+                                    <a href="{{ article.get_absolute_url }}" class="d-block position-relative">
+                                        <img src="{{ article.featured_image.url }}"
+                                             class="img-fluid rounded shadow-sm"
+                                             alt="{{ article.featured_image_alt|default:article.title }}"
+                                             loading="lazy"
+                                             onerror="this.style.display='none'">
+                                        <div class="image-overlay"></div>
+                                    </a>
+                                {% else %}
+                                    <div class="no-image-placeholder d-flex align-items-center justify-content-center">
+                                        <i class="fas fa-image fa-3x text-muted"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            {% if article.category %}
+                                <div class="category-links mb-2">
+                                    <span class="badge bg-primary">
+                                        {% if article.category.icon %}<i class="{{ article.category.icon }} me-1"></i>{% endif %}
+                                        <a href="?category={{ article.category.slug }}" class="text-white text-decoration-none">
                                             {{ article.category.name }}
-                                        </span>
-                                    {% endif %}
-                                    {% if article.is_featured %}
-                                        <span class="badge bg-warning text-dark">
-                                            <i class="fas fa-star me-1"></i>Destaque
-                                        </span>
-                                    {% endif %}
+                                        </a>
+                                    </span>
                                 </div>
-
-                                <h5 class="card-title">
-                                    <a href="{{ article.get_absolute_url }}" class="text-decoration-none text-dark">
-                                        {{ article.title }}
+                            {% endif %}
+                            
+                            <h2 class="article-title mb-2">
+                                <a href="{{ article.get_absolute_url }}" class="text-decoration-none text-dark">
+                                    {{ article.title }}
+                                </a>
+                            </h2>
+                            
+                            <div class="article-meta text-muted mb-3">
+                                <span class="posted-on me-3">
+                                    <i class="fas fa-calendar me-1"></i>
+                                    <time datetime="{{ article.published_at|date:'Y-m-d' }}">
+                                        {{ article.published_at|date:"d/m/Y" }}
+                                    </time>
+                                </span>
+                                <span class="byline me-3">
+                                    <i class="fas fa-user me-1"></i>
+                                    <a href="?author={{ article.author.username }}" class="text-muted text-decoration-none">
+                                        {{ article.author.get_full_name|default:article.author.username }}
                                     </a>
-                                </h5>
+                                </span>
+                                <span class="views me-3">
+                                    <i class="fas fa-eye me-1"></i>
+                                    {{ article.view_count }} visualizações
+                                </span>
+                                <span class="comments">
+                                    <i class="fas fa-comments me-1"></i>
+                                    {{ article.comment_count }} comentários
+                                </span>
+                            </div>
+                        </header>
 
-                                <p class="card-text text-muted">{{ article.excerpt|truncatechars:120 }}</p>
+                        <div class="article-content">
+                            <p class="article-excerpt text-muted">
+                                {{ article.excerpt|truncatechars:300 }}
+                            </p>
+                            
+                            {% if article.tags.exists %}
+                                <div class="article-tags mb-3">
+                                    {% for tag in article.tags.all|slice:":5" %}
+                                        <span class="badge bg-secondary text-white me-1">
+                                            <a href="?tag={{ tag.slug }}" class="text-white text-decoration-none">
+                                                {{ tag.name }}
+                                            </a>
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            
+                            <div class="article-footer d-flex justify-content-between align-items-center">
+                                <div class="reading-info text-muted small">
+                                    <i class="fas fa-clock me-1"></i>
+                                    {{ article.reading_time }} min de leitura
+                                </div>
                                 
-                                <div class="mt-auto">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <small class="text-secondary">
-                                            <i class="fas fa-user me-1"></i>{{ article.author.get_full_name|default:article.author.username }}
-                                        </small>
-                                        <small class="text-secondary">
-                                            <i class="fas fa-calendar me-1"></i>{{ article.published_at|date:"d/m/Y" }}
-                                        </small>
-                                    </div>
-                                    
-                                    <div class="d-flex justify-content-between align-items-center mt-2">
-                                        <div>
-                                            {% for tag in article.tags.all|slice:":3" %}
-                                                <span class="badge bg-secondary text-white me-1">{{ tag.name }}</span>
-                                            {% endfor %}
-                                        </div>
-                                        <div class="text-secondary small">
-                                            <i class="fas fa-eye me-1"></i>{{ article.view_count }}
-                                            <i class="fas fa-clock ms-2 me-1"></i>{{ article.reading_time }} min
-                                        </div>
-                                    </div>
+                                <a href="{{ article.get_absolute_url }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-arrow-right me-1"></i>Ler mais
+                                </a>
+                            </div>
 
-                                    <a href="{{ article.get_absolute_url }}" class="btn btn-outline-primary btn-sm w-100 mt-3">
-                                        <i class="fas fa-arrow-right me-1"></i>Ler artigo completo
-                                    </a>
-
-                                    {% if user.is_authenticated and user.is_staff or user.is_authenticated and user.is_superuser %}
-                                    <div class="d-flex justify-content-end mt-3 pt-2 border-top">
+                            {% if user.is_authenticated and user.is_staff or user.is_authenticated and user.is_superuser %}
+                                <div class="admin-actions mt-3 pt-3 border-top">
+                                    <div class="d-flex justify-content-end">
                                         <a href="{% url 'articles:article_update' article.slug %}"
                                            class="btn btn-sm btn-outline-warning me-2"
                                            title="Editar artigo">
-                                            <i class="fas fa-edit"></i>
+                                            <i class="fas fa-edit"></i> Editar
                                         </a>
                                         <a href="{% url 'articles:article_delete' article.slug %}"
                                            class="btn btn-sm btn-outline-danger"
                                            title="Deletar artigo">
-                                            <i class="fas fa-trash"></i>
+                                            <i class="fas fa-trash"></i> Deletar
                                         </a>
                                     </div>
-                                    {% endif %}
                                 </div>
-                            </div>
+                            {% endif %}
                         </div>
-                    </div>
+                    </article>
                     {% endfor %}
                 </div>
                 
@@ -147,7 +183,7 @@
             <!-- Artigos em Destaque -->
             {% if featured_articles %}
             <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header bg-success text-white">
                     <h6 class="mb-0"><i class="fas fa-star me-2"></i>Artigos em Destaque</h6>
                 </div>
                 <div class="card-body">
@@ -188,6 +224,26 @@
                     </form>
                 </div>
             </div>
+            
+            <!-- Categorias -->
+            {% if categories %}
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0"><i class="fas fa-folder me-2"></i>Categorias</h6>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% for category in categories %}
+                        <a href="?category={{ category.slug }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            {% if category.icon %}<i class="{{ category.icon }} me-2"></i>{% endif %}
+                            {{ category.name }}
+                            <span class="badge bg-primary rounded-pill">{{ category.articles.count }}</span>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>

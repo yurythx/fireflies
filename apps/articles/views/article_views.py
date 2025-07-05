@@ -33,6 +33,7 @@ class ArticleListView(ModuleEnabledRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         service = service_factory.create_article_service()
         context['featured_articles'] = service.get_featured_articles(limit=3)
+        context['categories'] = Category.objects.filter(articles__isnull=False).distinct().order_by('name')
         context['meta_title'] = 'Artigos'
         context['meta_description'] = 'Todos os artigos do blog'
         return context

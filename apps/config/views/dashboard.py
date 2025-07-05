@@ -7,6 +7,7 @@ from django.conf import settings
 from apps.config.services.system_config_service import AuditLogService
 from apps.config.repositories.config_repository import DjangoAuditLogRepository
 from apps.config.mixins import ConfigPermissionMixin, PermissionHelperMixin
+from apps.config.models.app_module_config import AppModuleConfiguration
 import psutil
 import platform
 import sys
@@ -128,6 +129,29 @@ class ConfigDashboardView(ConfigPermissionMixin, PermissionHelperMixin, View):
         except ImportError:
             return 0
 
+    def get_active_modules_count(self):
+        """Conta módulos ativos"""
+        try:
+            return AppModuleConfiguration.objects.filter(is_enabled=True).count()
+        except Exception:
+            return 0
+
+    def get_emails_sent_count(self):
+        """Conta emails enviados (implementação básica)"""
+        try:
+            # Aqui você pode implementar a contagem real de emails enviados
+            # Por enquanto, retornamos 0
+            return 0
+        except Exception:
+            return 0
+
+    def get_recent_modules(self):
+        """Obtém módulos recentes para exibição"""
+        try:
+            return AppModuleConfiguration.objects.all()[:5]
+        except Exception:
+            return []
+
     def get(self, request):
         """Exibe o dashboard com métricas do sistema"""
         # Estatísticas de usuários
@@ -148,6 +172,29 @@ class ConfigDashboardView(ConfigPermissionMixin, PermissionHelperMixin, View):
 
         # Contagem de artigos
         total_articles = self.get_articles_count()
+        active_modules = self.get_active_modules_count()
+        emails_sent = self.get_emails_sent_count()
+        recent_modules = self.get_recent_modules()
+
+        # Organizar estatísticas como o template espera
+        stats = {
+            'total_users': total_users,
+            'active_users': active_users,
+            'staff_users': staff_users,
+            'superusers': superusers,
+            'total_groups': total_groups,
+            'recent_users': recent_users,
+            'total_articles': total_articles,
+            'active_modules': active_modules,
+            'emails_sent': emails_sent,
+        }
+
+        # Informações do sistema como o template espera
+        system_info = {
+            'os': system_metrics['system_info']['platform'] if system_metrics and system_metrics.get('system_info') else 'Desconhecido',
+            'python_version': system_metrics['system_info']['python_version'] if system_metrics and system_metrics.get('system_info') else 'Desconhecida',
+            'database': database_metrics['engine'] if database_metrics else 'Desconhecido',
+        }
 
         # Blocos de status para includes
         status_system_items = [
@@ -164,23 +211,20 @@ class ConfigDashboardView(ConfigPermissionMixin, PermissionHelperMixin, View):
         ]
 
         context = {
-            # Estatísticas de usuários
-            'total_users': total_users,
-            'active_users': active_users,
-            'staff_users': staff_users,
-            'superusers': superusers,
-            'total_groups': total_groups,
-            'recent_users': recent_users,
-            'total_articles': total_articles,
+            # Estatísticas organizadas como o template espera
+            'stats': stats,
+            'system_info': system_info,
+            'email_config': email_config.get('email_configured', False),
+            'recent_modules': recent_modules,
 
-            # Métricas do sistema
+            # Métricas do sistema (mantidas para compatibilidade)
             'system_metrics': system_metrics,
             'database_metrics': database_metrics,
             'django_version': django.get_version(),
             'debug_mode': settings.DEBUG,
-            'cache_status': system_metrics.get('cache_status', True),  # Implementar verificação real do cache
+            'cache_status': system_metrics.get('cache_status', True) if system_metrics else True,
 
-            # Configuração de email
+            # Configuração de email (mantida para compatibilidade)
             **email_config,
             'status_system_items': status_system_items,
             'status_email_items': status_email_items,
