@@ -263,3 +263,28 @@ class ArticleDeleteView(AdminRequiredMixin, DeleteView):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Confirmar Exclusão'
         return context
+
+class CategoryDetailView(ListView):
+    model = Article
+    template_name = 'articles/article_list.html'
+    context_object_name = 'articles'
+    paginate_by = 12
+
+    def get_queryset(self):
+        self.category = get_object_or_404(Category, slug=self.kwargs['slug'], is_active=True)
+        return Article.objects.filter(category=self.category, status='published').order_by('-published_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['category'] = self.category
+        context['categories'] = Category.objects.filter(articles__isnull=False).distinct().order_by('name')
+        context['meta_title'] = f'Artigos em {self.category.name}'
+        context['meta_description'] = self.category.seo_description
+        context['featured_articles'] = Article.objects.filter(is_featured=True, status='published')[:3]
+        return context
+
+class CategoryListView(ListView):
+    model = Category
+    template_name = 'articles/category_list.html'
+    context_object_name = 'categories'
+    queryset = Category.objects.filter(is_active=True).order_by('name')

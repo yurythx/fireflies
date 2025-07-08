@@ -43,10 +43,10 @@
                         <p class="lead text-secondary text-body">{{ article.excerpt }}</p>
                     {% endif %}
                     
-                    <div class="d-flex align-items-center text-secondary mb-3">
+                    <div class="d-flex align-items-center text-secondary mb-3 flex-wrap flex-md-nowrap article-meta">
                         <!-- Author -->
                         {% if article.author %}
-                            <div class="d-flex align-items-center me-4">
+                            <div class="d-flex align-items-center me-4 mb-2 mb-md-0">
                                 {% if article.author.avatar %}
                                     <img src="{{ article.author.avatar.url }}" 
                                          class="rounded-circle me-2" width="32" height="32" alt="{{ article.author.get_full_name }}">
@@ -59,28 +59,24 @@
                                 <small>{{ article.author.get_full_name|default:article.author.username }}</small>
                             </div>
                         {% endif %}
-                        
-                        <small>
+                        <small class="mb-2 mb-md-0">
                             <i class="fas fa-calendar me-1"></i>
                             {{ article.published_at|date:"d/m/Y" }}
                         </small>
-                        
                         {% if article.updated_at != article.created_at %}
-                            <small class="ms-3">
+                            <small class="ms-md-3 mb-2 mb-md-0">
                                 <i class="fas fa-edit me-1"></i>
                                 Atualizado em {{ article.updated_at|date:"d/m/Y" }}
                             </small>
                         {% endif %}
-                        
                         {% if article.view_count %}
-                            <small class="ms-3">
+                            <small class="ms-md-3 mb-2 mb-md-0">
                                 <i class="fas fa-eye me-1"></i>
                                 {{ article.view_count }} visualizações
                             </small>
                         {% endif %}
-                        
                         {% if article.reading_time %}
-                            <small class="ms-3">
+                            <small class="ms-md-3 mb-2 mb-md-0">
                                 <i class="fas fa-clock me-1"></i>
                                 {{ article.reading_time }} min de leitura
                             </small>

@@ -313,7 +313,7 @@ def setup_redirect(request):
     if first_install_file.exists():
         return redirect('config:setup_wizard')
     else:
-        return redirect('config:dashboard')
+        return redirect('pages:home')
 
 @csrf_exempt
 def test_db_connection_api(request):

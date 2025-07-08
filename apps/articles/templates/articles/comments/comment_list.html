@@ -165,36 +165,22 @@
                             <div class="form-floating">
                                 {{ comment_form.name }}
                                 <label for="{{ comment_form.name.id_for_label }}">{{ comment_form.name.label }}</label>
-                                {% if comment_form.name.help_text %}
-                                    <div class="form-text">{{ comment_form.name.help_text }}</div>
-                                {% endif %}
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-floating">
                                 {{ comment_form.email }}
                                 <label for="{{ comment_form.email.id_for_label }}">{{ comment_form.email.label }}</label>
-                                {% if comment_form.email.help_text %}
-                                    <div class="form-text">{{ comment_form.email.help_text }}</div>
-                                {% endif %}
                             </div>
                         </div>
                     </div>
-                    
                     <div class="form-floating">
                         {{ comment_form.website }}
                         <label for="{{ comment_form.website.id_for_label }}">{{ comment_form.website.label }}</label>
-                        {% if comment_form.website.help_text %}
-                            <div class="form-text">{{ comment_form.website.help_text }}</div>
-                        {% endif %}
                     </div>
-                    
                     <div class="form-floating">
                         {{ comment_form.content }}
                         <label for="{{ comment_form.content.id_for_label }}">{{ comment_form.content.label }}</label>
-                        {% if comment_form.content.help_text %}
-                            <div class="form-text">{{ comment_form.content.help_text }}</div>
-                        {% endif %}
                     </div>
                     
                     <!-- Honeypot -->

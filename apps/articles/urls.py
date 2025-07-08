@@ -6,8 +6,8 @@ from apps.articles.views import (
     ArticleCreateView,
     ArticleUpdateView,
     ArticleDeleteView,
-    # CategoryDetailView,
-    # CategoryListView,
+    CategoryDetailView,
+    CategoryListView,
     # TagDetailView,
     # TagListView,
 )
@@ -51,8 +51,8 @@ urlpatterns = [
     path('<slug:slug>/', ArticleDetailView.as_view(), name='article_detail'),
 
     # Categorias (implementar depois)
-    # path('categoria/', CategoryListView.as_view(), name='category_list'),
-    # path('categoria/<slug:slug>/', CategoryDetailView.as_view(), name='category_detail'),
+    path('categoria/', CategoryListView.as_view(), name='category_list'),
+    path('categoria/<slug:slug>/', CategoryDetailView.as_view(), name='category_detail'),
 
     # Tags (implementar depois)
     # path('tag/', TagListView.as_view(), name='tag_list'),

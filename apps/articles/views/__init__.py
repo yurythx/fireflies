@@ -4,7 +4,9 @@ from .article_views import (
     ArticleSearchView,
     ArticleCreateView,
     ArticleUpdateView,
-    ArticleDeleteView
+    ArticleDeleteView,
+    CategoryDetailView,
+    CategoryListView
 )
 # from .category_views import CategoryDetailView, CategoryListView
 # from .tag_views import TagDetailView, TagListView
@@ -16,8 +18,8 @@ __all__ = [
     'ArticleCreateView',
     'ArticleUpdateView',
     'ArticleDeleteView',
-    # 'CategoryDetailView',
-    # 'CategoryListView',
+    'CategoryDetailView',
+    'CategoryListView',
     # 'TagDetailView',
     # 'TagListView',
 ]

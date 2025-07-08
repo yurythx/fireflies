@@ -13,6 +13,14 @@
 <div class="container my-5">
     <div class="row">
         <div class="col-lg-8">
+            {# Título da página #}
+            <h1 class="mb-4 text-center">
+                {% if category %}
+                    Artigos em <span class="text-primary">{{ category.name }}</span>
+                {% else %}
+                    Todos os Artigos
+                {% endif %}
+            </h1>
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1 class="text-sans text-body">Artigos</h1>
                 <div>
@@ -53,7 +61,7 @@
                                 <div class="category-links mb-2">
                                     <span class="badge bg-primary">
                                         {% if article.category.icon %}<i class="{{ article.category.icon }} me-1"></i>{% endif %}
-                                        <a href="?category={{ article.category.slug }}" class="text-white text-decoration-none">
+                                        <a href="{{ article.category.get_absolute_url }}" class="text-white text-decoration-none">
                                             {{ article.category.name }}
                                         </a>
                                     </span>
@@ -180,8 +188,7 @@
         
         <!-- Sidebar -->
         <div class="col-lg-4">
-            <!-- Artigos em Destaque -->
-            {% if featured_articles %}
+            {% if featured_articles|length > 0 %}
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-success text-white">
                     <h6 class="mb-0"><i class="fas fa-star me-2"></i>Artigos em Destaque</h6>
@@ -232,15 +239,15 @@
                     <h6 class="mb-0"><i class="fas fa-folder me-2"></i>Categorias</h6>
                 </div>
                 <div class="card-body">
-                    <div class="list-group list-group-flush">
-                        {% for category in categories %}
-                        <a href="?category={{ category.slug }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                            {% if category.icon %}<i class="{{ category.icon }} me-2"></i>{% endif %}
-                            {{ category.name }}
-                            <span class="badge bg-primary rounded-pill">{{ category.articles.count }}</span>
-                        </a>
+                    <ul class="list-group mb-4">
+                        {% for cat in categories %}
+                            <a href="{{ cat.get_absolute_url }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {% if category and cat.pk == category.pk %}active{% endif %}">
+                                {% if cat.icon %}<i class="{{ cat.icon }} me-2"></i>{% endif %}
+                                {{ cat.name }}
+                                <span class="badge bg-primary rounded-pill">{{ cat.articles.count }}</span>
+                            </a>
                         {% endfor %}
-                    </div>
+                    </ul>
                 </div>
             </div>
             {% endif %}
