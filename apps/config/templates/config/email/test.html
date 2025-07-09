@@ -22,7 +22,7 @@
     <div class="col-12">
         <div class="card shadow">
             <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">
+                <h6 class="m-0 font-weight-bold text-theme-primary">
                     <i class="fas fa-info-circle me-2"></i>Status da Configuração de Email
                 </h6>
             </div>
@@ -32,9 +32,9 @@
                         <div class="text-center">
                             <div class="mb-2">
                                 {% if email_configured %}
-                                    <i class="fas fa-check-circle fa-3x text-success"></i>
+                                    <i class="fas fa-check-circle fa-3x text-theme-success"></i>
                                 {% else %}
-                                    <i class="fas fa-exclamation-triangle fa-3x text-warning"></i>
+                                    <i class="fas fa-exclamation-triangle fa-3x text-theme-warning"></i>
                                 {% endif %}
                             </div>
                             <h6>
@@ -65,7 +65,7 @@
                                 </div>
                                 <div class="mb-2">
                                     <strong>Status:</strong>
-                                    <span class="badge {% if email_configured %}bg-success{% else %}bg-warning{% endif %} ms-2">
+                                    <span class="badge {% if email_configured %}bg-theme-success{% else %}bg-theme-warning{% endif %} ms-2">
                                         {% if email_configured %}Pronto para uso{% else %}Requer configuração{% endif %}
                                     </span>
                                 </div>
@@ -83,7 +83,7 @@
     <div class="col-lg-8">
         <div class="card shadow">
             <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">
+                <h6 class="m-0 font-weight-bold text-theme-primary">
                     <i class="fas fa-envelope me-2"></i>Enviar Email de Teste
                 </h6>
             </div>
@@ -123,7 +123,7 @@
                     </form>
                 {% else %}
                     <div class="text-center py-4">
-                        <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                        <i class="fas fa-exclamation-triangle fa-3x text-theme-warning mb-3"></i>
                         <h5>Email não configurado</h5>
                         <p class="text-muted">Configure o servidor de email antes de realizar testes.</p>
                         <a href="{% url 'config:email_config' %}" class="btn btn-primary">
@@ -138,29 +138,29 @@
     <div class="col-lg-4">
         <div class="card shadow">
             <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-info">
+                <h6 class="m-0 font-weight-bold text-theme-info">
                     <i class="fas fa-lightbulb me-2"></i>Dicas de Teste
                 </h6>
             </div>
             <div class="card-body">
                 <div class="small">
                     <div class="mb-3">
-                        <strong><i class="fas fa-check text-success me-1"></i>Teste Básico:</strong>
+                        <strong><i class="fas fa-check text-theme-success me-1"></i>Teste Básico:</strong>
                         <p class="mb-0">Use seu próprio email para verificar se o envio está funcionando.</p>
                     </div>
                     
                     <div class="mb-3">
-                        <strong><i class="fas fa-shield-alt text-warning me-1"></i>Spam:</strong>
+                        <strong><i class="fas fa-shield-alt text-theme-warning me-1"></i>Spam:</strong>
                         <p class="mb-0">Verifique a pasta de spam se não receber o email.</p>
                     </div>
                     
                     <div class="mb-3">
-                        <strong><i class="fas fa-clock text-info me-1"></i>Tempo:</strong>
+                        <strong><i class="fas fa-clock text-theme-info me-1"></i>Tempo:</strong>
                         <p class="mb-0">Emails podem levar alguns minutos para chegar.</p>
                     </div>
                     
                     <div class="mb-3">
-                        <strong><i class="fas fa-bug text-danger me-1"></i>Problemas:</strong>
+                        <strong><i class="fas fa-bug text-theme-danger me-1"></i>Problemas:</strong>
                         <p class="mb-0">Verifique os logs do sistema em caso de erro.</p>
                     </div>
                 </div>
@@ -174,7 +174,7 @@
     <div class="col-12">
         <div class="card shadow">
             <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">
+                <h6 class="m-0 font-weight-bold text-theme-primary">
                     <i class="fas fa-history me-2"></i>Histórico de Testes
                 </h6>
             </div>

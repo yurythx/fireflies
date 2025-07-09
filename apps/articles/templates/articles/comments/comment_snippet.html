@@ -104,26 +104,46 @@
                                                 {% endfor %}
                                             </div>
                                         {% endif %}
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-floating mb-2">
+                                                    {{ reply_form.name }}
+                                                    <label for="{{ reply_form.name.id_for_label }}">Nome *</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-floating mb-2">
+                                                    {{ reply_form.email }}
+                                                    <label for="{{ reply_form.email.id_for_label }}">Email *</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-floating mb-3">
+                                            {{ reply_form.content }}
+                                            <label for="{{ reply_form.content.id_for_label }}">Resposta *</label>
+                                        </div>
+                                        {{ reply_form.website_url }}
+                                    {% else %}
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-floating mb-2">
+                                                    <input type="text" class="form-control form-control-sm" name="name" placeholder="Seu nome" required {% if user.is_authenticated %}value="{{ user.get_full_name|default:user.username }}" readonly{% endif %} aria-label="Nome">
+                                                    <label>Nome *</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-floating mb-2">
+                                                    <input type="email" class="form-control form-control-sm" name="email" placeholder="Seu email" required {% if user.is_authenticated %}value="{{ user.email }}" readonly{% endif %} aria-label="Email">
+                                                    <label>Email *</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-floating mb-3">
+                                            <textarea class="form-control form-control-sm" name="content" placeholder="Sua resposta..." rows="3" required aria-label="Resposta"></textarea>
+                                            <label>Resposta *</label>
+                                        </div>
+                                        <input type="hidden" name="website_url" value="">
                                     {% endif %}
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="form-floating mb-2">
-                                                <input type="text" class="form-control form-control-sm" name="name" placeholder="Seu nome" required {% if user.is_authenticated %}value="{{ user.get_full_name|default:user.username }}" readonly{% endif %} aria-label="Nome">
-                                                <label>Nome *</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-floating mb-2">
-                                                <input type="email" class="form-control form-control-sm" name="email" placeholder="Seu email" required {% if user.is_authenticated %}value="{{ user.email }}" readonly{% endif %} aria-label="Email">
-                                                <label>Email *</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="form-floating mb-3">
-                                        <textarea class="form-control form-control-sm" name="content" placeholder="Sua resposta..." rows="3" required aria-label="Resposta"></textarea>
-                                        <label>Resposta *</label>
-                                    </div>
-                                    <input type="hidden" name="website_url" value="">
                                     <div class="d-flex justify-content-end gap-2">
                                         <button type="button" class="btn btn-secondary btn-sm" onclick="toggleReplyForm({{ comment.id }})" aria-label="Cancelar resposta">Cancelar</button>
                                         <button type="submit" class="btn btn-primary btn-sm" aria-label="Enviar resposta"><i class="fas fa-paper-plane"></i> Enviar Resposta</button>

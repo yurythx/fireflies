@@ -195,7 +195,10 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [
+            BASE_DIR / 'apps' / 'pages' / 'templates',  # Centraliza busca de templates globais
+            BASE_DIR / 'templates',
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -709,237 +712,17 @@ if SENTRY_DSN:
     except ImportError:
         pass  # Sentry não instalado
 
-# =============================================================================
-# CONFIGURAÇÕES DO TINYMCE
-# =============================================================================
-
-# Configuração base do TinyMCE
-TINYMCE_BASE_CONFIG = {
-    'height': 500,
-    'width': '100%',
-    'cleanup_on_startup': False,
-    'custom_undo_redo_levels': 20,
-    'theme': 'silver',
-    'plugins': '''
-        advlist autolink lists link image charmap preview anchor
-        searchreplace visualblocks code insertdatetime media
-        table wordcount emoticons nonbreaking directionality
-    ''',
-    'toolbar1': '''
-        undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect |
-        alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist |
-        forecolor backcolor removeformat | charmap emoticons
-    ''',
-    'toolbar2': '''
-        visualblocks visualchars | nonbreaking anchor | link unlink | image media |
-        table | code | customfullscreen | preview | help
-    ''',
-    'menubar': True,
-    'statusbar': True,
-    'branding': False,
-    'promotion': False,
-    'contextmenu': 'link image table',
-    'directionality': 'ltr',
-    'language': 'pt_BR',
-    'fullscreen_native': True,
-    'resize': False,
-    'elementpath': False,
-    'toolbar_mode': 'sliding',
-    'toolbar_sticky': True,
-    # Configurações para preservar formatação
-    'relative_urls': False,
-    'remove_script_host': False,
-    'convert_urls': True,
-    'verify_html': False,
-    'cleanup': False,
-    'cleanup_on_startup': False,
-    'forced_root_block': 'p',
-    'force_br_newlines': False,
-    'force_p_newlines': True,
-    'remove_linebreaks': False,
-    'convert_newlines_to_brs': False,
-    'remove_redundant_brs': False,
-    'remove_trailing_brs': False,
-    'entity_encoding': 'raw',
-    'encoding': 'xml',
-    'element_format': 'html',
-    'schema': 'html5',
-    'valid_children': '+body[style]',
-    'extended_valid_elements': 'span[*],div[*],p[*],br[*],hr[*],h1[*],h2[*],h3[*],h4[*],h5[*],h6[*],ul[*],ol[*],li[*],a[*],img[*],video[*],iframe[*],table[*],tr[*],td[*],th[*],thead[*],tbody[*],tfoot[*],caption[*],colgroup[*],col[*],blockquote[*],pre[*],code[*],em[*],strong[*],b[*],i[*],u[*],s[*],del[*],ins[*],mark[*],small[*],sub[*],sup[*],cite[*],q[*],abbr[*],acronym[*],dfn[*],kbd[*],samp[*],var[*],time[*]',
-    'invalid_elements': 'script,object,embed,form,input,textarea,select,button,label,fieldset,legend,frame,frameset,noframes,applet,basefont,bgsound,link,meta,style,title,xmp,plaintext,listing,marquee,blink,isindex,dir,menu,center,font,strike,tt,u,big,small,spacer,layers,ilayer,base,basefont,center,font,strike,tt,u,big,small,spacer,layers,ilayer',
-    'valid_attributes': '*[*]',
-    'invalid_attributes': 'on*',
-    # Configurações para colagem com imagens e vídeos
-    'paste_data_images': True,
-    'paste_as_text': False,
-    'paste_auto_cleanup_on_paste': False,
-    'paste_remove_styles': False,
-    'paste_remove_styles_if_webkit': False,
-    'paste_strip_class_attributes': 'none',
-    'paste_enable_default_filters': False,
-    'paste_word_valid_elements': '*[*]',
-    'paste_retain_style_properties': 'color background-color font-size font-family font-weight text-decoration',
-    'paste_merge_formats': True,
-    'paste_convert_word_fake_lists': False,
-    'paste_filter_drop': False,
-    'paste_webkit_styles': 'color background-color font-size font-family',
-    # Configurações para mídia
-    'media_live_embeds': True,
-    'media_alt_source': False,
-    'media_poster': False,
-    'media_dimensions': False,
-    'media_url_resolver': 'function(data, resolve, reject) { resolve(data); }',
-    'media_scripts': [
-        {'filter': 'iframe', 'width': 300, 'height': 150}
-    ],
-}
-
-# Configurações específicas por ambiente
-if DEBUG:
-    # Configuração para desenvolvimento
-    TINYMCE_DEFAULT_CONFIG = TINYMCE_BASE_CONFIG.copy()
-    TINYMCE_DEFAULT_CONFIG.update({
-        'content_css': '/static/css/tinymce-content.css',
-        'paste_preprocess': 'function(plugin, args) { console.log("Paste preprocess - DEV"); }',
-        'paste_postprocess': 'function(plugin, args) { console.log("Paste postprocess - DEV"); }',
-    })
-else:
-    # Configuração para produção
-    TINYMCE_DEFAULT_CONFIG = TINYMCE_BASE_CONFIG.copy()
-    TINYMCE_DEFAULT_CONFIG.update({
-        'content_css': '/static/css/tinymce-content.css',
-        # Configurações mais permissivas para produção
-        'paste_data_images': True,
-        'paste_as_text': False,
-        'paste_auto_cleanup_on_paste': False,
-        'paste_remove_styles': False,
-        'paste_remove_styles_if_webkit': False,
-        'paste_strip_class_attributes': 'none',
-        'paste_enable_default_filters': False,
-        'paste_word_valid_elements': '*[*]',
-        'paste_retain_style_properties': 'color background-color font-size font-family font-weight text-decoration',
-        'paste_merge_formats': True,
-        'paste_convert_word_fake_lists': False,
-        'paste_filter_drop': False,
-        'paste_webkit_styles': 'color background-color font-size font-family',
-        # Configurações específicas para produção
-        'verify_html': False,
-        'cleanup': False,
-        'cleanup_on_startup': False,
-        'forced_root_block': 'p',
-        'force_br_newlines': False,
-        'force_p_newlines': True,
-        'remove_linebreaks': False,
-        'convert_newlines_to_brs': False,
-        'remove_redundant_brs': False,
-        'remove_trailing_brs': False,
-        'entity_encoding': 'raw',
-        'encoding': 'xml',
-        'element_format': 'html',
-        'schema': 'html5',
-        'valid_children': '+body[style]',
-        'extended_valid_elements': 'span[*],div[*],p[*],br[*],hr[*],h1[*],h2[*],h3[*],h4[*],h5[*],h6[*],ul[*],ol[*],li[*],a[*],img[*],video[*],iframe[*],table[*],tr[*],td[*],th[*],thead[*],tbody[*],tfoot[*],caption[*],colgroup[*],col[*],blockquote[*],pre[*],code[*],em[*],strong[*],b[*],i[*],u[*],s[*],del[*],ins[*],mark[*],small[*],sub[*],sup[*],cite[*],q[*],abbr[*],acronym[*],dfn[*],kbd[*],samp[*],var[*],time[*]',
-        'invalid_elements': 'script,object,embed,form,input,textarea,select,button,label,fieldset,legend,frame,frameset,noframes,applet,basefont,bgsound,link,meta,style,title,xmp,plaintext,listing,marquee,blink,isindex,dir,menu,center,font,strike,tt,u,big,small,spacer,layers,ilayer,base,basefont,center,font,strike,tt,u,big,small,spacer,layers,ilayer',
-        'valid_attributes': '*[*]',
-        'invalid_attributes': 'on*',
-        # Configurações de mídia para produção
-        'media_live_embeds': True,
-        'media_alt_source': False,
-        'media_poster': False,
-        'media_dimensions': False,
-        'media_url_resolver': 'function(data, resolve, reject) { resolve(data); }',
-        'media_scripts': [
-            {'filter': 'iframe', 'width': 300, 'height': 150}
-        ],
-    })
-
-# Configurações específicas para diferentes campos
-TINYMCE_CONFIGS = {
-    'default': TINYMCE_DEFAULT_CONFIG,
-    'simple': {
-        'height': 200,
-        'width': '100%',
-        'plugins': 'link lists textcolor',
-        'toolbar': 'bold italic underline | bullist numlist | link | forecolor',
-        'menubar': False,
-        'statusbar': False,
-        'branding': False,
-        'promotion': False,
-    },
-    'advanced': {
-        'height': 600,
-        'width': '100%',
-        'plugins': '''
-            advlist autolink lists link image charmap preview anchor
-            searchreplace visualblocks code insertdatetime media
-            table wordcount emoticons nonbreaking directionality codesample
-        ''',
-        'toolbar1': '''
-            undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect |
-            alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist |
-            forecolor backcolor removeformat | charmap emoticons
-        ''',
-        'toolbar2': '''
-            visualblocks visualchars | nonbreaking anchor | link unlink | image media |
-            table | codesample code | customfullscreen | preview | help
-        ''',
-        'menubar': True,
-        'statusbar': True,
-        'branding': False,
-        'promotion': False,
-        'contextmenu': 'link image table',
-        'directionality': 'ltr',
-        'language': 'pt_BR',
-        'paste_data_images': True,
-        'paste_as_text': False,
-        'paste_auto_cleanup_on_paste': False,
-        'paste_remove_styles': False,
-        'paste_remove_styles_if_webkit': False,
-        'paste_strip_class_attributes': 'none',
-        'paste_enable_default_filters': False,
-        'paste_word_valid_elements': '*[*]',
-        'paste_retain_style_properties': 'color background-color font-size font-family font-weight text-decoration',
-        'fullscreen_native': True,
-        'resize': False,
-        'elementpath': False,
-        'toolbar_mode': 'sliding',
-        'toolbar_sticky': True,
-        # Configurações para preservar formatação
-        'relative_urls': False,
-        'remove_script_host': False,
-        'convert_urls': True,
-        'verify_html': False,
-        'cleanup': False,
-        'cleanup_on_startup': False,
-        'forced_root_block': 'p',
-        'force_br_newlines': False,
-        'force_p_newlines': True,
-        'remove_linebreaks': False,
-        'convert_newlines_to_brs': False,
-        'remove_redundant_brs': False,
-        'remove_trailing_brs': False,
-        'entity_encoding': 'raw',
-        'encoding': 'xml',
-        'element_format': 'html',
-        'schema': 'html5',
-        'valid_children': '+body[style]',
-        'extended_valid_elements': 'span[*],div[*],p[*],br[*],hr[*],h1[*],h2[*],h3[*],h4[*],h5[*],h6[*],ul[*],ol[*],li[*],a[*],img[*],table[*],tr[*],td[*],th[*],thead[*],tbody[*],tfoot[*],caption[*],colgroup[*],col[*],blockquote[*],pre[*],code[*],em[*],strong[*],b[*],i[*],u[*],s[*],del[*],ins[*],mark[*],small[*],sub[*],sup[*],cite[*],q[*],abbr[*],acronym[*],dfn[*],kbd[*],samp[*],var[*],time[*]',
-        'invalid_elements': 'script,object,embed,form,input,textarea,select,button,label,fieldset,legend,iframe,frame,frameset,noframes,applet,basefont,bgsound,link,meta,style,title,xmp,plaintext,listing,marquee,blink,isindex,dir,menu,center,font,strike,tt,u,big,small,spacer,layers,ilayer,base,basefont,center,font,strike,tt,u,big,small,spacer,layers,ilayer',
-        'valid_attributes': '*[*]',
-        'invalid_attributes': 'on*',
-        'codesample_languages': [
-            {'text': 'HTML/XML', 'value': 'markup'},
-            {'text': 'JavaScript', 'value': 'javascript'},
-            {'text': 'CSS', 'value': 'css'},
-            {'text': 'PHP', 'value': 'php'},
-            {'text': 'Python', 'value': 'python'},
-            {'text': 'Java', 'value': 'java'},
-            {'text': 'C', 'value': 'c'},
-            {'text': 'C#', 'value': 'csharp'},
-            {'text': 'C++', 'value': 'cpp'},
-        ],
-    }
-}
-
 # Versão do sistema para uso no wizard e exibição
 VERSION = '1.0.0'
+
+# TinyMCE mínimo para colagem de imagens e formatação
+TINYMCE_DEFAULT_CONFIG = {
+    'height': 500,
+    'plugins': 'paste image link lists code',
+    'toolbar': 'undo redo | bold italic underline | alignleft aligncenter alignright | bullist numlist | link image | code',
+    'paste_data_images': True,
+    'menubar': False,
+    'statusbar': True,
+    'branding': False,
+    'language': 'pt_BR',
+}

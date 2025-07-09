@@ -280,6 +280,90 @@ body.dark-mode .theme-toggle {
     }
 }
 
+@media (max-width: 576px) {
+  .action-buttons-responsive {
+    align-items: center !important;
+    justify-content: flex-start !important;
+    min-width: 0 !important;
+    width: 100%;
+    margin-top: 1rem;
+  }
+  .action-buttons-responsive a {
+    width: 100%;
+    margin-bottom: 0.5rem;
+    text-align: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .article-list-card .card-body.row,
+  .article-list-card .col-12.col-md-auto.p-0,
+  .article-list-card .col.ps-0.ps-md-4,
+  .article-list-card img {
+    flex-direction: unset !important;
+    align-items: unset !important;
+    gap: unset;
+    min-height: unset;
+    padding: unset !important;
+    width: unset !important;
+    max-width: unset;
+    max-height: unset;
+    min-height: unset;
+    margin: unset;
+    border-radius: unset;
+    box-shadow: unset;
+    height: unset !important;
+  }
+  .action-buttons-responsive {
+    flex-direction: unset !important;
+    align-items: unset !important;
+    justify-content: unset !important;
+    width: unset;
+    min-width: unset !important;
+    margin-top: unset;
+    gap: unset;
+  }
+  .action-buttons-responsive a {
+    width: unset;
+    min-width: unset;
+    margin-bottom: unset;
+    text-align: unset;
+    margin-left: unset !important;
+    margin-right: unset !important;
+    font-size: unset;
+    padding: unset;
+  }
+}
+
+@media (max-width: 576px) {
+  .article-list-card .card-body.row,
+  .article-list-card img {
+    min-height: unset;
+    padding: unset !important;
+    max-width: unset;
+    max-height: unset;
+    min-height: unset;
+  }
+  .action-buttons-responsive {
+    flex-direction: unset !important;
+    align-items: unset !important;
+    justify-content: unset !important;
+    width: unset;
+    min-width: unset !important;
+    margin-top: unset;
+    gap: unset;
+  }
+  .action-buttons-responsive a {
+    width: unset;
+    margin-bottom: unset;
+    text-align: unset;
+    margin-left: unset !important;
+    margin-right: unset !important;
+    font-size: unset;
+    padding: unset;
+  }
+}
+
 /* Print Styles */
 @media print {
     .fireflies-glow::before,
@@ -373,4 +457,90 @@ a:hover {
 }
 [data-theme="dark"] .border, [data-theme="dark"] .border-bottom, [data-theme="dark"] .dropdown-divider {
     border-color: #33363a !important;
+} 
+
+/* Utilitários responsivos ao tema */
+.text-theme-secondary {
+  color: var(--color-text-secondary-light) !important;
+}
+[data-theme="dark"] .text-theme-secondary {
+  color: var(--color-text-secondary-dark) !important;
+}
+.bg-surface {
+  background: var(--color-surface-light) !important;
+}
+[data-theme="dark"] .bg-surface {
+  background: var(--color-surface-dark) !important;
+}
+.bg-theme-success {
+  background: var(--success-color) !important;
+}
+[data-theme="dark"] .bg-theme-success {
+  background: var(--color-success-dark) !important;
+}
+.text-theme-light {
+  color: #fff !important;
+}
+[data-theme="dark"] .text-theme-light {
+  color: #222 !important;
+} 
+
+/* Utilitários de badge e texto para temas */
+.bg-theme-primary { background: var(--primary-color) !important; color: #fff !important; }
+[data-theme="dark"] .bg-theme-primary { background: var(--primary-dark) !important; color: #fff !important; }
+.bg-theme-success { background: var(--success-color) !important; color: #fff !important; }
+[data-theme="dark"] .bg-theme-success { background: var(--color-success-dark) !important; color: #fff !important; }
+.bg-theme-info { background: var(--info-color) !important; color: #fff !important; }
+[data-theme="dark"] .bg-theme-info { background: #1976d2 !important; color: #fff !important; }
+.bg-theme-warning { background: var(--warning-color) !important; color: #222 !important; }
+[data-theme="dark"] .bg-theme-warning { background: #ffc107 !important; color: #222 !important; }
+.bg-theme-danger { background: var(--error-color) !important; color: #fff !important; }
+[data-theme="dark"] .bg-theme-danger { background: var(--color-error-dark) !important; color: #fff !important; }
+.bg-theme-secondary { background: var(--color-text-secondary-light) !important; color: #fff !important; }
+[data-theme="dark"] .bg-theme-secondary { background: var(--color-text-secondary-dark) !important; color: #fff !important; }
+.text-theme-primary { color: var(--primary-color) !important; }
+[data-theme="dark"] .text-theme-primary { color: var(--primary-light) !important; }
+.text-theme-success { color: var(--success-color) !important; }
+[data-theme="dark"] .text-theme-success { color: var(--color-success-dark) !important; }
+.text-theme-info { color: var(--info-color) !important; }
+[data-theme="dark"] .text-theme-info { color: #1976d2 !important; }
+.text-theme-warning { color: var(--warning-color) !important; }
+[data-theme="dark"] .text-theme-warning { color: #ffc107 !important; }
+.text-theme-danger { color: var(--error-color) !important; }
+[data-theme="dark"] .text-theme-danger { color: var(--color-error-dark) !important; }
+.text-theme-secondary { color: var(--color-text-secondary-light) !important; }
+[data-theme="dark"] .text-theme-secondary { color: var(--color-text-secondary-dark) !important; } 
+
+/* Utilitário para texto muted responsivo ao tema */
+.text-theme-muted { color: var(--color-text-secondary-light) !important; }
+[data-theme="dark"] .text-theme-muted { color: var(--color-text-secondary-dark) !important; } 
+
+/* Cards compactos para listagem de artigos */
+.card.article-list-card, .card-django.article-list-card {
+  padding: 0.75rem 1rem;
+  min-height: 0;
+  max-height: 320px;
+  overflow: hidden;
+}
+.card.article-list-card .card-body, .card-django.article-list-card .card-body {
+  padding: 0.75rem 1rem;
+}
+
+/* Hover: corrigir fundo no modo escuro */
+.card:hover, .card-django:hover {
+  background: var(--color-surface-light);
+  transition: background 0.2s;
+}
+[data-theme="dark"] .card:hover, [data-theme="dark"] .card-django:hover {
+  background: var(--color-surface-dark);
+  transition: background 0.2s;
+} 
+
+/* Corrigir hover dos cards no modo escuro para não ficar branco */
+.card.article-list-card:hover, .card-django.article-list-card:hover {
+  background: var(--color-surface-light);
+}
+[data-theme="dark"] .card.article-list-card:hover, [data-theme="dark"] .card-django.article-list-card:hover {
+  background: #23272a !important; /* tom escuro sutil, igual ao --color-surface-dark */
+  color: var(--color-text-dark) !important;
 } 

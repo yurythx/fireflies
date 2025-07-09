@@ -30,7 +30,7 @@
                     <!-- Category -->
                     {% if article.category %}
                         <div class="mb-3">
-                            <span class="badge bg-django-green">
+                            <span class="badge bg-theme-green">
                                 {% if article.category.icon %}<i class="{{ article.category.icon }} me-1"></i>{% endif %}
                                 {{ article.category.name }}
                             </span>
@@ -40,10 +40,10 @@
                     <h1 class="display-5 fw-bold text-sans text-body">{{ article.title }}</h1>
                     
                     {% if article.excerpt %}
-                        <p class="lead text-secondary text-body">{{ article.excerpt }}</p>
+                        <p class="lead text-theme-secondary text-body">{{ article.excerpt }}</p>
                     {% endif %}
                     
-                    <div class="d-flex align-items-center text-secondary mb-3 flex-wrap flex-md-nowrap article-meta">
+                    <div class="d-flex align-items-center text-theme-secondary mb-3 flex-wrap flex-md-nowrap article-meta">
                         <!-- Author -->
                         {% if article.author %}
                             <div class="d-flex align-items-center me-4 mb-2 mb-md-0">
@@ -51,9 +51,9 @@
                                     <img src="{{ article.author.avatar.url }}" 
                                          class="rounded-circle me-2" width="32" height="32" alt="{{ article.author.get_full_name }}">
                                 {% else %}
-                                    <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center me-2" 
+                                    <div class="bg-theme-secondary rounded-circle d-flex align-items-center justify-content-center me-2" 
                                          style="width: 32px; height: 32px;">
-                                        <i class="fas fa-user text-secondary"></i>
+                                        <i class="fas fa-user text-theme-secondary"></i>
                                     </div>
                                 {% endif %}
                                 <small>{{ article.author.get_full_name|default:article.author.username }}</small>
@@ -117,7 +117,7 @@
                                 <div class="mb-3">
                                     <strong>Tags:</strong>
                                     {% for tag in article.tags.all %}
-                                        <span class="badge bg-secondary me-1">{{ tag.name }}</span>
+                                        <span class="badge bg-theme-secondary me-1">{{ tag.name }}</span>
                                     {% endfor %}
                                 </div>
                             {% endif %}
@@ -136,7 +136,7 @@
                                     <img src="{{ article.author.avatar.url }}"
                                          class="rounded-circle avatar-lg" alt="{{ article.author.get_full_name|default:article.author.username }}">
                                 {% else %}
-                                    <div class="bg-secondary rounded-circle icon-container-lg text-secondary">
+                                    <div class="bg-theme-secondary rounded-circle icon-container-lg text-theme-secondary">
                                         <i class="fas fa-user fa-2x"></i>
                                     </div>
                                 {% endif %}
@@ -144,7 +144,7 @@
                             <div class="col">
                                 <h5 class="mb-1 text-sans text-body">{{ article.author.get_full_name|default:article.author.username }}</h5>
                                 {% if article.author.bio %}
-                                    <p class="text-secondary mb-0 text-body">{{ article.author.bio }}</p>
+                                    <p class="text-theme-secondary mb-0 text-body">{{ article.author.bio }}</p>
                                 {% endif %}
                             </div>
                         </div>
@@ -159,7 +159,7 @@
                     <h3 class="h4">
                         <i class="fas fa-comments"></i>
                         Comentários
-                        <span class="badge bg-secondary ms-2" id="comment-count">
+                        <span class="badge bg-theme-secondary ms-2" id="comment-count">
                             {{ article.comment_count }}
                         </span>
                     </h3>
@@ -291,9 +291,9 @@
                                     <img src="{{ related.featured_image.url }}" class="me-3 rounded" 
                                          style="width: 60px; height: 60px; object-fit: cover;" alt="{{ related.title }}">
                                 {% else %}
-                                    <div class="me-3 bg-secondary rounded d-flex align-items-center justify-content-center" 
+                                    <div class="me-3 bg-theme-secondary rounded d-flex align-items-center justify-content-center" 
                                          style="width: 60px; height: 60px;">
-                                        <i class="fas fa-newspaper text-secondary"></i>
+                                        <i class="fas fa-newspaper text-theme-secondary"></i>
                                     </div>
                                 {% endif %}
                                 
@@ -303,7 +303,7 @@
                                             {{ related.title|truncatechars:40 }}
                                         </a>
                                     </h6>
-                                    <small class="text-secondary">
+                                    <small class="text-theme-secondary">
                                         {{ related.published_at|date:"d/m/Y" }}
                                     </small>
                                 </div>
@@ -322,7 +322,7 @@
                 </div>
                 <div class="card-body card-django">
                     <div id="table-django-of-contents">
-                        <p class="text-secondary mb-0 text-body">Carregando índice...</p>
+                        <p class="text-theme-secondary mb-0 text-body">Carregando índice...</p>
                     </div>
                 </div>
             </div>

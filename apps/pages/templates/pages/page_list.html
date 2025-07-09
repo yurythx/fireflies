@@ -59,17 +59,17 @@
                                     </h5>
                                     
                                     {% if page.excerpt %}
-                                        <p class="card-django-text text-secondary text-body">{{ page.excerpt|truncatewords:20 }}</p>
+                                        <p class="card-django-text text-theme-secondary text-body">{{ page.excerpt|truncatewords:20 }}</p>
                                     {% endif %}
                                     
                                     <div class="d-flex justify-content-between align-items-center">
-                                        <small class="text-secondary">
+                                        <small class="text-theme-secondary">
                                             <i class="fas fa-calendar me-1"></i>
                                             {{ page.created_at|date:"d/m/Y" }}
                                         </small>
                                         
                                         {% if page.views_count %}
-                                            <small class="text-secondary">
+                                            <small class="text-theme-secondary">
                                                 <i class="fas fa-eye me-1"></i>
                                                 {{ page.views_count }} visualizações
                                             </small>
@@ -133,13 +133,13 @@
                 {% endif %}
             {% else %}
                 <div class="text-center py-5">
-                    <i class="fas fa-search fa-3x text-secondary mb-3"></i>
+                    <i class="fas fa-search fa-3x text-theme-secondary mb-3"></i>
                     <h4 class="text-sans text-body">Nenhuma página encontrada</h4>
                     {% if query %}
-                        <p class="text-secondary text-body">Não encontramos páginas para "{{ query }}".</p>
+                        <p class="text-theme-secondary text-body">Não encontramos páginas para "{{ query }}".</p>
                         <a href="{% url 'pages:page_list' %}" class="btn btn-primary btn-enhanced">Ver todas as páginas</a>
                     {% else %}
-                        <p class="text-secondary text-body">Ainda não há páginas publicadas.</p>
+                        <p class="text-theme-secondary text-body">Ainda não há páginas publicadas.</p>
                     {% endif %}
                 </div>
             {% endif %}
@@ -161,9 +161,9 @@
                                     <img src="{{ page.featured_image.url }}" class="me-3 rounded" 
                                          style="width: 60px; height: 60px; object-fit: cover;" alt="{{ page.title }}">
                                 {% else %}
-                                    <div class="me-3 bg-secondary rounded d-flex align-items-center justify-content-center" 
+                                    <div class="me-3 bg-theme-secondary rounded d-flex align-items-center justify-content-center" 
                                          style="width: 60px; height: 60px;">
-                                        <i class="fas fa-file-alt text-secondary"></i>
+                                        <i class="fas fa-file-alt text-theme-secondary"></i>
                                     </div>
                                 {% endif %}
                                 
@@ -173,14 +173,14 @@
                                             {{ page.title|truncatechars:40 }}
                                         </a>
                                     </h6>
-                                    <small class="text-secondary">
+                                    <small class="text-theme-secondary">
                                         <i class="fas fa-eye me-1"></i>{{ page.views_count|default:0 }}
                                     </small>
                                 </div>
                             </div>
                         {% endfor %}
                     {% else %}
-                        <p class="text-secondary mb-0 text-body">Nenhuma página popular ainda.</p>
+                        <p class="text-theme-secondary mb-0 text-body">Nenhuma página popular ainda.</p>
                     {% endif %}
                 </div>
             </div>

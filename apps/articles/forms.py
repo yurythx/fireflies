@@ -47,8 +47,8 @@ class ArticleForm(forms.ModelForm):
             'content': TinyMCE(attrs={
                 'class': 'tinymce',
                 'placeholder': 'Escreva o conteúdo completo do artigo...',
-                'style': 'min-height:600px;'
-            }, mce_attrs={'config': 'advanced'}),
+                'style': 'min-height:400px;'
+            }),
             'featured_image': forms.FileInput(attrs={
                 'class': 'form-control',
                 'accept': 'image/*'

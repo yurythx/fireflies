@@ -17,7 +17,7 @@
                             <img src="{{ form.instance.featured_image.url }}" alt="Imagem Destacada" class="img-fluid rounded shadow" style="max-width: 320px;">
                         </div>
                     {% endif %}
-                    <form method="post" enctype="multipart/form-data" class="bg-white p-3 p-md-4 rounded shadow-sm w-100">
+                    <form method="post" enctype="multipart/form-data" class="bg-surface p-3 p-md-4 rounded shadow-sm w-100">
                         {% csrf_token %}
                         {{ form|crispy }}
                         <style>

@@ -1243,3 +1243,52 @@ footer a:hover {
     border: 1px solid var(--border-color, #dee2e6);
     text-align: left;
 }
+
+/* Correção para botões outline no modo claro */
+.btn-outline-primary, .btn-outline-warning, .btn-outline-danger {
+  color: inherit;
+  border-color: inherit;
+  background-color: transparent;
+}
+.btn-outline-primary {
+  color: var(--django-green) !important;
+  border-color: var(--django-green) !important;
+}
+.btn-outline-primary:hover, .btn-outline-primary:focus {
+  background-color: var(--django-green) !important;
+  color: #fff !important;
+  border-color: var(--django-green) !important;
+}
+.btn-outline-warning {
+  color: var(--warning-color) !important;
+  border-color: var(--warning-color) !important;
+}
+.btn-outline-danger {
+  color: var(--danger-color) !important;
+  border-color: var(--danger-color) !important;
+}
+
+[data-theme="dark"] .btn-outline-primary {
+  color: var(--primary-light) !important;
+  border-color: var(--primary-light) !important;
+}
+[data-theme="dark"] .btn-outline-warning {
+  color: #ffe066 !important;
+  border-color: #ffe066 !important;
+}
+[data-theme="dark"] .btn-outline-danger {
+  color: #ff4d4f !important;
+  border-color: #ff4d4f !important;
+}
+
+/* Rodapé do card de artigo */
+.entry-footer {
+  background: #fff;
+  border-top: 1px solid #f0f0f0;
+  padding: 0.75rem 1rem 0.75rem 1rem;
+  border-radius: 0 0 var(--border-radius) var(--border-radius);
+}
+[data-theme="dark"] .entry-footer {
+  background: #23272a;
+  border-top: 1px solid #33363a;
+}

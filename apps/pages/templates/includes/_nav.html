@@ -91,7 +91,7 @@
                             
                             <!-- Profile -->
                             {% if request.resolver_match.url_name == 'profile' %}
-                            <li><span class="dropdown-item active bg-django-green text-light">
+                            <li><span class="dropdown-item active bg-django-green text-theme-light">
                                 <i class="fas fa-user-circle me-2"></i>Meu Perfil (atual)
                             </span></li>
                             {% else %}
@@ -120,7 +120,7 @@
                             
                             <!-- Settings -->
                             {% if request.resolver_match.url_name == 'settings' %}
-                            <li><span class="dropdown-item active bg-django-green text-light">
+                            <li><span class="dropdown-item active bg-django-green text-theme-light">
                                 <i class="fas fa-cog me-2"></i>Configurações (atual)
                             </span></li>
                             {% else %}
@@ -130,7 +130,7 @@
                             {% endif %}
                             
                             <!-- Logout -->
-                            <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}">
+                            <li><a class="dropdown-item text-theme-danger" href="{% url 'accounts:logout' %}">
                                 <i class="fas fa-sign-out-alt me-2"></i>Sair
                             </a></li>
                         </ul>
@@ -155,7 +155,7 @@
 
 <!-- Breadcrumbs -->
 {% if breadcrumbs %}
-<nav aria-label="breadcrumb" class="bg-secondary border-bottom">
+<nav aria-label="breadcrumb" class="bg-theme-secondary border-bottom">
     <div class="container">
         <ol class="breadcrumb mb-0 py-2">
             {% for breadcrumb in breadcrumbs %}
