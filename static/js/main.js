@@ -101,18 +101,38 @@ function initializeNavigation() {
         }
     });
     
-    // Mobile menu auto-close
+    // Mobile menu drawer behavior
     const navbarToggler = document.querySelector('.navbar-toggler');
     const navbarCollapse = document.querySelector('.navbar-collapse');
     
     if (navbarToggler && navbarCollapse) {
-        document.addEventListener('click', function(e) {
-            if (!navbarCollapse.contains(e.target) && !navbarToggler.contains(e.target)) {
+        // Fechar menu ao clicar no overlay
+        navbarCollapse.addEventListener('click', function(e) {
+            if (e.target === navbarCollapse) {
                 const bsCollapse = bootstrap.Collapse.getInstance(navbarCollapse);
-                if (bsCollapse && navbarCollapse.classList.contains('show')) {
+                if (bsCollapse) {
                     bsCollapse.hide();
                 }
             }
+        });
+        
+        // ESC para fechar menu
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && navbarCollapse.classList.contains('show')) {
+                const bsCollapse = bootstrap.Collapse.getInstance(navbarCollapse);
+                if (bsCollapse) {
+                    bsCollapse.hide();
+                }
+            }
+        });
+        
+        // Bloquear scroll quando menu está aberto
+        navbarCollapse.addEventListener('shown.bs.collapse', function() {
+            document.body.style.overflow = 'hidden';
+        });
+        
+        navbarCollapse.addEventListener('hidden.bs.collapse', function() {
+            document.body.style.overflow = '';
         });
     }
 }
@@ -323,3 +343,107 @@ window.FireFlies = FireFlies;
         });
     });
 })();
+
+// ===== MOBILE NAVIGATION ENHANCEMENTS =====
+
+// Melhorar a experiência do menu mobile
+document.addEventListener('DOMContentLoaded', function() {
+    const navbarToggler = document.querySelector('.navbar-toggler');
+    const navbarCollapse = document.querySelector('.navbar-collapse');
+    const closeButton = document.querySelector('.navbar-close-x');
+    const body = document.body;
+
+    // Prevenir scroll do body quando menu está aberto
+    function toggleBodyScroll(disable) {
+        if (disable) {
+            body.style.overflow = 'hidden';
+            body.style.paddingRight = '0px'; // Compensar scrollbar
+        } else {
+            body.style.overflow = '';
+            body.style.paddingRight = '';
+        }
+    }
+
+    // Fechar menu ao clicar em links
+    const mobileNavLinks = navbarCollapse?.querySelectorAll('.nav-link');
+    if (mobileNavLinks) {
+        mobileNavLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                if (window.innerWidth <= 991.98) {
+                    setTimeout(() => {
+                        navbarCollapse.classList.remove('show');
+                        toggleBodyScroll(false);
+                    }, 300); // Delay para permitir transição
+                }
+            });
+        });
+    }
+
+    // Fechar menu ao clicar no botão X
+    if (closeButton) {
+        closeButton.addEventListener('click', function() {
+            navbarCollapse.classList.remove('show');
+            toggleBodyScroll(false);
+        });
+    }
+
+    // Fechar menu ao clicar fora (overlay)
+    if (navbarCollapse) {
+        navbarCollapse.addEventListener('click', function(e) {
+            if (e.target === navbarCollapse) {
+                navbarCollapse.classList.remove('show');
+                toggleBodyScroll(false);
+            }
+        });
+    }
+
+    // Abrir menu
+    if (navbarToggler) {
+        navbarToggler.addEventListener('click', function() {
+            toggleBodyScroll(true);
+        });
+    }
+
+    // Fechar menu ao redimensionar para desktop
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 991.98) {
+            navbarCollapse.classList.remove('show');
+            toggleBodyScroll(false);
+        }
+    });
+
+    // Adicionar animação de entrada para itens do menu
+    function animateMenuItems() {
+        const menuItems = navbarCollapse?.querySelectorAll('.nav-item');
+        if (menuItems) {
+            menuItems.forEach((item, index) => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateX(-20px)';
+                
+                setTimeout(() => {
+                    item.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateX(0)';
+                }, 100 + (index * 50));
+            });
+        }
+    }
+
+    // Observar quando o menu abre
+    if (navbarCollapse) {
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    if (navbarCollapse.classList.contains('show')) {
+                        animateMenuItems();
+                    }
+                }
+            });
+        });
+
+        observer.observe(navbarCollapse, {
+            attributes: true,
+            attributeFilter: ['class']
+        });
+    }
+});
