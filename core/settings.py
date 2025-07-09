@@ -725,4 +725,5 @@ TINYMCE_DEFAULT_CONFIG = {
     'statusbar': True,
     'branding': False,
     'language': 'pt_BR',
+    'setup': "function(editor) {\n        editor.on('PastePostProcess', function(e) {\n            var iframes = e.node.querySelectorAll('iframe');\n            iframes.forEach(function(iframe) {\n                if (!iframe.parentElement.classList.contains('video-responsive')) {\n                    var wrapper = document.createElement('div');\n                    wrapper.className = 'video-responsive';\n                    iframe.parentNode.insertBefore(wrapper, iframe);\n                    wrapper.appendChild(iframe);\n                }\n            });\n        });\n    }"
 }
