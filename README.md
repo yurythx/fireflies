@@ -1,22 +1,25 @@
-# 🦟 FireFlies - Sistema de Deploy Automatizado
+# 🦟 FireFlies CMS
 
-Um sistema Django moderno com deploy automatizado que detecta o ambiente e realiza deploy de forma inteligente, inspirado no tema dos Fireflies de The Last of Us.
+Um sistema de gerenciamento de conteúdo moderno, modular e responsivo, inspirado no tema dos Fireflies de The Last of Us. Desenvolvido com Django e arquitetura SOLID.
 
 ## 🚀 Características
 
-- **Deploy Automatizado**: Detecta automaticamente o ambiente (development/staging/production)
-- **Docker Integration**: Containers otimizados para cada ambiente
-- **Tema FireFlies**: Interface escura com efeitos de brilho verde/amarelo
-- **Módulos Dinâmicos**: Sistema de módulos configurável
-- **Multi-ambiente**: Suporte para development, staging e production
-- **Health Checks**: Verificação automática de saúde da aplicação
-- **Logs Estruturados**: Sistema de logging profissional
+- **Sistema Modular**: Módulos dinâmicos que podem ser habilitados/desabilitados
+- **Arquitetura SOLID**: Padrões de design modernos com injeção de dependências
+- **Tema Responsivo**: Interface moderna com suporte a temas claro/escuro
+- **Painel Administrativo**: Sistema completo de configuração e gerenciamento
+- **Sistema de Usuários**: Autenticação, perfis e controle de permissões
+- **Gestão de Conteúdo**: Artigos, páginas estáticas e comentários
+- **Setup Wizard**: Configuração inicial guiada
+- **Health Checks**: Monitoramento de saúde da aplicação
+- **Deploy Automatizado**: Scripts para deploy em produção
 
 ## 📋 Pré-requisitos
 
-- Python 3.8+
-- Docker e Docker Compose
-- Git (opcional)
+- Python 3.11+
+- PostgreSQL 12+
+- Redis (opcional, para cache)
+- Git
 
 ## 🛠️ Instalação Rápida
 
@@ -26,360 +29,362 @@ git clone <repository-url>
 cd fireflies
 ```
 
-### 2. Deploy Automatizado (Recomendado)
-
-#### Linux/macOS:
+### 2. Configurar ambiente virtual
 ```bash
-# Deploy automático (detecta ambiente)
-chmod +x deploy.sh
-./deploy.sh
-
-# Ou especificar ambiente
-./deploy.sh --env development
-./deploy.sh --env staging
-./deploy.sh --env production
+python3.11 -m venv venv
+source venv/bin/activate  # Linux/macOS
+# ou
+venv\Scripts\activate     # Windows
 ```
 
-#### Windows:
-```powershell
-# Deploy automático (detecta ambiente)
-.\deploy.ps1
-
-# Ou especificar ambiente
-.\deploy.ps1 -Environment development
-.\deploy.ps1 -Environment staging
-.\deploy.ps1 -Environment production
+### 3. Instalar dependências
+```bash
+pip install -r requirements.txt
 ```
 
-### 3. Usando Makefile (Alternativo)
-
+### 4. Configurar variáveis de ambiente
 ```bash
-# Verificar pré-requisitos
-make check
-
-# Setup completo para desenvolvimento
-make dev-setup
-
-# Deploy em desenvolvimento
-make dev
-
-# Deploy em produção
-make prod
-
-# Deploy automático
-make deploy
+cp .env.example .env
+# Edite o arquivo .env com suas configurações
 ```
 
-## 🔧 Comandos Principais
-
-### Deploy
+### 5. Configurar banco de dados
 ```bash
-# Deploy automático (detecta ambiente)
-./deploy.sh                    # Linux/macOS
-.\deploy.ps1                   # Windows
-
-# Deploy específico
-./deploy.sh --env production   # Linux/macOS
-.\deploy.ps1 -Environment production  # Windows
-
-# Deploy forçado (ignora erros)
-./deploy.sh --force            # Linux/macOS
-.\deploy.ps1 -Force            # Windows
+python manage.py migrate
+python manage.py collectstatic --noinput
 ```
 
-### Verificação
+### 6. Criar superusuário
 ```bash
-# Verificar pré-requisitos
-./deploy.sh --check-only       # Linux/macOS
-.\deploy.ps1 -CheckOnly        # Windows
-
-# Verificar saúde da aplicação
-make health
-
-# Verificar status dos containers
-make status
+python manage.py createsuperuser
 ```
 
-### Manutenção
+### 7. Executar servidor
 ```bash
-# Parar containers
-make stop
-
-# Limpar recursos
-make clean
-
-# Reset completo
-make reset
-
-# Rebuild completo
-make rebuild
-```
-
-### Logs e Monitoramento
-```bash
-# Ver logs
-make logs
-
-# Monitorar recursos
-make monitor
-
-# Monitorar em tempo real
-make watch
+python manage.py runserver
 ```
 
 ## 🌍 Ambientes
 
 ### Development
-- Debug ativado
-- Hot reload
-- Logs detalhados
-- Docker Compose dev
-
-### Staging
-- Debug desativado
-- Collect static
-- Otimizações básicas
-- Docker Compose prod
+```bash
+# Configurar para desenvolvimento
+export ENVIRONMENT=development
+export DEBUG=True
+python manage.py runserver
+```
 
 ### Production
-- Debug desativado
-- Collect static
-- Otimizações completas
-- Health checks rigorosos
-
-## 🔍 Detecção Automática de Ambiente
-
-O sistema detecta automaticamente o ambiente baseado em:
-
-1. **Variável de ambiente**: `ENVIRONMENT=production`
-2. **Plataforma**: Heroku, Kubernetes, Docker
-3. **Branch Git**: main/master = production, staging = staging
-4. **Padrão**: development
+```bash
+# Configurar para produção
+export ENVIRONMENT=production
+export DEBUG=False
+python manage.py runserver
+```
 
 ## 📁 Estrutura do Projeto
 
 ```
 fireflies/
 ├── apps/                    # Aplicações Django
-│   ├── accounts/           # Sistema de usuários
-│   ├── articles/           # Sistema de artigos
+│   ├── accounts/           # Sistema de usuários e autenticação
+│   ├── articles/           # Sistema de artigos e comentários
 │   ├── config/             # Configurações e módulos
-│   └── pages/              # Páginas estáticas
+│   └── pages/              # Páginas estáticas e navegação
 ├── core/                   # Configurações Django
+│   ├── factories.py        # Factory pattern para injeção de dependências
+│   ├── observers.py        # Observer pattern para eventos
+│   ├── settings.py         # Configurações principais
+│   └── urls.py            # URLs principais
 ├── static/                 # Arquivos estáticos
 ├── media/                  # Uploads
-├── docker/                 # Configurações Docker
-├── deploy.sh              # Script de deploy (Linux/macOS)
-├── deploy.ps1             # Script de deploy (Windows)
-├── Makefile               # Comandos Make
-└── README.md              # Este arquivo
+├── templates/              # Templates globais
+├── docs/                   # Documentação
+├── scripts/                # Scripts de deploy
+└── requirements.txt        # Dependências Python
 ```
 
-## 🐳 Docker
+## 🏗️ Arquitetura
 
-### Containers
-- **Web**: Aplicação Django
-- **Database**: PostgreSQL (opcional)
-- **Redis**: Cache e sessões
-- **Nginx**: Proxy reverso
+### Padrões SOLID Implementados
 
-### Comandos Docker
-```bash
-# Build da imagem
-docker build -t fireflies:latest .
+#### 1. Service Factory (Injeção de Dependências)
+```python
+from core.factories import service_factory
 
-# Executar container
-docker run -p 8000:8000 fireflies:latest
-
-# Docker Compose
-docker-compose up -d
-docker-compose logs -f
-docker-compose down
+# Obter serviços com dependências injetadas
+article_service = service_factory.create_article_service()
+user_service = service_factory.create_user_service()
 ```
+
+#### 2. Observer Pattern (Eventos)
+```python
+from core.observers import event_dispatcher
+
+def on_article_created(article):
+    print(f"Novo artigo: {article.title}")
+
+# Inscrever para eventos
+event_dispatcher.subscribe('article_created', on_article_created)
+
+# Disparar eventos
+event_dispatcher.notify('article_created', article)
+```
+
+### Módulos do Sistema
+
+#### Accounts (Sistema de Usuários)
+- Autenticação e registro
+- Perfis de usuário
+- Controle de permissões
+- Middleware de segurança
+
+#### Articles (Sistema de Conteúdo)
+- Gestão de artigos
+- Categorias e tags
+- Sistema de comentários
+- SEO otimizado
+
+#### Config (Painel Administrativo)
+- Setup wizard
+- Gerenciamento de módulos
+- Configurações de email
+- Monitoramento do sistema
+
+#### Pages (Páginas Estáticas)
+- Páginas dinâmicas
+- Sistema de navegação
+- SEO e meta tags
+- Templates flexíveis
 
 ## 🔧 Configuração
 
 ### Variáveis de Ambiente (.env)
 ```env
+# Ambiente
 ENVIRONMENT=development
-DEBUG=true
-DJANGO_SETTINGS_MODULE=core.settings_dev
-DJANGO_SECRET_KEY=your-secret-key
-DATABASE_URL=sqlite:///db.sqlite3
+DEBUG=True
+
+# Banco de dados
+DB_ENGINE=django.db.backends.postgresql
+DB_NAME=fireflies
+DB_USER=fireflies_user
+DB_PASSWORD=sua_senha
+DB_HOST=localhost
+DB_PORT=5432
+
+# Email
 EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
 EMAIL_USE_TLS=True
+EMAIL_HOST_USER=seu_email@gmail.com
+EMAIL_HOST_PASSWORD=sua_senha_de_app
+
+# Segurança
+SECRET_KEY=sua_chave_secreta
+ALLOWED_HOSTS=localhost,127.0.0.1
+
+# Módulos ativos
+ACTIVE_MODULES=accounts,config,pages,articles
 ```
 
-### Módulos
-O sistema suporta módulos dinâmicos:
-- **accounts**: Sistema de usuários
-- **articles**: Sistema de artigos
-- **config**: Configurações
-- **pages**: Páginas estáticas
+### Configuração de Módulos
+```python
+# Habilitar/desabilitar módulos
+python manage.py shell -c "
+from apps.config.models.app_module_config import AppModuleConfiguration
+AppModuleConfiguration.objects.filter(app_name='articles').update(is_enabled=True)
+"
+```
+
+## 🚀 Deploy em Produção
+
+### Deploy Manual
+```bash
+# 1. Configurar servidor
+sudo apt update
+sudo apt install python3.11 python3.11-venv postgresql nginx
+
+# 2. Configurar banco
+sudo -u postgres createdb fireflies
+sudo -u postgres createuser fireflies_user
+
+# 3. Deploy da aplicação
+git clone <repository>
+cd fireflies
+python3.11 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+# 4. Configurar Django
+python manage.py migrate
+python manage.py collectstatic --noinput
+
+# 5. Configurar Gunicorn
+pip install gunicorn
+gunicorn core.wsgi:application --bind 0.0.0.0:8000
+```
+
+### Deploy Automatizado (Google Cloud)
+```bash
+# Conectar via SSH na VM
+ssh usuario@IP_DA_VM
+
+# Executar script de deploy
+bash scripts/deploy_gcp.sh
+
+# Configuração avançada
+bash scripts/post_deploy_setup.sh
+```
+
+## 📊 Monitoramento
+
+### Health Checks
+```bash
+# Verificar saúde da aplicação
+curl http://localhost:8000/health/
+
+# Verificar readiness
+curl http://localhost:8000/health/ready/
+
+# Verificar liveness
+curl http://localhost:8000/health/live/
+```
+
+### Logs
+```bash
+# Logs do Django
+tail -f /var/log/fireflies/django.log
+
+# Logs do sistema
+sudo journalctl -u fireflies -f
+
+# Logs do Nginx
+sudo tail -f /var/log/nginx/error.log
+```
+
+## 🔒 Segurança
+
+### Configurações de Segurança
+- Middleware de segurança configurado
+- Rate limiting implementado
+- Controle de acesso por módulos
+- Validação de formulários
+- Proteção CSRF ativa
+
+### Backup
+```bash
+# Backup do banco
+pg_dump fireflies > backup.sql
+
+# Backup dos arquivos
+tar -czf media_backup.tar.gz media/
+
+# Restore
+psql fireflies < backup.sql
+```
 
 ## 🧪 Testes
 
 ```bash
-# Executar testes
-make test
+# Executar todos os testes
+python manage.py test
 
 # Testes com cobertura
 python -m pytest --cov
 
 # Testes específicos
 python manage.py test apps.accounts
+python manage.py test apps.articles
 ```
 
-## 📊 Monitoramento
+## 🛠️ Comandos Úteis
 
-### Health Check
+### Desenvolvimento
 ```bash
-# Verificar saúde
-curl http://localhost:8000/health/
+# Rodar servidor
+python manage.py runserver
 
-# Via Makefile
-make health
+# Shell do Django
+python manage.py shell
+
+# Criar migrações
+python manage.py makemigrations
+
+# Aplicar migrações
+python manage.py migrate
+
+# Coletar estáticos
+python manage.py collectstatic --noinput
 ```
 
-### Logs
+### Administração
 ```bash
-# Logs da aplicação
-make logs
+# Criar superusuário
+python manage.py createsuperuser
 
-# Logs específicos
-docker-compose logs web
-docker-compose logs -f --tail=100
+# Setup wizard
+python manage.py setup_wizard
+
+# Inicializar módulos
+python manage.py init_modules
+
+# Verificar configurações
+python manage.py check
 ```
 
-## 🔒 Segurança
-
-### Verificação de Segurança
-```bash
-# Verificar dependências
-make security-check
-
-# Análise de código
-python -m bandit -r .
-```
-
-### Backup e Restore
-```bash
-# Backup automático
-make auto-backup
-
-# Backup manual
-make backup
-make backup-db
-
-# Restore
-make restore BACKUP_FILE=backup.json
-make restore-db DB_FILE=backup.sqlite3
-```
-
-## 🚀 Deploy em Produção
-
-### 1. Preparação
-```bash
-# Configurar ambiente de produção
-make env-prod
-
-# Verificar pré-requisitos
-make check
-```
-
-### 2. Deploy
+### Deploy
 ```bash
 # Deploy completo
-make prod-setup
+make deploy
 
-# Ou usando script
-./deploy.sh --env production
-```
+# Verificar status
+make status
 
-### 3. Verificação
-```bash
-# Verificar saúde
-make health
-
-# Verificar logs
+# Logs
 make logs
 
-# Monitorar recursos
-make monitor
+# Backup
+make backup
 ```
 
-## 🔄 CI/CD
-
-### Pipeline CI
-```bash
-make ci  # check + install + test
-```
-
-### Pipeline CD
-```bash
-make cd  # check + deploy + health
-```
-
-## 🛠️ Troubleshooting
+## 🔍 Troubleshooting
 
 ### Problemas Comuns
 
-1. **Docker não encontrado**
+1. **Módulos não carregam**
    ```bash
-   # Instalar Docker
-   curl -fsSL https://get.docker.com | sh
+   python manage.py init_modules
    ```
 
-2. **Porta 8000 ocupada**
+2. **Erro de permissões**
    ```bash
-   # Parar containers
-   make stop
-   
-   # Ou mudar porta
-   docker-compose up -p 8001:8000
+   sudo chown -R www-data:www-data /path/to/fireflies
    ```
 
-3. **Erro de permissão**
+3. **Banco não conecta**
    ```bash
-   # Dar permissão aos scripts
-   chmod +x deploy.sh
+   python manage.py check --database default
    ```
 
-4. **Módulos não inicializados**
+4. **Arquivos estáticos não carregam**
    ```bash
-   # Reinicializar módulos
-   python manage.py shell -c "
-   from apps.config.models.app_module_config import AppModuleConfiguration
-   AppModuleConfiguration.initialize_core_modules()
-   "
+   python manage.py collectstatic --noinput
    ```
 
-### Modo Debug
+### Diagnóstico Completo
 ```bash
-# Ativar modo debug
-make debug
-
-# Verificar problemas
-make fix
+# Executar script de troubleshooting
+bash scripts/troubleshooting.sh
 ```
 
-## 📈 Performance
+## 📚 Documentação
 
-### Otimizações
-- Compressão de arquivos estáticos
-- Cache Redis
-- Otimização de imagens
-- Lazy loading
-
-### Monitoramento
-```bash
-# Análise de performance
-make profile
-
-# Monitorar recursos
-make monitor
-```
+- [Guia de Deploy](docs/DEPLOY_GCP_GUIDE.md)
+- [Arquitetura SOLID](docs/SOLID_PATTERNS_GUIDE.md)
+- [Sistema de Módulos](docs/INTERFACES_DOCUMENTATION.md)
+- [Setup Wizard](docs/SETUP_WIZARD_GUIDE.md)
+- [Factory e Observer](docs/FACTORY_OBSERVER_GUIDE.md)
 
 ## 🤝 Contribuição
 
@@ -401,86 +406,14 @@ Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalh
 
 ## 🎯 Roadmap
 
-- [ ] Integração com Kubernetes
-- [ ] Deploy automático via GitHub Actions
-- [ ] Sistema de notificações
-- [ ] Dashboard de monitoramento
-- [ ] Backup automático para cloud
+- [ ] Sistema de notificações em tempo real
+- [ ] API REST completa
+- [ ] Integração com CDN
 - [ ] Sistema de plugins
+- [ ] Dashboard de analytics
+- [ ] Backup automático para cloud
+- [ ] Integração com Kubernetes
 
 ---
 
-**FireFlies** - Deploy automatizado com a elegância dos vaga-lumes ✨
-
-## 🏗️ Arquitetura SOLID e Injeção de Dependências
-
-### ServiceFactory (Injeção Automática)
-
-Utilize o ServiceFactory para obter instâncias de serviços já com dependências injetadas:
-
-```python
-from core.factories import service_factory
-
-# Obter um serviço já com dependências injetadas
-article_service = service_factory.create_article_service()
-profile_service = service_factory.create_profile_service()
-```
-
-### Observer/Dispatcher de Eventos
-
-Implemente lógica reativa desacoplada usando o padrão Observer:
-
-```python
-from core.observers import event_dispatcher
-
-def on_article_created(article):
-    print(f"Novo artigo criado: {article.title}")
-
-# Inscrever função para evento
-event_dispatcher.subscribe('article_created', on_article_created)
-
-# Disparar evento em algum ponto do código
-# (ex: após salvar um artigo)
-event_dispatcher.notify('article_created', article_instance)
-```
-
----
-
-# FireFlies CMS
-
-## Visão Geral
-Sistema de gerenciamento de conteúdo moderno, modular e responsivo, com suporte a temas claro/escuro, autenticação, artigos, páginas estáticas e painel administrativo.
-
-## Estrutura
-- `apps/accounts/`: Autenticação, perfis, registro, login.
-- `apps/articles/`: Artigos, categorias, comentários.
-- `apps/config/`: Configurações, módulos, permissões, painel admin.
-- `apps/pages/`: Páginas estáticas, navegação, SEO.
-- `core/`: Configurações globais do Django.
-
-## Tecnologias
-- Python 3, Django 4+
-- Bootstrap 5, SCSS/CSS customizado
-- SQLite/PostgreSQL
-- Gunicorn, Nginx (produção)
-
-## Como rodar localmente
-```bash
-git clone <repo>
-cd fireflies
-python -m venv venv
-source venv/bin/activate  # ou venv\Scripts\activate no Windows
-pip install -r requirements.txt
-cp .env.example .env  # configure as variáveis
-python manage.py migrate
-python manage.py createsuperuser
-python manage.py runserver
-```
-
-## Rodando os testes
-```bash
-python manage.py test
-```
-
-## Como contribuir
-- Faça um fork, crie uma branch, envie um PR.
+**FireFlies CMS** - Gerenciamento de conteúdo com a elegância dos vaga-lumes ✨
