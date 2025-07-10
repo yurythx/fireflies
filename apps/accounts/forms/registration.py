@@ -6,6 +6,31 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column, HTML, Div
 from crispy_forms.bootstrap import Field
 
+
+class VerificationCodeWidget(forms.Widget):
+    """Widget personalizado para código de verificação com 6 quadradinhos"""
+    
+    template_name = 'accounts/widgets/verification_code_widget.html'
+    
+    def __init__(self, attrs=None):
+        super().__init__(attrs)
+        if attrs is None:
+            attrs = {}
+        self.attrs = attrs.copy()
+        self.attrs.update({
+            'class': 'verification-code-input',
+            'maxlength': '6',
+            'pattern': '[0-9]{6}',
+            'inputmode': 'numeric',
+            'autocomplete': 'one-time-code'
+        })
+    
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        context['widget']['type'] = 'text'
+        context['widget']['attrs']['placeholder'] = '123456'
+        return context
+
 User = get_user_model()
 
 class RegistrationForm(UserCreationForm):
@@ -122,12 +147,7 @@ class VerificationForm(forms.Form):
         max_length=6,
         min_length=6,
         help_text='Digite o código de 6 dígitos enviado para seu e-mail.',
-        widget=forms.TextInput(attrs={
-            'placeholder': '123456',
-            'maxlength': '6',
-            'pattern': '[0-9]{6}',
-            'inputmode': 'numeric'
-        })
+        widget=VerificationCodeWidget()
     )
 
     def __init__(self, *args, **kwargs):
