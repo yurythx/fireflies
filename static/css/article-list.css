@@ -449,3 +449,23 @@
     align-self: flex-start;
     height: 100%;
 } 
+
+@media (max-width: 767.98px) {
+  .post-single .thumbnail-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    border-radius: 0.5rem !important;
+  }
+  .post-single .thumbnail-container img {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 160px;
+    max-height: 60vw;
+    border-radius: 0.5rem !important;
+    object-fit: cover;
+    display: block;
+  }
+} 
