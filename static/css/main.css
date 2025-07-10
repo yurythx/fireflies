@@ -93,8 +93,9 @@
 }
 
 [data-theme="dark"] .navbar-nav .nav-link.active {
-    color: var(--primary-light) !important;
-    background-color: rgba(68, 183, 139, 0.1);
+    color: white !important;
+    background-color: rgba(68, 183, 139, 0.3);
+    font-weight: 600;
 }
 
 /* Dark theme cards */
@@ -705,18 +706,41 @@ footer a:hover {
 }
 
 /* Dark theme footer */
-[data-theme="dark"] footer {
+[data-theme="dark"] footer,
+[data-theme="dark"] .footer-django {
     background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-    color: var(--text-muted);
+    color: #e2e8f0 !important;
     border-top: 1px solid var(--border-color);
 }
 
-[data-theme="dark"] footer a {
-    color: var(--text-muted);
+[data-theme="dark"] footer a,
+[data-theme="dark"] .footer-django a {
+    color: #e2e8f0 !important;
+    opacity: 0.9;
 }
 
-[data-theme="dark"] footer a:hover {
+[data-theme="dark"] footer a:hover,
+[data-theme="dark"] .footer-django a:hover {
     color: var(--primary-light) !important;
+    opacity: 1;
+}
+
+[data-theme="dark"] footer p,
+[data-theme="dark"] footer span,
+[data-theme="dark"] footer div,
+[data-theme="dark"] .footer-django p,
+[data-theme="dark"] .footer-django span,
+[data-theme="dark"] .footer-django div {
+    color: #e2e8f0 !important;
+}
+
+/* Corrigir classes específicas do footer */
+[data-theme="dark"] .text-theme-light {
+    color: #e2e8f0 !important;
+}
+
+[data-theme="dark"] .text-muted {
+    color: #cbd5e0 !important;
 }
 
 /* Utilities */
@@ -1411,23 +1435,27 @@ footer a:hover {
         background: var(--bg-color) !important;
         z-index: 1050 !important;
         transform: translateX(-100%) !important;
-        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease !important;
         overflow-y: auto !important;
         padding: 0 !important;
         margin: 0 !important;
         border: none !important;
         display: flex !important;
         flex-direction: column !important;
-    }
-
-    /* Tema escuro para container */
-    [data-theme="dark"] .navbar-collapse {
-        background: var(--bg-color) !important;
+        opacity: 0;
+        visibility: hidden;
     }
 
     /* Estado ativo do menu */
     .navbar-collapse.show {
         transform: translateX(0) !important;
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* Tema escuro para container */
+    [data-theme="dark"] .navbar-collapse {
+        background: var(--bg-color) !important;
     }
 
     /* Header do menu mobile */

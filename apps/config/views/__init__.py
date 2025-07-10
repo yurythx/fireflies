@@ -1,7 +1,7 @@
 from .dashboard import ConfigDashboardView
 from .user_views import UserListView, UserCreateView, UserUpdateView, UserDeleteView
 from .system_config_views import SystemConfigView
-from .email_views import EmailConfigView, EmailTestView, EmailTemplatesView, EmailStatsView
+from .email_views import EmailConfigView, EmailTestView, email_stats_view, email_templates_view
 from .module_views import (
     ModuleListView, ModuleDetailView, ModuleUpdateView,
     ModuleStatsAPIView, ModuleDependencyCheckView
@@ -18,8 +18,8 @@ __all__ = [
     'SystemConfigView',
     'EmailConfigView',
     'EmailTestView',
-    'EmailTemplatesView',
-    'EmailStatsView',
+    'email_templates_view',
+    'email_stats_view',
     'ModuleListView',
     'ModuleDetailView',
     'ModuleUpdateView',

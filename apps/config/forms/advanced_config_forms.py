@@ -399,7 +399,13 @@ class EmailConfigForm(forms.Form):
 
     def save(self, user=None):
         """Salva as configurações de email e aplica dinamicamente"""
+        import logging
+        logger = logging.getLogger(__name__)
+        
+        logger.info(f'Iniciando save do formulário de email - usuário: {user.username if user else "None"}')
+        
         if not self.is_valid():
+            logger.error(f'Formulário inválido: {self.errors}')
             return False
 
         try:
@@ -418,14 +424,21 @@ class EmailConfigForm(forms.Form):
                 'SERVER_EMAIL': self.cleaned_data.get('server_email', ''),
                 'EMAIL_TIMEOUT': self.cleaned_data.get('email_timeout') or 30,
             }
+            
+            logger.info(f'Configuração montada: {email_config}')
 
             # Salva e aplica as configurações dinamicamente
-            return email_service.save_config(
+            result = email_service.save_config(
                 config_dict=email_config,
                 user=user,
                 description='Configurações de email SMTP'
             )
+            
+            logger.info(f'Resultado do save_config: {result}')
+            return result
+            
         except Exception as e:
+            logger.error(f'Erro no save do formulário: {e}', exc_info=True)
             self.add_error(None, f'Erro ao salvar configurações: {str(e)}')
             return False
 

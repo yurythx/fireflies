@@ -14,11 +14,12 @@ from apps.config.views import (
 from apps.config.views.email_views import (
     EmailConfigView,
     EmailTestView,
-    EmailTemplatesView,
-    EmailStatsView,
-    TestEmailConnectionView,
-    SendTestEmailAjaxView,
-    TestEmailConnectionAjaxView,
+    email_templates_view,
+    email_stats_view,
+    test_email_connection_view,
+    email_sync_view,
+    email_quick_setup_view,
+    email_detailed_status_view,
 )
 from apps.config.views.module_views import (
     ModuleListView,
@@ -89,12 +90,12 @@ urlpatterns = [
     # Email
     path('email/', EmailConfigView.as_view(), name='email_config'),
     path('email/teste/', EmailTestView.as_view(), name='email_test'),
-    path('email/templates/', EmailTemplatesView.as_view(), name='email_templates'),
-    path('email/estatisticas/', EmailStatsView.as_view(), name='email_stats'),
-
-    # AJAX Email
-    path('ajax/test-email-connection/', TestEmailConnectionAjaxView.as_view(), name='test_email_connection'),
-    path('ajax/send-test-email/', SendTestEmailAjaxView.as_view(), name='send_test_email_ajax'),
+    path('email/templates/', email_templates_view, name='email_templates'),
+    path('email/estatisticas/', email_stats_view, name='email_stats'),
+    path('email/sync/', email_sync_view, name='email_sync'),
+    path('email/quick-setup/', email_quick_setup_view, name='email_quick_setup'),
+    path('email/test-connection/', test_email_connection_view, name='test_email_connection'),
+    path('email/detailed-status/', email_detailed_status_view, name='email_detailed_status'),
 
     # Configurações do Sistema
     path('sistema/', SystemConfigView.as_view(), name='system_config'),

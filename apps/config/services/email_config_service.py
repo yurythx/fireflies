@@ -188,9 +188,9 @@ class DynamicEmailConfigService(IEmailConfigService):
             logger.error(f'Erro ao atualizar arquivo .env com python-dotenv: {e}')
     
     def save_config(self, config_dict, user=None, description="Configuração de email"):
-        """Salva configuração no repositório"""
+        """Salva configuração no repositório e aplica imediatamente"""
         try:
-            # Salva no repositório de configurações
+            # Salva no repositório de configurações (sistema antigo)
             success = self.config_repository.set_config(
                 'email_settings', 
                 config_dict, 
@@ -198,10 +198,17 @@ class DynamicEmailConfigService(IEmailConfigService):
                 updated_by=user
             )
             
+            # Salva também no novo modelo EmailConfiguration
+            self._save_to_email_configuration(config_dict, user, description)
+            
             if success:
-                # Aplica as configurações
+                # Aplica as configurações dinamicamente
                 self.apply_config_to_settings(config_dict)
-                logger.info(f'Configuração de email salva por {user.email if user else "sistema"}')
+                
+                # Força recarregamento das configurações
+                self._reload_settings_from_env()
+                
+                logger.info(f'Configuração de email salva e aplicada por {user.email if user else "sistema"}')
                 return True
             else:
                 logger.error('Erro ao salvar configuração de email no repositório')
@@ -209,6 +216,122 @@ class DynamicEmailConfigService(IEmailConfigService):
                 
         except Exception as e:
             logger.error(f'Erro ao salvar configuração de email: {e}')
+            return False
+    
+    def _save_to_email_configuration(self, config_dict, user=None, description="Configuração de email"):
+        """Salva configuração no modelo EmailConfiguration"""
+        try:
+            # Desativa configurações padrão existentes
+            EmailConfiguration.objects.filter(is_default=True).update(is_default=False)
+            
+            # Cria ou atualiza a configuração padrão
+            email_config, created = EmailConfiguration.objects.get_or_create(
+                is_default=True,
+                defaults={
+                    'name': 'Configuração Padrão',
+                    'description': description,
+                    'email_backend': config_dict.get('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend'),
+                    'email_host': config_dict.get('EMAIL_HOST', ''),
+                    'email_port': config_dict.get('EMAIL_PORT', 587),
+                    'email_host_user': config_dict.get('EMAIL_HOST_USER', ''),
+                    'email_host_password': config_dict.get('EMAIL_HOST_PASSWORD', ''),
+                    'email_use_tls': config_dict.get('EMAIL_USE_TLS', True),
+                    'email_use_ssl': config_dict.get('EMAIL_USE_SSL', False),
+                    'default_from_email': config_dict.get('DEFAULT_FROM_EMAIL', 'noreply@havoc.com'),
+                    'email_timeout': config_dict.get('EMAIL_TIMEOUT', 30),
+                    'is_active': True,
+                    'is_default': True,
+                    'created_by': user,
+                    'updated_by': user,
+                }
+            )
+            
+            if not created:
+                # Atualiza configuração existente
+                email_config.name = 'Configuração Padrão'
+                email_config.description = description
+                email_config.email_backend = config_dict.get('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
+                email_config.email_host = config_dict.get('EMAIL_HOST', '')
+                email_config.email_port = config_dict.get('EMAIL_PORT', 587)
+                email_config.email_host_user = config_dict.get('EMAIL_HOST_USER', '')
+                email_config.email_host_password = config_dict.get('EMAIL_HOST_PASSWORD', '')
+                email_config.email_use_tls = config_dict.get('EMAIL_USE_TLS', True)
+                email_config.email_use_ssl = config_dict.get('EMAIL_USE_SSL', False)
+                email_config.default_from_email = config_dict.get('DEFAULT_FROM_EMAIL', 'noreply@havoc.com')
+                email_config.email_timeout = config_dict.get('EMAIL_TIMEOUT', 30)
+                email_config.is_active = True
+                email_config.updated_by = user
+                email_config.save()
+            
+            logger.info(f'Configuração salva no modelo EmailConfiguration: {email_config.name}')
+            return True
+            
+        except Exception as e:
+            logger.error(f'Erro ao salvar no modelo EmailConfiguration: {e}')
+            return False
+    
+    def _reload_settings_from_env(self):
+        """Recarrega as configurações de email do arquivo .env"""
+        try:
+            from dotenv import load_dotenv
+            from pathlib import Path
+            from django.conf import settings
+            
+            # Recarrega o arquivo .env
+            env_path = Path(settings.BASE_DIR) / '.env'
+            if env_path.exists():
+                load_dotenv(env_path, override=True)
+                
+                # Reaplica as configurações do .env
+                self._apply_env_to_settings()
+                
+                logger.info('Configurações de email recarregadas do arquivo .env')
+                return True
+            else:
+                logger.warning('Arquivo .env não encontrado para recarregamento')
+                return False
+                
+        except Exception as e:
+            logger.error(f'Erro ao recarregar configurações do .env: {e}')
+            return False
+    
+    def _apply_env_to_settings(self):
+        """Aplica configurações do .env diretamente ao settings"""
+        try:
+            import os
+            
+            # Mapeamento das variáveis de ambiente para settings
+            env_mapping = {
+                'EMAIL_BACKEND': 'EMAIL_BACKEND',
+                'EMAIL_HOST': 'EMAIL_HOST',
+                'EMAIL_PORT': 'EMAIL_PORT',
+                'EMAIL_HOST_USER': 'EMAIL_HOST_USER',
+                'EMAIL_HOST_PASSWORD': 'EMAIL_HOST_PASSWORD',
+                'EMAIL_USE_TLS': 'EMAIL_USE_TLS',
+                'EMAIL_USE_SSL': 'EMAIL_USE_SSL',
+                'DEFAULT_FROM_EMAIL': 'DEFAULT_FROM_EMAIL',
+                'EMAIL_TIMEOUT': 'EMAIL_TIMEOUT',
+            }
+            
+            # Aplica cada configuração
+            for env_key, setting_key in env_mapping.items():
+                value = os.environ.get(env_key)
+                if value is not None:
+                    if setting_key in ['EMAIL_PORT', 'EMAIL_TIMEOUT']:
+                        try:
+                            setattr(settings, setting_key, int(value))
+                        except ValueError:
+                            logger.warning(f'Valor inválido para {setting_key}: {value}')
+                    elif setting_key in ['EMAIL_USE_TLS', 'EMAIL_USE_SSL']:
+                        setattr(settings, setting_key, value.lower() == 'true')
+                    else:
+                        setattr(settings, setting_key, value)
+            
+            logger.info('Configurações de email aplicadas do .env para settings')
+            return True
+            
+        except Exception as e:
+            logger.error(f'Erro ao aplicar configurações do .env: {e}')
             return False
     
     def sync_config_to_env(self):

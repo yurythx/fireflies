@@ -2,6 +2,10 @@
 
 {% block config_title %}Teste de Email{% endblock %}
 
+{% block extra_head %}
+<meta name="csrf-token" content="{{ csrf_token }}">
+{% endblock %}
+
 {% block config_content %}
 <!-- Header -->
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
@@ -126,9 +130,17 @@
                         <i class="fas fa-exclamation-triangle fa-3x text-theme-warning mb-3"></i>
                         <h5>Email não configurado</h5>
                         <p class="text-muted">Configure o servidor de email antes de realizar testes.</p>
-                        <a href="{% url 'config:email_config' %}" class="btn btn-primary">
-                            <i class="fas fa-cog me-2"></i>Configurar Email
-                        </a>
+                        <div class="d-flex gap-2 justify-content-center">
+                            <a href="{% url 'config:email_config' %}" class="btn btn-primary">
+                                <i class="fas fa-cog me-2"></i>Configurar Email
+                            </a>
+                            <button type="button" class="btn btn-outline-warning" onclick="syncAndRefresh()">
+                                <i class="fas fa-sync me-2"></i>Sincronizar e Atualizar
+                            </button>
+                        </div>
+                        <small class="text-muted mt-2 d-block">
+                            Se você acabou de configurar o email, clique em "Sincronizar e Atualizar" para aplicar as configurações.
+                        </small>
                     </div>
                 {% endif %}
             </div>
@@ -192,6 +204,44 @@
 </div>
 
 <script>
+// Função para sincronizar e atualizar a página
+function syncAndRefresh() {
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sincronizando...';
+    btn.disabled = true;
+    
+    // Obter CSRF token de forma segura
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+                     document.querySelector('meta[name=csrf-token]')?.getAttribute('content') ||
+                     '{{ csrf_token }}';
+    
+    fetch('{% url "config:email_sync" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Recarregar a página após sincronização
+            window.location.reload();
+        } else {
+            alert('❌ Erro ao sincronizar: ' + data.message);
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('❌ Erro inesperado ao sincronizar configurações');
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    });
+}
+
 // Teste rápido
 document.getElementById('quickTest')?.addEventListener('click', function() {
     const userEmail = '{{ user.email }}';

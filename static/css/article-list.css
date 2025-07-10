@@ -432,23 +432,65 @@
     }
 } 
 
+/* Força o layout da sidebar em desktop */
+@media (min-width: 992px) {
+    .container .row > .col-lg-8 {
+        width: 66.666667% !important;
+        flex: 0 0 66.666667% !important;
+        max-width: 66.666667% !important;
+        order: 1 !important;
+    }
+    
+    .container .row > .col-lg-4 {
+        width: 33.333333% !important;
+        flex: 0 0 33.333333% !important;
+        max-width: 33.333333% !important;
+        order: 2 !important;
+        display: block !important;
+        position: relative !important;
+    }
+    
+    .sidebar {
+        position: sticky !important;
+        top: 2rem !important;
+        height: fit-content !important;
+        display: block !important;
+        float: right !important;
+    }
+}
+
 /* Garante que todos os cards da sidebar tenham a mesma largura */
 .sidebar .article-list-card {
     width: 100%;
-    max-width: 370px;
-    min-width: 250px;
-    margin-left: auto;
-    margin-right: auto;
+    max-width: 100%;
+    min-width: 0;
+    margin-left: 0;
+    margin-right: 0;
 } 
 
 /* Corrige alinhamento da sidebar na listagem de artigos */
-.row.gutter-6 {
-    align-items: flex-start;
-}
 .sidebar {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
     align-self: flex-start;
-    height: 100%;
+    padding: 0;
 } 
+
+@media (max-width: 991.98px) {
+  .sidebar {
+    margin-top: 0;
+    max-width: 100%;
+    width: 100%;
+    align-items: stretch;
+  }
+  .sidebar .article-list-card {
+    max-width: 100%;
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
 
 @media (max-width: 767.98px) {
   .post-single .thumbnail-container {

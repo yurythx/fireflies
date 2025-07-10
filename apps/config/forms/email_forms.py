@@ -136,3 +136,100 @@ class EmailTestForm(forms.Form):
         }),
         help_text='Conteúdo do email de teste'
     )
+
+
+class SimpleEmailConfigForm(forms.Form):
+    email_backend = forms.ChoiceField(
+        label='Backend de Email',
+        choices=[
+            ('django.core.mail.backends.smtp.EmailBackend', 'SMTP'),
+            ('django.core.mail.backends.console.EmailBackend', 'Console (Desenvolvimento)'),
+            ('django.core.mail.backends.filebased.EmailBackend', 'Arquivo'),
+            ('django.core.mail.backends.dummy.EmailBackend', 'Desabilitado'),
+        ],
+        initial='django.core.mail.backends.smtp.EmailBackend',
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        help_text='Escolha o backend para envio de emails.'
+    )
+    email_host = forms.CharField(
+        label='Servidor SMTP',
+        max_length=255,
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'smtp.gmail.com'}),
+        help_text='Endereço do servidor SMTP (ex: smtp.gmail.com)'
+    )
+    email_port = forms.IntegerField(
+        label='Porta',
+        required=False,
+        initial=587,
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '587'}),
+        help_text='Porta do servidor SMTP (587 para TLS, 465 para SSL)'
+    )
+    email_host_user = forms.EmailField(
+        label='Usuário',
+        required=False,
+        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'seu-email@gmail.com'}),
+        help_text='Email usado para autenticação no servidor SMTP.'
+    )
+    email_host_password = forms.CharField(
+        label='Senha',
+        required=False,
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Senha ou app password'}),
+        help_text='Senha ou app password para autenticação.'
+    )
+    email_use_tls = forms.BooleanField(
+        label='Usar TLS',
+        required=False,
+        initial=True,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        help_text='Ativar criptografia TLS (recomendado para porta 587)'
+    )
+    email_use_ssl = forms.BooleanField(
+        label='Usar SSL',
+        required=False,
+        initial=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        help_text='Ativar criptografia SSL (para porta 465)'
+    )
+    default_from_email = forms.EmailField(
+        label='Email Padrão (From)',
+        required=False,
+        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'noreply@seudominio.com'}),
+        help_text='Email que aparecerá como remetente.'
+    )
+    server_email = forms.EmailField(
+        label='Email do Servidor',
+        required=False,
+        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'admin@seudominio.com'}),
+        help_text='Email do servidor para notificações internas.'
+    )
+    email_timeout = forms.IntegerField(
+        label='Timeout (segundos)',
+        required=False,
+        initial=30,
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '30'}),
+        help_text='Tempo limite para conexão SMTP (em segundos).'
+    )
+
+    def clean(self):
+        cleaned = super().clean()
+        backend = cleaned.get('email_backend')
+        # SMTP exige host, porta, user, password
+        if backend == 'django.core.mail.backends.smtp.EmailBackend':
+            required_fields = ['email_host', 'email_port', 'email_host_user', 'email_host_password', 'default_from_email']
+            for field in required_fields:
+                if not cleaned.get(field):
+                    self.add_error(field, 'Este campo é obrigatório para SMTP.')
+        # Porta deve ser int
+        port = cleaned.get('email_port')
+        if port is not None and not isinstance(port, int):
+            self.add_error('email_port', 'A porta deve ser um número inteiro.')
+        # Timeout deve ser int
+        timeout = cleaned.get('email_timeout')
+        if timeout is not None and not isinstance(timeout, int):
+            self.add_error('email_timeout', 'Timeout deve ser um número inteiro.')
+        # TLS/SSL não podem ser ambos True
+        if cleaned.get('email_use_tls') and cleaned.get('email_use_ssl'):
+            self.add_error('email_use_tls', 'Não pode ativar TLS e SSL ao mesmo tempo.')
+            self.add_error('email_use_ssl', 'Não pode ativar TLS e SSL ao mesmo tempo.')
+        return cleaned

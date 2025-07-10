@@ -364,11 +364,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Fechar menu ao clicar em links
-    const mobileNavLinks = navbarCollapse?.querySelectorAll('.nav-link');
+    // Fechar menu ao clicar em links de navegação (não dropdowns)
+    const mobileNavLinks = navbarCollapse?.querySelectorAll('.nav-link:not(.dropdown-toggle)');
     if (mobileNavLinks) {
         mobileNavLinks.forEach(link => {
-            link.addEventListener('click', function() {
+            link.addEventListener('click', function(e) {
+                // Não fechar se for dropdown ou botão
+                if (link.classList.contains('dropdown-toggle') || 
+                    link.closest('.dropdown-menu') || 
+                    link.tagName === 'BUTTON') {
+                    return;
+                }
+                
                 if (window.innerWidth <= 991.98) {
                     setTimeout(() => {
                         navbarCollapse.classList.remove('show');
