@@ -181,6 +181,18 @@
                     <a href="{% url 'config:group_list' %}" class="btn btn-outline-warning btn-sm">
                         <i class="fas fa-layer-group me-2"></i>Gerenciar Grupos
                     </a>
+                    <a href="{% url 'config:backup_database' %}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-database me-2"></i>Backup do Banco de Dados
+                    </a>
+                    <a href="{% url 'config:restore_database' %}" class="btn btn-outline-danger btn-sm">
+                        <i class="fas fa-database me-2"></i>Restaurar Banco de Dados
+                    </a>
+                    <a href="{% url 'config:backup_media' %}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-folder-open me-2"></i>Backup da Mídia
+                    </a>
+                    <a href="{% url 'config:restore_media' %}" class="btn btn-outline-danger btn-sm">
+                        <i class="fas fa-folder-open me-2"></i>Restaurar Mídia
+                    </a>
                 </div>
             </div>
         </div>

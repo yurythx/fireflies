@@ -162,24 +162,27 @@ class ArticleSearchView(View):
         return render(request, self.template_name, context)
 
 
-class AdminRequiredMixin(UserPassesTestMixin):
-    """Mixin para verificar se o usuário é admin ou superuser"""
-
+class EditorOrAdminRequiredMixin(UserPassesTestMixin):
+    """Permite acesso para admin, staff ou grupo 'Editor'"""
     def test_func(self):
-        return self.request.user.is_authenticated and (
-            self.request.user.is_superuser or
-            self.request.user.is_staff
-        )
-
+        user = self.request.user
+        if not user.is_authenticated:
+            return False
+        if user.is_superuser or user.is_staff:
+            return True
+        if user.groups.filter(name__iexact='administrador').exists():
+            return True
+        if user.groups.filter(name__iexact='admin').exists():
+            return True
+        if user.groups.filter(name__iexact='editor').exists():
+            return True
+        return False
     def handle_no_permission(self):
-        messages.error(
-            self.request,
-            '🚫 Acesso negado! Apenas administradores podem realizar esta ação.'
-        )
+        messages.error(self.request, '🚫 Acesso negado! Apenas administradores ou editores podem realizar esta ação.')
         return redirect('articles:article_list')
 
 
-class ArticleCreateView(AdminRequiredMixin, CreateView):
+class ArticleCreateView(EditorOrAdminRequiredMixin, CreateView):
     """View para criar novos artigos"""
     model = Article
     form_class = ArticleForm
@@ -202,7 +205,7 @@ class ArticleCreateView(AdminRequiredMixin, CreateView):
         return context
 
 
-class ArticleUpdateView(AdminRequiredMixin, UpdateView):
+class ArticleUpdateView(EditorOrAdminRequiredMixin, UpdateView):
     """View para editar artigos"""
     model = Article
     form_class = ArticleForm
@@ -234,7 +237,7 @@ class ArticleUpdateView(AdminRequiredMixin, UpdateView):
         return context
 
 
-class ArticleDeleteView(AdminRequiredMixin, DeleteView):
+class ArticleDeleteView(EditorOrAdminRequiredMixin, DeleteView):
     """View para deletar artigos"""
     model = Article
     template_name = 'articles/article_confirm_delete.html'

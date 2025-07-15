@@ -51,7 +51,9 @@ from apps.config.views.groups import (
 from apps.config.views.users import (
     UserListView, UserCreateView, UserUpdateView, UserDeleteView
 )
-
+from apps.config.views.backup_views import (
+    backup_database, backup_media, restore_database, restore_media
+)
 
 
 app_name = 'config'
@@ -142,4 +144,10 @@ urlpatterns = [
     
     # Moderação de Comentários (redireciona para articles)
     path('comentarios/', lambda request: redirect('articles:moderate_comments'), name='comment_moderation'),
+
+    # Backup & Restauração
+    path('backup/database/', backup_database, name='backup_database'),
+    path('backup/media/', backup_media, name='backup_media'),
+    path('restore/database/', restore_database, name='restore_database'),
+    path('restore/media/', restore_media, name='restore_media'),
 ]

@@ -53,6 +53,10 @@ class Command(BaseCommand):
             {
                 'name': 'Usuários',
                 'description': 'Acesso básico ao sistema'
+            },
+            {
+                'name': 'Editor',
+                'description': 'Pode criar, editar e deletar artigos, mas não acessar configurações'
             }
         ]
 
@@ -71,12 +75,16 @@ class Command(BaseCommand):
         # Obtém content types
         user_ct = ContentType.objects.get_for_model(User)
         group_ct = ContentType.objects.get_for_model(Group)
+        # Artigos
+        from apps.articles.models.article import Article
+        article_ct = ContentType.objects.get_for_model(Article)
         
         # Obtém grupos
         admin_group = Group.objects.get(name='Administradores')
         manager_group = Group.objects.get(name='Gerentes')
         operator_group = Group.objects.get(name='Operadores')
         user_group = Group.objects.get(name='Usuários')
+        editor_group = Group.objects.get(name='Editor')
 
         # Permissões para Administradores (todas)
         admin_permissions = Permission.objects.all()
@@ -105,6 +113,14 @@ class Command(BaseCommand):
         )
         user_group.permissions.set(user_permissions)
         self.stdout.write(f'Atribuídas {user_permissions.count()} permissões para Usuários')
+
+        # Permissões para Editor (artigos)
+        editor_permissions = Permission.objects.filter(
+            content_type=article_ct,
+            codename__in=['add_article', 'change_article', 'delete_article', 'view_article']
+        )
+        editor_group.permissions.set(editor_permissions)
+        self.stdout.write(f'Atribuídas {editor_permissions.count()} permissões para Editor')
 
     def create_custom_permissions(self):
         """Cria permissões customizadas se necessário"""
