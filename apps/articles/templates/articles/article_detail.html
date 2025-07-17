@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load articles_tags %}
 
 {% block title %}{{ article.seo_title|default:article.title }} - {{ block.super }}{% endblock %}
 
@@ -84,11 +85,11 @@
                     </div>
 
                     <!-- Admin Actions -->
-                    {% if user.is_authenticated and user.is_staff or user.is_authenticated and user.is_superuser %}
+                    {% if user.is_authenticated and user.is_staff or user.is_authenticated and user.is_superuser or user.is_authenticated and user|has_group:'Editor' %}
                     <div class="alert alert-info d-flex justify-content-between align-items-center">
                         <div>
                             <i class="fas fa-tools me-2"></i>
-                            <strong>Ações de Administrador</strong>
+                            <strong>Ações de Administrador ou Editor</strong>
                         </div>
                         <div>
                             <a href="{% url 'articles:article_update' article.slug %}"
@@ -204,7 +205,7 @@
                                                    placeholder="Seu nome" required
                                                    aria-describedby="name-help"
                                                    {% if user.is_authenticated %}value="{{ user.get_full_name|default:user.username }}" readonly{% endif %}>
-                                            <label for="id_name">Nome *</label>
+                                            
                                             {% if user.is_authenticated %}
                                                 <div class="form-text" id="name-help">Logado como: {{ user.get_full_name|default:user.username }}</div>
                                             {% else %}
@@ -218,7 +219,7 @@
                                                    placeholder="Seu email" required
                                                    aria-describedby="email-help"
                                                    {% if user.is_authenticated %}value="{{ user.email }}" readonly{% endif %}>
-                                            <label for="id_email">Email *</label>
+                                            
                                             {% if user.is_authenticated %}
                                                 <div class="form-text" id="email-help">Email da conta: {{ user.email }}</div>
                                             {% else %}
@@ -232,7 +233,7 @@
                                 <div class="form-floating mb-3">
                                     <input type="url" class="form-control" name="website" id="id_website"
                                            placeholder="Seu website (opcional)" aria-describedby="website-help">
-                                    <label for="id_website">Website (opcional)</label>
+                                 
                                     <div class="form-text" id="website-help">URL do seu site ou blog</div>
                                 </div>
                                 {% endif %}
@@ -240,7 +241,7 @@
                                 <div class="form-floating mb-3">
                                     <textarea class="form-control" name="content" id="id_content"
                                               placeholder="Escreva seu comentário..." rows="4" required aria-describedby="content-help"></textarea>
-                                    <label for="id_content">Comentário *</label>
+                                    
                                     <div class="form-text" id="content-help">Compartilhe sua opinião, dúvida ou sugestão</div>
                                 </div>
 

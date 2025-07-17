@@ -55,6 +55,12 @@ class UserCreateForm(UserCreationForm):
         required=False,
         help_text='Possui todas as permissões'
     )
+    is_verified = forms.BooleanField(
+        label='Verificado',
+        required=False,
+        initial=False,
+        help_text='Usuário já está com email verificado.'
+    )
     groups = forms.ModelMultipleChoiceField(
         label='Grupos',
         queryset=Group.objects.all(),
@@ -109,9 +115,10 @@ class UserCreateForm(UserCreationForm):
             HTML('<div class="card-header"><h6 class="mb-0">Permissões</h6></div>'),
             HTML('<div class="card-body">'),
             HTML('<div class="row">'),
-            Column('is_active', css_class='col-md-4'),
-            Column('is_staff', css_class='col-md-4'),
-            Column('is_superuser', css_class='col-md-4'),
+            Column('is_active', css_class='col-md-3'),
+            Column('is_staff', css_class='col-md-3'),
+            Column('is_superuser', css_class='col-md-3'),
+            Column('is_verified', css_class='col-md-3'),
             HTML('</div>'),
             'groups',
             HTML('</div>'),
@@ -126,7 +133,7 @@ class UserCreateForm(UserCreationForm):
         model = User
         fields = ('email', 'username', 'first_name', 'last_name', 
                  'password1', 'password2', 'is_active', 'is_staff', 
-                 'is_superuser', 'groups')
+                 'is_superuser', 'is_verified', 'groups')
 
     def clean_email(self):
         """Valida se o email não está em uso"""
@@ -194,6 +201,13 @@ class UserUpdateForm(forms.ModelForm):
             'class': 'form-check-input'
         })
     )
+    is_verified = forms.BooleanField(
+        label='Verificado',
+        required=False,
+        widget=forms.CheckboxInput(attrs={
+            'class': 'form-check-input'
+        })
+    )
     groups = forms.ModelMultipleChoiceField(
         label='Grupos',
         queryset=Group.objects.all(),
@@ -206,7 +220,7 @@ class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ('email', 'username', 'first_name', 'last_name', 
-                 'is_active', 'is_staff', 'is_superuser', 'groups')
+                 'is_active', 'is_staff', 'is_superuser', 'is_verified', 'groups')
 
     def __init__(self, *args, **kwargs):
         self.instance_id = kwargs.get('instance').id if kwargs.get('instance') else None
@@ -230,9 +244,10 @@ class UserUpdateForm(forms.ModelForm):
             HTML('<div class="card-header"><h6 class="mb-0">Permissões</h6></div>'),
             HTML('<div class="card-body">'),
             HTML('<div class="row">'),
-            Column('is_active', css_class='col-md-4'),
-            Column('is_staff', css_class='col-md-4'),
-            Column('is_superuser', css_class='col-md-4'),
+            Column('is_active', css_class='col-md-3'),
+            Column('is_staff', css_class='col-md-3'),
+            Column('is_superuser', css_class='col-md-3'),
+            Column('is_verified', css_class='col-md-3'),
             HTML('</div>'),
             'groups',
             HTML('</div>'),

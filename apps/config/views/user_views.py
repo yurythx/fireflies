@@ -99,6 +99,7 @@ class UserCreateView(ConfigPermissionMixin, PermissionHelperMixin, View):
                     'is_active': form.cleaned_data['is_active'],
                     'is_staff': form.cleaned_data['is_staff'],
                     'is_superuser': form.cleaned_data['is_superuser'],
+                    'is_verified': form.cleaned_data.get('is_verified', False),
                 }
 
                 # Cria o usuário usando o service
@@ -155,6 +156,9 @@ class UserUpdateView(ConfigPermissionMixin, PermissionHelperMixin, View):
             if form.is_valid():
                 try:
                     # Atualiza dados básicos
+                    user_data = form.cleaned_data
+                    # Atualiza o campo is_verified explicitamente
+                    user.is_verified = user_data.get('is_verified', user.is_verified)
                     updated_user = form.save()
 
                     # Atualiza grupos

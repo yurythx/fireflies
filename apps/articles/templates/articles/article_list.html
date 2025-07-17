@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load articles_tags %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/article-list.css' %}">
@@ -26,7 +27,7 @@
                 <h1 class="text-sans text-body">Artigos</h1>
                 <div>
                     {# Removido botão Buscar daqui, pois está centralizado acima #}
-                    {% if user.is_authenticated and user.is_staff or user.is_authenticated and user.is_superuser %}
+                    {% if user.is_authenticated and user.is_staff or user.is_authenticated and user.is_superuser or user.is_authenticated and user|has_group:'Editor' %}
                         <a href="{% url 'articles:article_create' %}" class="btn btn-primary">
                             <i class="fas fa-plus me-2"></i>Novo Artigo
                         </a>
@@ -71,14 +72,7 @@
                                         <a href="{{ article.get_absolute_url }}" class="btn btn-outline-primary btn-sm" title="Ler mais">
                                             <i class="fas fa-arrow-right me-1"></i> Ler mais
                                         </a>
-                                        {% if user.is_authenticated and user.is_staff %}
-                                        <a href="{% url 'articles:article_update' article.slug %}" class="btn btn-outline-warning btn-sm" title="Editar artigo">
-                                            <i class="fas fa-edit"></i> Editar
-                                        </a>
-                                        <a href="{% url 'articles:article_delete' article.slug %}" class="btn btn-outline-danger btn-sm" title="Deletar artigo">
-                                            <i class="fas fa-trash"></i> Excluir
-                                        </a>
-                                        {% elif user.is_authenticated and user.is_superuser %}
+                                        {% if user.is_authenticated and user.is_staff or user.is_authenticated and user.is_superuser or user.is_authenticated and user|has_group:'Editor' %}
                                         <a href="{% url 'articles:article_update' article.slug %}" class="btn btn-outline-warning btn-sm" title="Editar artigo">
                                             <i class="fas fa-edit"></i> Editar
                                         </a>

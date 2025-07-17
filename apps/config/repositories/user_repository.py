@@ -14,15 +14,13 @@ class DjangoUserRepository(IUserRepository):
         try:
             # Extrai a senha se fornecida
             password = user_data.pop('password', None)
-            
+            # NÃO remova is_verified do user_data
             # Cria o usuário
             user = User.objects.create_user(**user_data)
-            
             # Define a senha se fornecida
             if password:
                 user.set_password(password)
                 user.save()
-            
             return user
         except Exception as e:
             raise ValueError(f"Erro ao criar usuário: {str(e)}")

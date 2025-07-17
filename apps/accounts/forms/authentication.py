@@ -69,21 +69,7 @@ class FlexibleLoginForm(AuthenticationForm):
             ),
             Div(
                 Submit('submit', '🚀 Entrar', css_class='btn btn-primary btn-lg w-100 mb-3'),
-                HTML('''
-                    <div class="text-center">
-                        <p class="mb-2">
-                            <a href="{% url 'accounts:password_reset' %}" class="text-decoration-none">
-                                <i class="fas fa-key me-1"></i>Esqueci minha senha
-                            </a>
-                        </p>
-                        <p class="mb-0">
-                            Não tem conta?
-                            <a href="{% url 'accounts:register' %}" class="text-decoration-none">
-                                <i class="fas fa-user-plus me-1"></i>Criar conta
-                            </a>
-                        </p>
-                    </div>
-                '''),
+                
                 css_class='text-center'
             )
         )

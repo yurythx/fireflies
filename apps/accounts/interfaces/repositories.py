@@ -1,14 +1,11 @@
 from abc import ABC, abstractmethod
-from typing import Optional
-from django.contrib.auth import get_user_model
-
-User = get_user_model()
+from typing import Optional, Any
 
 class IUserRepository(ABC):
     """Interface para operações de usuário no banco de dados"""
     
     @abstractmethod
-    def create_user(self, email: str, password: str, **extra_fields) -> User:
+    def create_user(self, email: str, password: str, **extra_fields) -> Any:
         """
         Cria um novo usuário no sistema
         :param email: Email do usuário
@@ -20,7 +17,7 @@ class IUserRepository(ABC):
         pass
     
     @abstractmethod
-    def get_user_by_email(self, email: str) -> Optional[User]:
+    def get_user_by_email(self, email: str) -> Optional[Any]:
         """
         Obtém um usuário pelo email
         :param email: Email do usuário a ser buscado
@@ -29,7 +26,7 @@ class IUserRepository(ABC):
         pass
     
     @abstractmethod
-    def get_user_by_slug(self, slug: str) -> Optional[User]:
+    def get_user_by_slug(self, slug: str) -> Optional[Any]:
         """
         Obtém um usuário pelo slug
         :param slug: Slug do usuário a ser buscado
@@ -38,7 +35,7 @@ class IUserRepository(ABC):
         pass
     
     @abstractmethod
-    def update_user(self, user: User, **fields) -> User:
+    def update_user(self, user: Any, **fields) -> Any:
         """
         Atualiza os dados de um usuário
         :param user: Instância do usuário a ser atualizado
@@ -70,7 +67,7 @@ class IVerificationRepository(ABC):
     """Interface para operações com códigos de verificação"""
     
     @abstractmethod
-    def create_verification_code(self, user: User, code_type: str) -> str:
+    def create_verification_code(self, user: Any, code_type: str) -> str:
         """
         Cria um novo código de verificação para o usuário
         :param user: Usuário associado ao código
@@ -80,7 +77,7 @@ class IVerificationRepository(ABC):
         pass
     
     @abstractmethod
-    def verify_code(self, user: User, code: str, code_type: str) -> bool:
+    def verify_code(self, user: Any, code: str, code_type: str) -> bool:
         """
         Verifica se um código é válido para um usuário
         :param user: Usuário associado ao código
@@ -91,7 +88,7 @@ class IVerificationRepository(ABC):
         pass
     
     @abstractmethod
-    def delete_code(self, user: User, code_type: str) -> None:
+    def delete_code(self, user: Any, code_type: str) -> None:
         """
         Remove códigos de verificação de um usuário
         :param user: Usuário associado ao código

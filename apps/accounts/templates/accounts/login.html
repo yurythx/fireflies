@@ -63,20 +63,7 @@
             </div>
 
             <!-- Links Úteis -->
-            <div class="text-center mt-4">
-                <p class="text-secondary">
-                    Não tem uma conta?
-                    <a href="{% url 'accounts:register' %}" class="text-django-green text-decoration-none">
-                        <i class="fas fa-user-plus me-1"></i>Criar Conta
-                    </a>
-                </p>
-                <p class="text-secondary">
-                    Esqueceu a senha?
-                    <a href="{% url 'accounts:password_reset' %}" class="text-django-green text-decoration-none">
-                        <i class="fas fa-key me-1"></i>Recuperar Senha
-                    </a>
-                </p>
-            </div>
+            
         </div>
     </div>
 </div>
@@ -87,6 +74,41 @@ document.addEventListener('DOMContentLoaded', function() {
     const loginField = document.querySelector('input[name="username"]');
     if (loginField) {
         loginField.focus();
+    }
+
+    // Adiciona botão de mostrar/ocultar senha
+    const passwordField = document.querySelector('input[type="password"]');
+    if (passwordField) {
+        // Cria o botão/ícone
+        const wrapper = document.createElement('div');
+        wrapper.style.position = 'relative';
+        passwordField.parentNode.insertBefore(wrapper, passwordField);
+        wrapper.appendChild(passwordField);
+        passwordField.style.paddingRight = '2.5rem';
+        
+        const toggleBtn = document.createElement('button');
+        toggleBtn.type = 'button';
+        toggleBtn.className = 'btn btn-outline-secondary btn-sm btn-eye-password';
+        toggleBtn.style.position = 'absolute';
+        toggleBtn.style.top = '50%';
+        toggleBtn.style.right = '0.5rem';
+        toggleBtn.style.transform = 'translateY(-50%)';
+        toggleBtn.style.zIndex = '10';
+        toggleBtn.style.border = 'none';
+        toggleBtn.style.background = 'none';
+        toggleBtn.style.padding = '0 0.5rem';
+        toggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
+        wrapper.appendChild(toggleBtn);
+
+        toggleBtn.addEventListener('click', function() {
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                toggleBtn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+            } else {
+                passwordField.type = 'password';
+                toggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
+            }
+        });
     }
 
     // Feedback visual no envio do formulário

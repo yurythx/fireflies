@@ -238,22 +238,22 @@ class CommentForm(forms.ModelForm):
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Seu nome *',
+               
                 'maxlength': 100,
                 'required': True
             }),
             'email': forms.EmailInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Seu email *',
+               
                 'required': True
             }),
             'website': forms.URLInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Seu website (opcional)'
+               
             }),
             'content': forms.Textarea(attrs={
                 'class': 'form-control',
-                'placeholder': 'Escreva seu comentário... *',
+                
                 'rows': 4,
                 'required': True
             }),
