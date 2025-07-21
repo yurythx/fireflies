@@ -129,7 +129,7 @@ class ModuleService(IModuleService):
         try:
             # Verifica se já existe
             if self.get_module_by_name(module_data.get('app_name')):
-                logger.error(f"Módulo {module_data.get('app_name')} já existe")
+                logger.info(f"Módulo {module_data.get('app_name')} já existe, ignorando criação.")
                 return None
             
             module = AppModuleConfiguration(

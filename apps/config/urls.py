@@ -52,7 +52,7 @@ from apps.config.views.users import (
     UserListView, UserCreateView, UserUpdateView, UserDeleteView
 )
 from apps.config.views.backup_views import (
-    backup_database, backup_media, restore_database, restore_media
+    backup_database, backup_media, restore_database, restore_media, download_backup
 )
 
 
@@ -150,4 +150,5 @@ urlpatterns = [
     path('backup/media/', backup_media, name='backup_media'),
     path('restore/database/', restore_database, name='restore_database'),
     path('restore/media/', restore_media, name='restore_media'),
+    path('backup/download/<str:backup_type>/<str:filename>/', download_backup, name='download_backup'),
 ]

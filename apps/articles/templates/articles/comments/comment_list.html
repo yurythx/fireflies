@@ -163,19 +163,23 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-floating">
+                                {{ comment_form.name.label_tag }}
                                 {{ comment_form.name }}
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-floating">
+                                {{ comment_form.email.label_tag }}
                                 {{ comment_form.email }}
                             </div>
                         </div>
                     </div>
                     <div class="form-floating">
+                        {{ comment_form.website.label_tag }}
                         {{ comment_form.website }}
                     </div>
                     <div class="form-floating">
+                        {{ comment_form.content.label_tag }}
                         {{ comment_form.content }}
                     </div>
                     
