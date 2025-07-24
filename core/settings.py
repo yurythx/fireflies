@@ -116,7 +116,7 @@ ALLOWED_HOSTS = get_allowed_hosts()
 # Application definition
 
 # Apps essenciais (nunca podem ser desativados)
-CORE_APPS = ['apps.accounts', 'apps.config', 'apps.pages']
+CORE_APPS = ['apps.accounts', 'apps.config', 'apps.pages', 'apps.common']
 
 # Apps locais
 LOCAL_APPS = [
@@ -124,6 +124,7 @@ LOCAL_APPS = [
     'apps.config',
     'apps.pages',
     'apps.articles',
+    'apps.common',
     # Adicione outros módulos aqui
 ]
 
